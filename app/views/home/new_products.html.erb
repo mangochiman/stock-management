@@ -1,0 +1,55 @@
+<form action="#" role="form" class="form-horizontal" method="POST">
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="productName">Name</label>
+    <div class="col-lg-7">
+      <input type="text" name="name" class="form-control" placeholder="Product name" id="productName" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="partNumber">Part Number</label>
+    <div class="col-lg-7">
+      <input type="text" name="part_number" class="form-control" placeholder="Part Number" id="partNumber" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="productLabel">Product Label</label>
+    <div class="col-lg-7">
+      <input type="text" name="product_label" class="form-control" placeholder="Product label" id="productLabel" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="startingInventory">Starting inventory</label>
+    <div class="col-lg-7">
+      <input type="text" name="starting_inventory" class="form-control" placeholder="Starting inventory" id="startingInventory"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="minimumRequired">Minimum Required</label>
+    <div class="col-lg-7">
+      <input type="text" name="minimum_required" class="form-control" placeholder="Minimum required" id="minimumRequired"/>
+    </div>
+  </div>
+
+  <div class="form-group modal-footer">
+    <label class="control-label col-lg-3" for="">&nbsp;</label>
+    <div class="col-lg-7">
+      <input class="btn btn-primary " type="submit" value="Create Product"></input>
+    </div>
+  </div>
+
+
+</form>
+
+
+<script type="text/javascript">
+    window.onload = function(){
+        jQuery('.account-details-menu').addClass('in');
+        jQuery('.new_account_details').addClass('active');
+        jQuery('.account-details').removeClass('collapsed');
+    }
+</script>

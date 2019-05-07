@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mahara Wipha Bar</title>
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/lib/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="/AircraftAdmin-Free/lib/font-awesome/css/font-awesome.css">
+
+  <script src="/AircraftAdmin-Free/lib/jquery-1.11.1.min.js" type="text/javascript"></script>
+
+  <script src="/AircraftAdmin-Free/lib/jQuery-Knob/js/jquery.knob.js" type="text/javascript"></script>
+  <script type="text/javascript">
+      $(function () {
+          $(".knob").knob();
+      });
+  </script>
+
+
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/stylesheets/theme.css">
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/stylesheets/premium.css">
+
+</head>
+<body class=" theme-blue">
+
+<!-- Demo page code -->
+
+<script type="text/javascript">
+    $(function () {
+        var match = document.cookie.match(new RegExp('color=([^;]+)'));
+        if (match) var color = match[1];
+        if (color) {
+            $('body').removeClass(function (index, css) {
+                return (css.match(/\btheme-\S+/g) || []).join(' ')
+            })
+            $('body').addClass('theme-' + color);
+        }
+
+        $('[data-popover="true"]').popover({html: true});
+
+    });
+</script>
+<style type="text/css">
+  #line-chart {
+    height: 300px;
+    width: 800px;
+    margin: 0px auto;
+    margin-top: 1em;
+  }
+
+  .navbar-default .navbar-brand, .navbar-default .navbar-brand:hover {
+    color: #fff;
+  }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        var uls = $('.sidebar-nav > ul > *').clone();
+        uls.addClass('visible-xs');
+        $('#main-menu').append(uls.clone());
+    });
+</script>
+
+<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<!-- Le fav and touch icons -->
+<link rel="shortcut icon" href="../assets/ico/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
+
+
+<!--[if lt IE 7 ]>
+<body class="ie ie6"> <![endif]-->
+<!--[if IE 7 ]>
+<body class="ie ie7 "> <![endif]-->
+<!--[if IE 8 ]>
+<body class="ie ie8 "> <![endif]-->
+<!--[if IE 9 ]>
+<body class="ie ie9 "> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+
+<!--<![endif]-->
+
+<div class="navbar navbar-default" role="navigation">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="" href="/"><span class="navbar-brand"><span class="fa fa-beer"></span> Mahara Wipha bar</span></a>
+  </div>
+
+  <div class="navbar-collapse collapse" style="height: 1px;">
+    <ul id="main-menu" class="nav navbar-nav navbar-right">
+      <li class="dropdown hidden-xs">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <span class="glyphicon glyphicon-user padding-right-small" style="position:relative;top: 3px;"></span> Mahara
+          Wipha
+          <i class="fa fa-caret-down"></i>
+        </a>
+
+        <ul class="dropdown-menu">
+          <li><a href="./">My Account</a></li>
+          <li class="divider"></li>
+          <li class="dropdown-header">Admin Panel</li>
+          <li><a href="./">Stock</a></li>
+          <li><a href="./">Pricing</a></li>
+          <li><a tabindex="-1" href="./">Products</a></li>
+          <li><a tabindex="-1" href="./">User accounts</a></li>
+          <li class="divider"></li>
+          <li><a tabindex="-1" href="#">Logout</a></li>
+        </ul>
+      </li>
+    </ul>
+
+  </div>
+</div>
+</div>
+
+
+<div class="sidebar-nav">
+  <ul>
+    <li>
+      <a href="#" data-target=".dashboard-menu" class="nav-header" data-toggle="collapse"><i class="fa fa-fw fa-dashboard"></i>
+        Stock<i class="fa fa-collapse"></i></a>
+    </li>
+    <li>
+      <ul class="dashboard-menu nav nav-list collapse in">
+        <li><a href="/new_stock"><span class="fa fa-caret-right"></span> New stock</a></li>
+        <li><a href="/adjust_stock"><span class="fa fa-caret-right"></span> Adjust stock</a></li>
+        <li><a href="/view_stock"><span class="fa fa-caret-right"></span> View stock</a></li>
+        <li><a href="/void_stock"><span class="fa fa-caret-right"></span> Void stock</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="#" data-target=".pricing-menu" class="nav-header collapsed" data-toggle="collapse"><i class="fa fa-fw fa-adjust"></i>
+        Pricing<i class="fa fa-collapse"></i></a>
+    </li>
+    <li>
+      <ul class="pricing-menu nav nav-list collapse">
+        <li><a href="/set_prices"><span class="fa fa-caret-right"></span> Set prices</a></li>
+        <li><a href="/view_prices"><span class="fa fa-caret-right"></span> View prices</a></li>
+        <li><a href="/void_prices"><span class="fa fa-caret-right"></span> Void prices</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="#" data-target=".legal-menu" class="nav-header collapsed" data-toggle="collapse"><i class="fa fa-fw fa-beer"></i>
+        Products<i class="fa fa-collapse"></i></a>
+    </li>
+    <li>
+      <ul class="legal-menu nav nav-list collapse">
+        <li><a href="/new_products"><span class="fa fa-caret-right"></span> New products</a></li>
+        <li><a href="/edit_products"><span class="fa fa-caret-right"></span> Edit products</a></li>
+        <li><a href="/view_products"><span class="fa fa-caret-right"></span> View products</a></li>
+        <li><a href="/void_products"><span class="fa fa-caret-right"></span> Void products</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="#" data-target=".user-accounts-menu" class="nav-header collapsed" data-toggle="collapse"><i class="fa fa-fw fa-user"></i>
+        User accounts<i class="fa fa-collapse"></i></a>
+    </li>
+    <li>
+      <ul class="user-accounts-menu nav nav-list collapse">
+        <li><a href="/new_user"><span class="fa fa-caret-right"></span> New User</a></li>
+        <li><a href="/edit_user"><span class="fa fa-caret-right"></span> Edit user</a></li>
+        <li><a href="/view_users"><span class="fa fa-caret-right"></span> View users</a></li>
+        <li><a href="/void_users"><span class="fa fa-caret-right"></span> Void users</a></li>
+      </ul>
+    </li>
+
+    <li><a href="/reports" class="nav-header" target="blank"><i class="fa fa-fw fa-book"></i> Reports</a></li>
+    <li><a href="/logout" class="nav-header" target="blank"><i class="fa fa-fw fa-lock"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="content">
+  <div class="header">
+    <div class="stats">
+      <p class="stat"><span class="label label-info">5</span> Tickets</p>
+      <p class="stat"><span class="label label-success">27</span> Tasks</p>
+      <p class="stat"><span class="label label-danger">15</span> Overdue</p>
+    </div>
+
+    <h1 class="page-title"><%= @page_header %></h1>
+    <ul class="breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li class="active"><%= @page_header %></li>
+    </ul>
+
+  </div>
+  <div class="main-content">
+    <%= yield %>
+
+    <footer>
+      <hr>
+
+      <!-- Purchase a site license to remove this link from the footer: http://www.portnine.com/bootstrap-themes -->
+      <p class="pull-right">A
+        <a href="http://www.portnine.com/bootstrap-themes" target="_blank">Free Bootstrap Theme</a> by
+        <a href="http://www.portnine.com" target="_blank">Portnine</a></p>
+      <p>© 2019 <a href="#" target="_blank">WebTech++</a></p>
+    </footer>
+  </div>
+</div>
+
+
+<script src="/AircraftAdmin-Free/lib/bootstrap/js/bootstrap.js"></script>
+<script type="text/javascript">
+    $("[rel=tooltip]").tooltip();
+    $(function () {
+        $('.demo-cancel-click').click(function () {
+            return false;
+        });
+    });
+</script>
+
+
+</body>
+</html>
