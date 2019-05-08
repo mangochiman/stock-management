@@ -1,44 +1,45 @@
-<form action="/new_products" role="form" class="form-horizontal" method="POST">
+<form action="/edit_this_product" role="form" class="form-horizontal" method="POST">
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="productName">Name</label>
     <div class="col-lg-7">
-      <input type="text" name="product[name]" class="form-control" placeholder="Product name" id="productName" required/>
+      <input type="text" name="product[name]" class="form-control" placeholder="Product name" id="productName"  value="<%= @product.name %>" required/>
     </div>
   </div>
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="partNumber">Part Number</label>
     <div class="col-lg-7">
-      <input type="text" name="product[part_number]" class="form-control" placeholder="Part Number" id="partNumber" required/>
+      <input type="text" name="product[part_number]" class="form-control" placeholder="Part Number" id="partNumber" value="<%= @product.part_number %>" required/>
     </div>
   </div>
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="productLabel">Product Label</label>
     <div class="col-lg-7">
-      <input type="text" name="product[product_label]" class="form-control" placeholder="Product label" id="productLabel" required/>
+      <input type="text" name="product[product_label]" class="form-control" placeholder="Product label" id="productLabel" value="<%= @product.label %>" required/>
     </div>
   </div>
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="startingInventory">Starting inventory</label>
     <div class="col-lg-7">
-      <input type="text" name="product[starting_inventory]" class="form-control" placeholder="Starting inventory" id="startingInventory"/>
+      <input type="text" name="product[starting_inventory]" class="form-control" placeholder="Starting inventory" value="<%= @product.starting_inventory %>"id="startingInventory"/>
     </div>
   </div>
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="minimumRequired">Minimum Required</label>
     <div class="col-lg-7">
-      <input type="text" name="product[minimum_required]" class="form-control" placeholder="Minimum required" id="minimumRequired"/>
+      <input type="text" name="product[minimum_required]" class="form-control" placeholder="Minimum required" value="<%= @product.minimum_required %>" id="minimumRequired"/>
     </div>
   </div>
 
+  <input type="hidden" name="product_id" value="<%= @product.product_id %>"/>
   <div class="form-group modal-footer">
     <label class="control-label col-lg-3" for="">&nbsp;</label>
     <div class="col-lg-7">
-      <input class="btn btn-primary " type="submit" value="Create Product"></input>
+      <input class="btn btn-primary " type="submit" value="Update Product"></input>
     </div>
   </div>
 
@@ -50,6 +51,6 @@
     window.onload = function(){
         jQuery('.products-menu-nav-header').removeClass('collapsed');
         jQuery('.products-menu').addClass('in');
-        jQuery('.new_products').addClass('active');
+        jQuery('.edit_products').addClass('active');
     }
 </script>

@@ -1,11 +1,95 @@
+<div class="search-well">
+  <form class="form-inline" style="margin-top:0px;">
+    <input class="input-xlarge form-control" placeholder="Search product..." id="appendedInputButton" type="text">
+    <button class="btn btn-default" type="button"><i class="fa fa-search"></i> Go</button>
+  </form>
+</div>
 
+<table class="table">
+  <thead>
+  <tr>
+    <th> #</th>
+    <th>Name</th>
+    <th>Part Number</th>
+    <th>Product Label</th>
+    <th>Starting inventory</th>
+    <th>Minimum required</th>
+    <th style="width: 3.5em;"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% count = 0 %>
+  <% @products.each do |product| %>
+    <tr>
+      <% count = count + 1 %>
+      <td><%= count %></td>
+      <td><%= product.name %></td>
+      <td><%= product.part_number %></td>
+      <td><%= product.label %></td>
+      <td><%= product.starting_inventory %></td>
+      <td><%= product.minimum_required %></td>
+      <td>
+        <a href="#" onclick="voidProductsConfirm('<%= product.product_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="voidProductsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Void item</h4>
+      </div>
+      <div class="modal-body">
+        This will void the selected item. Are you sure?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No, Am Not Sure</button>
+        <button onclick="voidProducts();" type="button" class="btn btn-primary">Yes, Am Sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 
 
 <script type="text/javascript">
-    window.onload = function(){
+    var selectedProductID;
+
+    function voidProductsConfirm(productID) {
+        selectedProductID = productID;
+        jQuery('#voidProductsModal').modal('show');
+    }
+
+    function voidProducts() {
+        var body = document.getElementsByTagName("body")[0];
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/void_products";
+        body.appendChild(form);
+
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.value = selectedProductID;
+        input.name = "product_id";
+        form.appendChild(input);
+
+        form.submit();
+
+    }
+
+    window.onload = function () {
         jQuery('.products-menu-nav-header').removeClass('collapsed');
         jQuery('.products-menu').addClass('in');
         jQuery('.void_products').addClass('active');
     }
+
 </script>

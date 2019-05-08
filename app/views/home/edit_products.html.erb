@@ -1,4 +1,40 @@
+<div class="search-well">
+  <form class="form-inline" style="margin-top:0px;">
+    <input class="input-xlarge form-control" placeholder="Search product..." id="appendedInputButton" type="text">
+    <button class="btn btn-default" type="button"><i class="fa fa-search"></i> Go</button>
+  </form>
+</div>
 
+<table class="table">
+  <thead>
+  <tr>
+    <th> #</th>
+    <th>Name</th>
+    <th>Part Number</th>
+    <th>Product Label</th>
+    <th>Starting inventory</th>
+    <th>Minimum required</th>
+    <th style="width: 3.5em;"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% count = 0 %>
+  <% @products.each do |product| %>
+    <tr>
+      <% count = count + 1 %>
+      <td><%= count %></td>
+      <td><%= product.name  %></td>
+      <td><%= product.part_number %></td>
+      <td><%= product.label  %></td>
+      <td><%= product.starting_inventory %></td>
+      <td><%= product.minimum_required %></td>
+      <td>
+        <a href="/edit_this_product?product_id=<%= product.product_id %>"><i class="fa fa-pencil"></i></a>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
 
 
 

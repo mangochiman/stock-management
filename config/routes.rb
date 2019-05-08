@@ -27,6 +27,8 @@ Rails.application.routes.draw do
   get '/new_products' => 'home#new_products'
   post '/new_products' => 'home#new_products'
   get '/edit_products' => 'home#edit_products'
+  get '/edit_this_product' => 'home#edit_this_product'
+  post '/edit_this_product' => 'home#edit_this_product'
   post '/edit_products' => 'home#edit_products'
   get '/view_products' => 'home#view_products'
   post '/view_products' => 'home#view_products'

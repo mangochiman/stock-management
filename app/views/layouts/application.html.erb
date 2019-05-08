@@ -163,9 +163,12 @@
     <li>
       <ul class="products-menu nav nav-list collapse">
         <li class="new_products"><a href="/new_products"><span class="fa fa-caret-right"></span> New products</a></li>
-        <li class="edit_products"><a href="/edit_products"><span class="fa fa-caret-right"></span> Edit products</a></li>
-        <li class="view_products"><a href="/view_products"><span class="fa fa-caret-right"></span> View products</a></li>
-        <li class="void_products"><a href="/void_products"><span class="fa fa-caret-right"></span> Void products</a></li>
+        <li class="edit_products"><a href="/edit_products"><span class="fa fa-caret-right"></span> Edit products</a>
+        </li>
+        <li class="view_products"><a href="/view_products"><span class="fa fa-caret-right"></span> View products</a>
+        </li>
+        <li class="void_products"><a href="/void_products"><span class="fa fa-caret-right"></span> Void products</a>
+        </li>
       </ul>
     </li>
 
@@ -190,9 +193,8 @@
 <div class="content">
   <div class="header">
     <div class="stats">
-      <p class="stat"><span class="label label-info">5</span> Tickets</p>
-      <p class="stat"><span class="label label-success">27</span> Tasks</p>
-      <p class="stat"><span class="label label-danger">15</span> Overdue</p>
+      <p class="stat"><span class="label label-warning">5</span> Products running out of stock</p>
+      <p class="stat"><span class="label label-success">27</span> Products with enough stock</p>
     </div>
 
     <h1 class="page-title"><%= @page_header %></h1>
@@ -203,6 +205,20 @@
 
   </div>
   <div class="main-content">
+    <div style="text-align: center;">
+      <% if flash[:notice] %>
+        <div class="alert alert-success">
+          <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+          <a class="alert-link" href="#"><%= flash[:notice] %></a>
+        </div>
+      <% end %>
+      <% if flash[:error] %>
+        <div class="alert alert-danger alert-dismissable">
+          <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+          <%= flash[:error] %>
+        </div>
+      <% end %>
+    </div>
     <%= yield %>
 
     <footer>
