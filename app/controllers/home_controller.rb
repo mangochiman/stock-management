@@ -75,17 +75,44 @@ class HomeController < ApplicationController
 
   def edit_products
     @page_header = "Edit products"
-    @products = Product.order("product_id DESC")
+    if (params[:q])
+      @products = Product.search_products(params[:q])
+    else
+      @products = Product.order("product_id DESC")
+    end
   end
 
   def view_products
     @page_header = "View products"
-    @products = Product.order("product_id DESC")
+    if (params[:q])
+      @products = Product.search_products(params[:q])
+    else
+      @products = Product.order("product_id DESC")
+    end
   end
 
   def void_products
     @page_header = "Void products"
-    @products = Product.order("product_id DESC")
+
+    if (params[:q])
+      @products = Product.search_products(params[:q])
+    else
+      @products = Product.order("product_id DESC")
+    end
+
+    if request.post?
+      product = Product.find(params[:product_id])
+      product.voided = 1
+      product.voided_by = 1
+      product.date_voided = Date.today
+      if product.save
+        flash[:notice] = "#{product.name} was voided successfully"
+        redirect_to("/void_products") and return
+      else
+        flash[:error] = product.errors.full_messages.join('<br />')
+        redirect_to("/void_products") and return
+      end
+    end
   end
 
   def reports

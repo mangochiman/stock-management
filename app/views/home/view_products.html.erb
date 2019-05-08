@@ -1,9 +1,8 @@
-
-
 <div class="search-well">
-  <form class="form-inline" style="margin-top:0px;">
-    <input class="input-xlarge form-control" placeholder="Search product..." id="appendedInputButton" type="text">
-    <button class="btn btn-default" type="button"><i class="fa fa-search"></i> Go</button>
+  <form class="form-inline" style="margin-top:0px;" action="/view_products" method="GET" id="searchForm">
+    <input class="input-xlarge form-control" placeholder="Search product..." id="appendedInputButton" type="text" name="q">
+    <button class="btn btn-default" type="button" onclick="submitSearchQuery();"><i class="fa fa-search"></i> Go
+    </button>
   </form>
 </div>
 
@@ -36,6 +35,10 @@
 
 
 <script type="text/javascript">
+    function submitSearchQuery() {
+        document.getElementById("searchForm").submit()
+    }
+
     window.onload = function(){
         jQuery('.products-menu-nav-header').removeClass('collapsed');
         jQuery('.products-menu').addClass('in');
