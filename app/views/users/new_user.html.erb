@@ -1,4 +1,75 @@
+<form action="/new_user" role="form" class="form-horizontal" id="new-user" method="POST">
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="username">Username</label>
+    <div class="col-lg-7">
+      <input type="text" name="user[username]" class="form-control" placeholder="Username" id="username" required/>
+    </div>
+  </div>
 
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="first_name">First Name</label>
+    <div class="col-lg-7">
+      <input type="text" name="user[first_name]" class="form-control" placeholder="First Name" id="first_name" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="last_name">Last Name</label>
+    <div class="col-lg-7">
+      <input type="text" name="user[last_name]" class="form-control" placeholder="Last name" id="last_name" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="email">E-mail</label>
+    <div class="col-lg-7">
+      <input type="email" name="user[email]" class="form-control" placeholder="E-mail" id="email" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="phone_number">Phone Number</label>
+    <div class="col-lg-7">
+      <input type="text" name="user[phone_number]" class="form-control" placeholder="Phone" id="phone_number" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="password">Password</label>
+    <div class="col-lg-7">
+      <input type="password" name="user[password]" class="form-control" placeholder="Password" id="password" required/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="confirm_password">Re-type password</label>
+    <div class="col-lg-7">
+      <input type="password" name="user[confirm_password]" class="form-control" placeholder="Re-type password" id="confirm_password" required/>
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label class="control-label col-lg-3">Role</label>
+    <div class="col-lg-7">
+      <select name="user[role]" class="form-control" tabindex="8" required>
+        <option value="">Select Role</option>
+        <% @roles.each do |key, value| %>
+          <option value="<%= value %>"><%= key %></option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group modal-footer">
+    <label class="control-label col-lg-3" for="">&nbsp;</label>
+    <div class="col-lg-7">
+      <input class="btn btn-primary " type="submit" value="Create User"></input>
+    </div>
+  </div>
+
+
+</form>
 
 
 

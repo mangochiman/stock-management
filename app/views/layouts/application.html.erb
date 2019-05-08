@@ -179,7 +179,7 @@
     <li>
       <ul class="user-accounts-menu nav nav-list collapse">
         <li class="new_user"><a href="/new_user"><span class="fa fa-caret-right"></span> New User</a></li>
-        <li class="edit_user"><a href="/edit_user"><span class="fa fa-caret-right"></span> Edit user</a></li>
+        <!--<li class="edit_user"><a href="/edit_user"><span class="fa fa-caret-right"></span> Edit user</a></li>-->
         <li class="view_users"><a href="/view_users"><span class="fa fa-caret-right"></span> View users</a></li>
         <li class="void_users"><a href="/void_users"><span class="fa fa-caret-right"></span> Void users</a></li>
       </ul>
@@ -209,13 +209,13 @@
       <% if flash[:notice] %>
         <div class="alert alert-success">
           <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-          <a class="alert-link" href="#"><%= flash[:notice] %></a>
+          <a class="alert-link" href="#"><%= flash[:notice].html_safe %></a>
         </div>
       <% end %>
       <% if flash[:error] %>
         <div class="alert alert-danger alert-dismissable">
           <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-          <%= flash[:error] %>
+          <%= flash[:error].html_safe %>
         </div>
       <% end %>
     </div>
