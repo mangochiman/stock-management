@@ -21,6 +21,16 @@ class HomeController < ApplicationController
 
   def set_prices
     @page_header = "Set prices"
+    if (params[:q])
+      @products = Product.search_products(params[:q])
+    else
+      @products = Product.order("product_id DESC")
+    end
+  end
+
+  def manage_product_prices
+    @product = Product.find(params[:product_id])
+    @page_header = "Managing prices of #{@product.name}"
   end
 
   def view_prices

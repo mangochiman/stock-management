@@ -19,6 +19,8 @@ Rails.application.routes.draw do
 
   get '/set_prices' => 'home#set_prices'
   post '/set_prices' => 'home#set_prices'
+  get '/manage_product_prices' => 'home#manage_product_prices'
+  post '/manage_product_prices' => 'home#manage_product_prices'
   get '/view_prices' => 'home#view_prices'
   post '/view_prices' => 'home#view_prices'
   get '/void_prices' => 'home#void_prices'

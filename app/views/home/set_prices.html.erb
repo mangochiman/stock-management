@@ -1,8 +1,49 @@
+<div class="search-well">
+  <form class="form-inline" style="margin-top:0px;" action="/set_prices" method="GET" id="searchForm">
+    <input class="input-xlarge form-control" placeholder="Search product..." id="appendedInputButton" type="text" name="q">
+    <button class="btn btn-default" type="button" onclick="submitSearchQuery();"><i class="fa fa-search"></i> Go
+    </button>
+  </form>
+</div>
 
+<table class="table">
+  <thead>
+  <tr>
+    <th> #</th>
+    <th>Name</th>
+    <th>Starting inventory</th>
+    <th>Current price</th>
+    <th>Total prices set</th>
+    <th style="width: 3.5em;"></th>
+
+  </tr>
+  </thead>
+  <tbody>
+  <% count = 0 %>
+  <% @products.each do |product| %>
+    <tr>
+      <% count = count + 1 %>
+      <td><%= count %></td>
+      <td><%= product.name  %></td>
+      <td><%= product.starting_inventory %></td>
+      <td>&nbsp;</td>
+      <td><%= product.price_histories.count %></td>
+      <td>
+        <a href="/manage_product_prices?product_id=<%= product.product_id %>"><button class="btn btn-primary"><i class="fa fa-edit"></i> Manage prices</button></a>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
 
 
 
 <script type="text/javascript">
+
+    function submitSearchQuery() {
+        document.getElementById("searchForm").submit()
+    }
+
     window.onload = function(){
         jQuery('.pricing-menu-nav-header').removeClass('collapsed');
         jQuery('.pricing-menu').addClass('in');
