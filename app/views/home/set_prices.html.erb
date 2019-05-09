@@ -12,9 +12,7 @@
     <th> #</th>
     <th>Name</th>
     <th>Starting inventory</th>
-    <th>Current price</th>
-    <th>Total prices set</th>
-    <th style="width: 3.5em;"></th>
+    <th>Current price</th><th style="width: 3.5em;"></th>
 
   </tr>
   </thead>
@@ -24,12 +22,13 @@
     <tr>
       <% count = count + 1 %>
       <td><%= count %></td>
-      <td><%= product.name  %></td>
+      <td><%= product.name %></td>
       <td><%= product.starting_inventory %></td>
-      <td>&nbsp;</td>
-      <td><%= product.price_histories.count %></td>
+      <td><%= number_to_currency(product.price, :unit => "MWK ") %></td>
       <td>
-        <a href="/manage_product_prices?product_id=<%= product.product_id %>"><button class="btn btn-primary"><i class="fa fa-edit"></i> Manage prices</button></a>
+        <a href="/manage_product_prices?product_id=<%= product.product_id %>">
+          <button class="btn btn-primary"><i class="fa fa-edit"></i> Manage prices</button>
+        </a>
       </td>
     </tr>
   <% end %>
@@ -44,7 +43,7 @@
         document.getElementById("searchForm").submit()
     }
 
-    window.onload = function(){
+    window.onload = function () {
         jQuery('.pricing-menu-nav-header').removeClass('collapsed');
         jQuery('.pricing-menu').addClass('in');
         jQuery('.set_prices').addClass('active');

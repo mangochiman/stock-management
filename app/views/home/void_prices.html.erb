@@ -1,8 +1,81 @@
+<table class="table">
+  <thead>
+  <tr>
+    <th>Product</th>
+    <th>Price</th>
+    <th>Start date</th>
+    <th>End date</th>
+    <th>Date created</th>
+    <th style="width: 3.5em;"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @price_histories.each do |price_history| %>
+    <tr>
+      <td><%= price_history.product.name rescue "????"%> </td>
+      <td><%= number_to_currency(price_history.price, :unit => "MWK ") %></td>
+      <td><%= price_history.start_date.to_date.strftime("%d-%b-%Y") rescue price_history.start_date %></td>
+      <td><%= price_history.end_date.to_date.strftime("%d-%b-%Y") rescue price_history.end_date  %></td>
+      <td><%= price_history.created_at.to_date.strftime("%d-%b-%Y") rescue price_history.created_at %></td>
+      <td>
+        <a href="#" onclick="voidPriceConfirm('<%= price_history.price_history_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
 
+
+
+<!-- Modal -->
+<div class="modal fade" id="voidPriceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Void price</h4>
+      </div>
+      <div class="modal-body">
+        This will void the selected price. Are you sure?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No, Am Not Sure</button>
+        <button onclick="voidPrice();" type="button" class="btn btn-primary">Yes, Am Sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 
 
 <script type="text/javascript">
+    var selectedPriceID;
+
+    function voidPriceConfirm(priceID){
+        selectedPriceID = priceID;
+        jQuery('#voidPriceModal').modal('show');
+    }
+
+    function voidPrice(){
+        var body = document.getElementsByTagName("body")[0];
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/void_prices";
+        body.appendChild(form);
+
+        var input1 = document.createElement("input");
+        input1.type = "hidden";
+        input1.value = selectedPriceID;
+        input1.name = "price_history_id";
+        form.appendChild(input1);
+
+        form.submit();
+    }
+
     jQuery('.pricing-menu-nav-header').removeClass('collapsed');
     jQuery('.pricing-menu').addClass('in');
     jQuery('.void_prices').addClass('active');

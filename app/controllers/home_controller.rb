@@ -26,19 +26,48 @@ class HomeController < ApplicationController
     else
       @products = Product.order("product_id DESC")
     end
+
   end
 
   def manage_product_prices
     @product = Product.find(params[:product_id])
     @page_header = "Managing prices of #{@product.name}"
+    if request.post?
+      price_history = PriceHistory.new
+      price_history.product_id = @product.product_id
+      price_history.price = params[:product][:price]
+      price_history.start_date = params[:product][:start_date]
+      price_history.end_date = params[:product][:end_date]
+
+      if price_history.save
+        flash[:notice] = "Price for #{@product.name} was set"
+        redirect_to("/manage_product_prices?product_id=#{@product.product_id}") and return
+      else
+        flash[:error] = price_history.errors.full_messages.join('<br />')
+        redirect_to("/manage_product_prices?product_id=#{@product.product_id}") and return
+      end
+    end
   end
 
   def view_prices
     @page_header = "View prices"
+    @price_histories = PriceHistory.order("price_history_id DESC")
   end
 
   def void_prices
     @page_header = "Void prices"
+    @price_histories = PriceHistory.order("price_history_id DESC")
+    if request.post?
+      price_history = PriceHistory.find(params[:price_history_id])
+      price_history.delete
+      flash[:notice] = "Price deleted"
+      if params[:product_id]
+        redirect_to("/manage_product_prices?product_id=#{params[:product_id]}") and return
+      else
+        redirect_to("/void_prices") and return
+      end
+
+    end
   end
 
   def new_products
