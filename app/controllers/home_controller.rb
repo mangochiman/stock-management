@@ -5,14 +5,58 @@ class HomeController < ApplicationController
 
   def new_stock
     @page_header = "New stock"
+    @products = Product.order("product_id DESC")
+    if request.post?
+      stock_in = StockIn.new
+      stock_in.product_id = params[:stock][:product_id]
+      stock_in.quantity = params[:stock][:quantity]
+      stock_in.date_in = params[:stock][:date]
+
+      if stock_in.save
+        flash[:notice] = "Stock was updated successfully"
+        redirect_to("/new_stock") and return
+      else
+        flash[:error] = stock_in.errors.full_messages.join('<br />')
+        redirect_to("/new_stock") and return
+      end
+
+    end
   end
 
   def adjust_stock
     @page_header = "Adjust stock"
+    @products = Product.order("product_id DESC")
+    @reasons = ["Sold", "Damaged", "Stolen"]
+    if request.post?
+      stock_out = StockOut.new
+      stock_out.product_id = params[:stock][:product_id]
+      stock_out.quantity = params[:stock][:quantity]
+      stock_out.date_out = params[:stock][:date]
+      stock_out.reason = params[:stock][:reason]
+
+      if stock_out.save
+        flash[:notice] = "Stock was updated successfully"
+        redirect_to("/adjust_stock") and return
+      else
+        flash[:error] = stock_out.errors.full_messages.join('<br />')
+        redirect_to("/adjust_stock") and return
+      end
+    end
   end
 
   def view_stock
     @page_header = "View stock"
+    if (params[:q])
+      @products = Product.search_products(params[:q])
+    else
+      @products = Product.order("product_id DESC")
+    end
+  end
+
+
+  def product_stock_details
+    @product = Product.find(params[:product_id])
+    @page_header = "#{@product.name} stock details"
   end
 
   def void_stock

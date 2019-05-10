@@ -1,0 +1,92 @@
+
+<div class="row">
+  <div class="pull-left well" style="margin-left: 16px;">
+    <table>
+      <tbody>
+      <tr>
+        <td class="pull-right padding-right"><strong>Product Name</strong></td>
+        <td><%= @product.name %></td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Starting inventory</strong></td>
+        <td><%= @product.starting_inventory %></td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Minimum required</strong></td>
+        <td><%= @product.minimum_required %></td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Current stock</strong></td>
+        <td>&nbsp;</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <a href="#widget1container" class="panel-heading" data-toggle="collapse">Incoming stock </a>
+  <div id="widget1container" class="panel-body collapse in">
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Quantity</th>
+        <th style="width: 3.5em;"></th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <% @product.stock_ins.each do |stock_in| %>
+        <tr>
+          <td><%= stock_in.date_in.to_date.strftime("%d-%b-%Y") rescue stock_in.date_in %></td>
+          <td><%= stock_in.quantity %></td>
+          <td>
+            <a href="#" onclick="voidStockinConfirm('<%= stock_in.stock_in_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <a href="#widget1container2" class="panel-heading" data-toggle="collapse">Outgoing stock </a>
+  <div id="widget1container2" class="panel-body collapse in">
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Quantity</th>
+        <th>Reason</th>
+        <th style="width: 3.5em;"></th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <% @product.stock_outs.each do |stock_out| %>
+        <tr>
+          <td><%= stock_out.date_out.to_date.strftime("%d-%b-%Y") rescue stock_out.date_out %></td>
+          <td><%= stock_out.quantity %></td>
+          <td><%= stock_out.reason %></td>
+          <td>
+            <a href="#" onclick="voidStockoutConfirm('<%= stock_out.stock_out_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+    window.onload = function () {
+        jQuery('.dashboard-menu-nav-header').removeClass('collapsed');
+        jQuery('.dashboard-menu').addClass('in');
+        jQuery('.view_stock').addClass('active');
+    }
+</script>

@@ -2,6 +2,9 @@ class Product < ActiveRecord::Base
   self.primary_key = "product_id"
 
   has_many :price_histories, :foreign_key => :product_id
+  has_many :stock_ins, :foreign_key => :product_id
+  has_many :stock_outs, :foreign_key => :product_id
+
   default_scope {where ("voided = 0")}
 
   def self.search_products(q)

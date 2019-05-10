@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   post '/new_stock' => 'home#new_stock'
   get '/adjust_stock' => 'home#adjust_stock'
   post '/adjust_stock' => 'home#adjust_stock'
+  get '/product_stock_details' => 'home#product_stock_details'
+  post '/product_stock_details' => 'home#product_stock_details'
   get '/view_stock' => 'home#view_stock'
   post '/view_stock' => 'home#view_stock'
   get '/void_stock' => 'home#void_stock'

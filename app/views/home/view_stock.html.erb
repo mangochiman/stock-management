@@ -1,6 +1,47 @@
+<div class="search-well">
+  <form class="form-inline" style="margin-top:0px;" action="/view_stock" method="GET" id="searchForm">
+    <input class="input-xlarge form-control" placeholder="Search product..." id="appendedInputButton" type="text" name="q">
+    <button class="btn btn-default" type="button" onclick="submitSearchQuery();"><i class="fa fa-search"></i> Go
+    </button>
+  </form>
+</div>
 
+<table class="table">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Part Number</th>
+    <th>Product Label</th>
+    <th>Starting inventory</th>
+    <th>Stock (In)</th>
+    <th>Stock (Out)</th>
+    <th>Current stock</th>
+    <th style="width: 3.5em;"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @products.each do |product| %>
+    <tr>
+      <td><%= product.name  %></td>
+      <td><%= product.part_number %></td>
+      <td><%= product.label  %></td>
+      <td><%= product.starting_inventory %></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>
+        <a class="btn btn-primary" href="/product_stock_details?product_id=<%= product.product_id %>">View stock details »</a>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
 
 <script type="text/javascript">
+    function submitSearchQuery() {
+        document.getElementById("searchForm").submit()
+    }
+
     window.onload = function(){
         jQuery('.dashboard-menu-nav-header').removeClass('collapsed');
         jQuery('.dashboard-menu').addClass('in');
