@@ -2,7 +2,7 @@
   <div class="form-group">
     <label class="control-label col-lg-3">Product</label>
     <div class="col-lg-7">
-      <select name="stock[product_id]" class="form-control" tabindex="8" required>
+      <select onchange="loadOutgoingStock(this)" name="stock[product_id]" class="form-control" tabindex="8" required>
         <option value="">Select Product</option>
         <% @products.each do |product| %>
           <option id="<%= product.product_id %>" value="<%= product.product_id %>"><%= product.name %></option>
@@ -48,17 +48,56 @@
 
 </form>
 
+<div class="well" id="outgoingStocks" style="background-color: lightyellow; display: none;">
+  <p>Please wait....</p>
+</div>
+
 <script type="text/javascript">
     var product_id = "<%= params[:product_id] %>";
     var selection_option = document.getElementById(product_id);
-    if (selection_option){
+    if (selection_option) {
         selection_option.selected = true;
     }
 
-    window.onload = function(){
+    window.onload = function () {
         jQuery('.dashboard-menu-nav-header').removeClass('collapsed');
         jQuery('.dashboard-menu').addClass('in');
         jQuery('.adjust_stock').addClass('active');
         $(".datepicker").datepicker({uiLibrary: 'bootstrap', format: 'dd/mm/yyyy', startDate: '-3d'});
     }
+
+    function loadOutgoingStock(obj) {
+        product_id = obj.value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_outgoing_stock",
+            data: "product_id=" + product_id,
+            beforeSend: function () {
+                jQuery("#outgoingStocks").show();
+            },
+            success: function (result) {
+                var html = "<h2>Outgoing stock</h2>"
+                html += "<table class='table'><thead><tr><th>Date out</th><th>Quantity</th><th>Reason</th></tr></thead>";
+                html += "<tbody>";
+                console.log(result)
+                for (var i = 0; i <= result.length - 1; i++) {
+                    var date_out = result[i]["date_out"];
+                    var quantity = result[i]["quantity"];
+                    var reason = result[i]["reason"];
+
+                    html += "<tr>";
+                    html += "<td>" + date_out + "</td>";
+                    html += "<td>" + quantity + "</td>";
+                    html += "<td>" + reason + "</td>";
+                    html += "</tr>"
+                }
+                html += "</tbody>";
+                html += "</table>";
+                jQuery("#outgoingStocks").html(html);
+
+            }
+
+        });
+    }
+
 </script>

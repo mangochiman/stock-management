@@ -79,6 +79,18 @@ class HomeController < ApplicationController
     end
   end
 
+  def get_incoming_stock
+    product = Product.find(params[:product_id])
+    stock_ins = product.stock_ins.order("DATE(date_in) DESC")
+    render  json: stock_ins.to_json
+  end
+
+  def get_outgoing_stock
+    product = Product.find(params[:product_id])
+    stock_outs = product.stock_outs.order("DATE(date_out) DESC")
+    render  json: stock_outs.to_json
+  end
+
   def void_stock
     @page_header = "Void stock"
   end

@@ -2,7 +2,7 @@
   <div class="form-group">
     <label class="control-label col-lg-3">Product</label>
     <div class="col-lg-7">
-      <select name="stock[product_id]" class="form-control" tabindex="8" required>
+      <select onchange="loadIncomingStock(this)" name="stock[product_id]" class="form-control" tabindex="8" required>
         <option value="">Select Product</option>
         <% @products.each do |product| %>
           <option id="<%= product.product_id %>" value="<%= product.product_id %>"><%= product.name %></option>
@@ -36,12 +36,15 @@
 
 </form>
 
+<div class="well" id="incomingStocks" style="background-color: lightyellow; display: none;">
+<p>Please wait....</p>
+</div>
 
 
 <script type="text/javascript">
     var product_id = "<%= params[:product_id] %>";
     var selection_option = document.getElementById(product_id);
-    if (selection_option){
+    if (selection_option) {
         selection_option.selected = true;
     }
 
@@ -51,4 +54,35 @@
         jQuery('.new_stock').addClass('active');
         $(".datepicker").datepicker({uiLibrary: 'bootstrap', format: 'dd/mm/yyyy', startDate: '-3d'});
     }
+
+    function loadIncomingStock(obj) {
+        product_id = obj.value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_incoming_stock",
+            data: "product_id=" + product_id,
+            beforeSend: function () {
+                jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                var html = "<h2>Incoming stock</h2>"
+                html += "<table class='table'><thead><tr><th>Date in</th><th>Quantity</th></tr></thead>";
+                html += "<tbody>";
+                for (var i = 0; i <= result.length - 1; i++) {
+                    var date_in = result[i]["date_in"];
+                    var quantity = result[i]["quantity"];
+                    html += "<tr>";
+                    html += "<td>" + date_in + "</td>";
+                    html += "<td>" + quantity + "</td>";
+                    html += "</tr>"
+                }
+                html += "</tbody>";
+                html += "</table>";
+                jQuery("#incomingStocks").html(html);
+
+            }
+
+        });
+    }
+
 </script>
