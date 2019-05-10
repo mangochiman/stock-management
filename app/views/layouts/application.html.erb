@@ -101,7 +101,7 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <a class="" href="/"><span class="navbar-brand"><span class="fa fa-beer"></span> Mahara Wipha bar</span></a>
+    <a class="" href="/"><span class="navbar-brand"><span class="fa fa-beer"></span> Mahara Wipha Bar</span></a>
   </div>
 
   <div class="navbar-collapse collapse" style="height: 1px;">
@@ -117,10 +117,10 @@
           <li><a href="./">My Account</a></li>
           <li class="divider"></li>
           <li class="dropdown-header">Admin Panel</li>
-          <li><a href="./">Stock</a></li>
-          <li><a href="./">Pricing</a></li>
-          <li><a tabindex="-1" href="./">Products</a></li>
-          <li><a tabindex="-1" href="./">User accounts</a></li>
+          <li><a href="/view_stock">Stock</a></li>
+          <li><a href="/view_prices">Pricing</a></li>
+          <li><a tabindex="-1" href="/view_products">Products</a></li>
+          <li><a tabindex="-1" href="/view_users">User accounts</a></li>
           <li class="divider"></li>
           <li><a tabindex="-1" href="#">Logout</a></li>
         </ul>
@@ -198,6 +198,7 @@
     <div class="stats">
       <p class="stat"><span class="label label-warning">5</span> Products running out of stock</p>
       <p class="stat"><span class="label label-success">27</span> Products with enough stock</p>
+      <p class="stat"><span class="label label-danger">15</span> Products not in stock</p>
     </div>
 
     <h1 class="page-title"><%= @page_header %></h1>

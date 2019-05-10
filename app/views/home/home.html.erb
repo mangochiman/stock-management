@@ -1,0 +1,58 @@
+<div class="panel panel-default">
+  <a href="#page-stats" class="panel-heading" data-toggle="collapse">Quick stats</a>
+  <div id="page-stats" class="panel-collapse panel-body collapse in">
+
+    <div class="row">
+      <div class="col-md-3 col-sm-6">
+        <div class="knob-container">
+          <input onclick="viewTodaysIncomingStock();" class="knob" data-width="200" data-min="0" data-max="50" data-displayPrevious="true" value="20" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">This week's incoming stock</h3>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="knob-container">
+          <input class="knob" onclick="viewThisWeeksIncomingStock();" data-width="200" data-min="0" data-max="250" data-displayPrevious="true" value="80" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">This month's incoming stock</h3>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="knob-container">
+          <input class="knob" onclick="viewThisMonthsVouchers();" data-width="200" data-min="0" data-max="1000" data-displayPrevious="true" value="500" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">This week's outgoing stock</h3>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="knob-container">
+          <input class="knob" onclick="viewThisYearsVouchers();" data-width="200" data-min="0" data-max="12000" data-displayPrevious="true" value="1000" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">This month's outgoing stock</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading no-collapse">Products running out of stock</div>
+
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading no-collapse">Products not in stock</div>
+
+    </div>
+  </div>
+</div>
+
+
+<style type="text/css">
+  .knob{
+    cursor: pointer;
+
+  }
+</style>
