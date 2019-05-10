@@ -57,4 +57,53 @@ class Product < ActiveRecord::Base
     return available_stock
   end
 
+  def self.incoming_stock_by_date_range(start_date, end_date)
+    incoming_stock_by_range = StockIn.where(["DATE(date_in) >= ? AND DATE(date_in) <= ?", start_date.to_date, end_date.to_date])
+    return incoming_stock_by_range
+  end
+
+  def self.outgoing_stock_by_date_range(start_date, end_date)
+    outgoing_stock_by_range = StockOut.where(["DATE(date_out) >= ? AND DATE(date_out) <= ?", start_date.to_date, end_date.to_date])
+    return outgoing_stock_by_range
+  end
+
+  def self.running_out_of_stock
+    running_out_of_stock_products = []
+    all_products = self.all
+    all_products.each do |product|
+      current_stock = product.current_stock
+      if current_stock > 0 && current_stock <= product.minimum_required
+        running_out_of_stock_products << product
+      end
+    end
+
+    return running_out_of_stock_products
+  end
+
+  def self.products_not_in_stock
+    not_in_stock_products = []
+    all_products = self.all
+    all_products.each do |product|
+      current_stock = product.current_stock
+      if current_stock <= 0
+        not_in_stock_products << product
+      end
+    end
+
+    return not_in_stock_products
+  end
+
+  def self.products_with_enough_stock
+    products_with_enough_stock = []
+    all_products = self.all
+    all_products.each do |product|
+      current_stock = product.current_stock
+      if current_stock > product.minimum_required
+        products_with_enough_stock << product
+      end
+    end
+
+    return products_with_enough_stock
+  end
+
 end

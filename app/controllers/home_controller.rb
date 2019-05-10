@@ -1,6 +1,33 @@
 class HomeController < ApplicationController
   def home
     @page_header = "Dashboard"
+
+
+    start_day_date = Date.today
+    #end_day_date = Date.today
+
+    day_name = start_day_date.strftime("%A")
+    start_week_date = Date.today.beginning_of_week - 1.day #sunday
+    if day_name.match(/Sunday/i)
+      start_week_date = Date.today
+    end
+    end_week_date = start_week_date + 6.days #saturday
+    start_month_date = Date.today.beginning_of_month
+    end_month_date = Date.today.end_of_month
+
+    #start_year_date = Date.today.beginning_of_year
+    #end_year_date = Date.today.end_of_year
+
+    @this_weeks_incoming_stock = Product.incoming_stock_by_date_range(start_week_date, end_week_date).count
+    @this_months_incoming_stock = Product.incoming_stock_by_date_range(start_month_date, end_month_date).count
+
+    @this_weeks_outgoing_stock = Product.outgoing_stock_by_date_range(start_week_date, end_week_date).count
+    @this_months_outgoing_stock = Product.outgoing_stock_by_date_range(start_month_date, end_month_date).count
+
+    @running_out_of_stock = Product.running_out_of_stock
+    @products_not_in_stock = Product.products_not_in_stock
+    @products_with_enough_stock = Product.products_with_enough_stock
+
   end
 
   def new_stock
@@ -82,13 +109,13 @@ class HomeController < ApplicationController
   def get_incoming_stock
     product = Product.find(params[:product_id])
     stock_ins = product.stock_ins.order("DATE(date_in) DESC")
-    render  json: stock_ins.to_json
+    render json: stock_ins.to_json
   end
 
   def get_outgoing_stock
     product = Product.find(params[:product_id])
     stock_outs = product.stock_outs.order("DATE(date_out) DESC")
-    render  json: stock_outs.to_json
+    render json: stock_outs.to_json
   end
 
   def void_stock

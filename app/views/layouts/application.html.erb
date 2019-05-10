@@ -196,9 +196,9 @@
 <div class="content">
   <div class="header">
     <div class="stats">
-      <p class="stat"><span class="label label-warning">5</span> Products running out of stock</p>
-      <p class="stat"><span class="label label-success">27</span> Products with enough stock</p>
-      <p class="stat"><span class="label label-danger">15</span> Products not in stock</p>
+      <p class="stat"><span class="label label-warning"><%= Product.running_out_of_stock.count %></span> Products running out of stock</p>
+      <p class="stat"><span class="label label-success"><%= Product.products_with_enough_stock.count %></span> Products with enough stock</p>
+      <p class="stat"><span class="label label-danger"><%= Product.products_not_in_stock.count %></span> Products not in stock</p>
     </div>
 
     <h1 class="page-title"><%= @page_header %></h1>

@@ -5,25 +5,25 @@
     <div class="row">
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input onclick="viewTodaysIncomingStock();" class="knob" data-width="200" data-min="0" data-max="50" data-displayPrevious="true" value="20" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input class="knob" data-width="200" data-min="0" data-max="500" data-displayPrevious="true" value="<%= @this_weeks_incoming_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">This week's incoming stock</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" onclick="viewThisWeeksIncomingStock();" data-width="200" data-min="0" data-max="250" data-displayPrevious="true" value="80" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input class="knob" data-width="200" data-min="0" data-max="2000" data-displayPrevious="true" value="<%= @this_months_incoming_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">This month's incoming stock</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" onclick="viewThisMonthsVouchers();" data-width="200" data-min="0" data-max="1000" data-displayPrevious="true" value="500" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input class="knob" data-width="200" data-min="0" data-max="500" data-displayPrevious="true" value="<%= @this_weeks_outgoing_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">This week's outgoing stock</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" onclick="viewThisYearsVouchers();" data-width="200" data-min="0" data-max="12000" data-displayPrevious="true" value="1000" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input class="knob" data-width="200" data-min="0" data-max="2000" data-displayPrevious="true" value="<%= @this_months_outgoing_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">This month's outgoing stock</h3>
         </div>
       </div>
@@ -35,7 +35,34 @@
   <div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-heading no-collapse">Products running out of stock</div>
-
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Part Number</th>
+          <th>Product Label</th>
+          <th>Starting inventory</th>
+          <th>Stock (In)</th>
+          <th>Stock (Out)</th>
+          <th>Current stock</th>
+          <th>Minimum required</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @running_out_of_stock.each do |product| %>
+          <tr>
+            <td><%= product.name %></td>
+            <td><%= product.part_number %></td>
+            <td><%= product.label %></td>
+            <td><%= product.starting_inventory %></td>
+            <td>&nbsp;<%= product.total_stock_ins %></td>
+            <td>&nbsp;<%= product.total_stock_outs %></td>
+            <td><%= product.current_stock %></td>
+            <td><%= product.minimum_required %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -44,7 +71,34 @@
   <div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-heading no-collapse">Products not in stock</div>
-
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Part Number</th>
+          <th>Product Label</th>
+          <th>Starting inventory</th>
+          <th>Stock (In)</th>
+          <th>Stock (Out)</th>
+          <th>Current stock</th>
+          <th>Minimum required</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @products_not_in_stock.each do |product| %>
+          <tr>
+            <td><%= product.name %></td>
+            <td><%= product.part_number %></td>
+            <td><%= product.label %></td>
+            <td><%= product.starting_inventory %></td>
+            <td>&nbsp;<%= product.total_stock_ins %></td>
+            <td>&nbsp;<%= product.total_stock_outs %></td>
+            <td><%= product.current_stock %></td>
+            <td><%= product.minimum_required %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
