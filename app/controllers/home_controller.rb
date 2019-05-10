@@ -14,10 +14,10 @@ class HomeController < ApplicationController
 
       if stock_in.save
         flash[:notice] = "Stock was updated successfully"
-        redirect_to("/new_stock") and return
+        redirect_to("/product_stock_details?product_id=#{params[:stock][:product_id]}") and return
       else
         flash[:error] = stock_in.errors.full_messages.join('<br />')
-        redirect_to("/new_stock") and return
+        redirect_to("/product_stock_details?product_id=#{params[:stock][:product_id]}") and return
       end
 
     end
@@ -36,10 +36,10 @@ class HomeController < ApplicationController
 
       if stock_out.save
         flash[:notice] = "Stock was updated successfully"
-        redirect_to("/adjust_stock") and return
+        redirect_to("/product_stock_details?product_id=#{params[:stock][:product_id]}") and return
       else
         flash[:error] = stock_out.errors.full_messages.join('<br />')
-        redirect_to("/adjust_stock") and return
+        redirect_to("/product_stock_details?product_id=#{params[:stock][:product_id]}") and return
       end
     end
   end
@@ -57,6 +57,26 @@ class HomeController < ApplicationController
   def product_stock_details
     @product = Product.find(params[:product_id])
     @page_header = "#{@product.name} stock details"
+    @product_stock_ins = @product.stock_ins.order("DATE(date_in) DESC")
+    @product_stock_outs = @product.stock_outs.order("DATE(date_out) DESC")
+  end
+
+  def void_incoming_stock
+    if request.post?
+      stock_in = StockIn.find(params[:stock_in_id])
+      stock_in.delete
+      flash[:notice] = "You have successfully removed the record from the system"
+      redirect_to("/product_stock_details?product_id=#{params[:product_id]}") and return
+    end
+  end
+
+  def void_outgoing_stock
+    if request.post?
+      stock_out = StockOut.find(params[:stock_out_id])
+      stock_out.delete
+      flash[:notice] = "You have successfully removed the record from the system"
+      redirect_to("/product_stock_details?product_id=#{params[:product_id]}") and return
+    end
   end
 
   def void_stock

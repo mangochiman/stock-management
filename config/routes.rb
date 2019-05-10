@@ -17,7 +17,9 @@ Rails.application.routes.draw do
   get '/view_stock' => 'home#view_stock'
   post '/view_stock' => 'home#view_stock'
   get '/void_stock' => 'home#void_stock'
-  post '/void_stock' => 'home#void_stock'
+  post '/void_stock' => 'home#void_stock' #void_cash_in
+  post '/void_incoming_stock' => 'home#void_incoming_stock'
+  post '/void_outgoing_stock' => 'home#void_outgoing_stock'
 
   get '/set_prices' => 'home#set_prices'
   post '/set_prices' => 'home#set_prices'

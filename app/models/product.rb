@@ -38,4 +38,23 @@ class Product < ActiveRecord::Base
     end
     return current_price
   end
+
+  def total_stock_ins
+    sum = 0
+    self.stock_ins.each {|stock_in| sum += stock_in.quantity.to_i}
+    return sum
+  end
+
+  def total_stock_outs
+    sum = 0
+    self.stock_outs.each {|stock_out| sum += stock_out.quantity.to_i}
+    return sum
+  end
+
+  def current_stock
+    starting_inventory = self.starting_inventory.to_i
+    available_stock = (starting_inventory + total_stock_ins) - total_stock_outs
+    return available_stock
+  end
+
 end

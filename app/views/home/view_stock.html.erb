@@ -16,21 +16,41 @@
     <th>Stock (In)</th>
     <th>Stock (Out)</th>
     <th>Current stock</th>
+    <th>Minimum required</th>
     <th style="width: 3.5em;"></th>
   </tr>
   </thead>
   <tbody>
   <% @products.each do |product| %>
     <tr>
-      <td><%= product.name  %></td>
+      <td><%= product.name %></td>
       <td><%= product.part_number %></td>
-      <td><%= product.label  %></td>
+      <td><%= product.label %></td>
       <td><%= product.starting_inventory %></td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
+      <td>&nbsp;<%= product.total_stock_ins %></td>
+      <td>&nbsp;<%= product.total_stock_outs %></td>
+      <%
+        class_name = ""
+        current_stock = product.current_stock
+
+      %>
+      <% if current_stock < 0%>
+        <% class_name = "danger" %>
+      <% end %>
+
+      <% if current_stock >= 0 && current_stock <= product.minimum_required %>
+        <% class_name = "warning" %>
+      <% end %>
+
+      <% if current_stock > product.minimum_required %>
+        <% class_name = "success" %>
+      <% end %>
+
+      <td class="<%= class_name %>">&nbsp;<%= current_stock %></td>
+      <td><%= product.minimum_required %></td>
       <td>
-        <a class="btn btn-primary" href="/product_stock_details?product_id=<%= product.product_id %>">View stock details »</a>
+        <a class="btn btn-primary" href="/product_stock_details?product_id=<%= product.product_id %>">View stock details
+          »</a>
       </td>
     </tr>
   <% end %>
@@ -42,7 +62,7 @@
         document.getElementById("searchForm").submit()
     }
 
-    window.onload = function(){
+    window.onload = function () {
         jQuery('.dashboard-menu-nav-header').removeClass('collapsed');
         jQuery('.dashboard-menu').addClass('in');
         jQuery('.view_stock').addClass('active');

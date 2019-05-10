@@ -1,4 +1,3 @@
-
 <div class="row">
   <div class="pull-left well" style="margin-left: 16px;">
     <table>
@@ -27,62 +26,192 @@
 <div class="panel panel-default">
   <a href="#widget1container" class="panel-heading" data-toggle="collapse">Incoming stock </a>
   <div id="widget1container" class="panel-body collapse in">
-
-    <table class="table">
-      <thead>
-      <tr>
-        <th>Date</th>
-        <th>Quantity</th>
-        <th style="width: 3.5em;"></th>
-      </tr>
-      </thead>
-      <tbody>
-
-      <% @product.stock_ins.each do |stock_in| %>
+    <% unless @product_stock_ins.blank? %>
+      <table class="table">
+        <thead>
         <tr>
-          <td><%= stock_in.date_in.to_date.strftime("%d-%b-%Y") rescue stock_in.date_in %></td>
-          <td><%= stock_in.quantity %></td>
-          <td>
-            <a href="#" onclick="voidStockinConfirm('<%= stock_in.stock_in_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
-          </td>
+          <th>Date</th>
+          <th>Quantity</th>
+          <th style="width: 3.5em;"></th>
         </tr>
-      <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+
+        <% @product_stock_ins.each do |stock_in| %>
+          <tr>
+            <td><%= stock_in.date_in.to_date.strftime("%d-%b-%Y") rescue stock_in.date_in %></td>
+            <td><%= stock_in.quantity %></td>
+            <td>
+              <a href="#" onclick="voidStockInConfirm('<%= stock_in.stock_in_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No data</p>
+    <% end %>
+
+    <button class="btn btn-primary" onclick="incomingStock();"><i class="fa fa-plus"></i> New incoming stock</button>
   </div>
 </div>
 
 <div class="panel panel-default">
   <a href="#widget1container2" class="panel-heading" data-toggle="collapse">Outgoing stock </a>
   <div id="widget1container2" class="panel-body collapse in">
-
-    <table class="table">
-      <thead>
-      <tr>
-        <th>Date</th>
-        <th>Quantity</th>
-        <th>Reason</th>
-        <th style="width: 3.5em;"></th>
-      </tr>
-      </thead>
-      <tbody>
-
-      <% @product.stock_outs.each do |stock_out| %>
+    <% unless @product_stock_outs.blank? %>
+      <table class="table">
+        <thead>
         <tr>
-          <td><%= stock_out.date_out.to_date.strftime("%d-%b-%Y") rescue stock_out.date_out %></td>
-          <td><%= stock_out.quantity %></td>
-          <td><%= stock_out.reason %></td>
-          <td>
-            <a href="#" onclick="voidStockoutConfirm('<%= stock_out.stock_out_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
-          </td>
+          <th>Date</th>
+          <th>Quantity</th>
+          <th>Reason</th>
+          <th style="width: 3.5em;"></th>
         </tr>
-      <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+
+        <% @product_stock_outs.each do |stock_out| %>
+          <tr>
+            <td><%= stock_out.date_out.to_date.strftime("%d-%b-%Y") rescue stock_out.date_out %></td>
+            <td><%= stock_out.quantity %></td>
+            <td><%= stock_out.reason %></td>
+            <td>
+              <a href="#" onclick="voidStockOutConfirm('<%= stock_out.stock_out_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No data</p>
+    <% end %>
+
+    <button class="btn btn-primary" onclick="outgoingStock();"><i class="fa fa-plus"></i> Update outgoing stock</button>
   </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="voidStockInModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Void stock-in</h4>
+      </div>
+      <div class="modal-body">
+        This will void the selected record. Are you sure?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No, Am Not Sure</button>
+        <button onclick="voidStockIn();" type="button" class="btn btn-primary">Yes, Am Sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="voidStockOutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Void stock-out</h4>
+      </div>
+      <div class="modal-body">
+        This will void the selected record. Are you sure?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No, Am Not Sure</button>
+        <button onclick="voidStockOut();" type="button" class="btn btn-primary">Yes, Am Sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+
 <script type="text/javascript">
+
+    var selectedStockInID;
+    var selectedStockOutID;
+    var product_id = "<%= params[:product_id] %>"
+
+    function voidStockInConfirm(stockInId) {
+        selectedStockInID = stockInId;
+        jQuery('#voidStockInModal').modal('show');
+    }
+
+    function voidStockOutConfirm(stockOutId) {
+        selectedStockOutID = stockOutId;
+        jQuery('#voidStockOutModal').modal('show');
+    }
+
+    function voidStockIn() {
+        var body = document.getElementsByTagName("body")[0];
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/void_incoming_stock";
+        body.appendChild(form);
+
+        var input1 = document.createElement("input");
+        input1.type = "hidden";
+        input1.value = selectedStockInID;
+        input1.name = "stock_in_id";
+        form.appendChild(input1);
+
+        var input2 = document.createElement("input");
+        input2.type = "hidden";
+        input2.value = product_id;
+        input2.name = "product_id";
+        form.appendChild(input2);
+
+        form.submit();
+    }
+
+    function voidStockOut() {
+        var body = document.getElementsByTagName("body")[0];
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/void_outgoing_stock";
+        body.appendChild(form);
+
+        var input1 = document.createElement("input");
+        input1.type = "hidden";
+        input1.value = selectedStockOutID;
+        input1.name = "stock_out_id";
+        form.appendChild(input1);
+
+        var input2 = document.createElement("input");
+        input2.type = "hidden";
+        input2.value = product_id;
+        input2.name = "product_id";
+        form.appendChild(input2);
+
+        form.submit();
+    }
+
+    var product_id = "<%= params[:product_id] %>";
+
+    function incomingStock() {
+        window.location = "/new_stock?product_id=" + product_id;
+    }
+
+    function outgoingStock() {
+        window.location = "/adjust_stock?product_id=" + product_id;
+    }
+
+
 
     window.onload = function () {
         jQuery('.dashboard-menu-nav-header').removeClass('collapsed');
