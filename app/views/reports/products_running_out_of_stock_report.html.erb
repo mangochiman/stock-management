@@ -1,0 +1,47 @@
+<table class="table">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Part Number</th>
+    <th>Product Label</th>
+    <th>Starting inventory</th>
+    <th>Stock (In)</th>
+    <th>Stock (Out)</th>
+    <th>Current stock</th>
+    <th>Minimum required</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @products.each do |product| %>
+    <tr>
+      <td><%= product.name %></td>
+      <td><%= product.part_number %></td>
+      <td><%= product.label %></td>
+      <td><%= product.starting_inventory %></td>
+      <td>&nbsp;<%= product.total_stock_ins %></td>
+      <td>&nbsp;<%= product.total_stock_outs %></td>
+      <%
+        class_name = ""
+        current_stock = product.current_stock
+
+      %>
+      <% if current_stock < 0%>
+        <% class_name = "danger" %>
+      <% end %>
+
+      <% if current_stock >= 0 && current_stock <= product.minimum_required %>
+        <% class_name = "warning" %>
+      <% end %>
+
+      <% if current_stock > product.minimum_required %>
+        <% class_name = "success" %>
+      <% end %>
+
+      <td class="<%= class_name %>">&nbsp;<%= current_stock %></td>
+      <td><%= product.minimum_required %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<button onclick="downloadPDFReport();" class="btn btn-primary"><i class="fa fa-download"></i> Download pdf</button>
