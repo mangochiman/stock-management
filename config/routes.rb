@@ -77,7 +77,10 @@ Rails.application.routes.draw do
   get '/print_incoming_stock_report_printable' => 'reports#print_incoming_stock_report_printable'
 
   get '/products_with_enough_stock_report_printable' => 'reports#products_with_enough_stock_report_printable'
-  get '/print_products_with_enough_stock_report_printable' => 'reports#print_products_with_enough_stock_report_printable'
+  get '/print_products_with_enough_stock_report_printable' => 'reports#print_products_with_enough_stock_report_printable' #outgoing_stock_report_printable
+
+  get '/outgoing_stock_report_printable' => 'reports#outgoing_stock_report_printable'
+  get '/print_outgoing_stock_report_printable' => 'reports#print_outgoing_stock_report_printable'
 
   get '/logout' => 'users#logout'
   # Example of named route that can be invoked with purchase_url(id: product.id)
