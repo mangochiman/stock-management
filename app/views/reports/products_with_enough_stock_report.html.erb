@@ -25,7 +25,7 @@
         current_stock = product.current_stock
 
       %>
-      <% if current_stock < 0%>
+      <% if current_stock < 0 %>
         <% class_name = "danger" %>
       <% end %>
 
@@ -45,3 +45,9 @@
 </table>
 
 <button onclick="downloadPDFReport();" class="btn btn-primary"><i class="fa fa-download"></i> Download pdf</button>
+
+<script type="text/javascript">
+    function downloadPDFReport() {
+        window.location = "/print_products_with_enough_stock_report_printable"
+    }
+</script>
