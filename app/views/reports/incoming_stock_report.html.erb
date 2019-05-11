@@ -51,11 +51,19 @@
 
 
     window.onload = function () {
-        $(".datepicker").datepicker({uiLibrary: 'bootstrap', format: 'dd/mm/yyyy', startDate: '-3d', todayHighLight: true});
+        $(".datepicker").datepicker({
+            uiLibrary: 'bootstrap',
+            format: 'dd/mm/yyyy',
+            startDate: '-3d',
+            todayHighLight: true
+        });
     };
 
-    function downloadPDFReport(){
-
+    function downloadPDFReport() {
+        var product_id = document.getElementById("product_id").value;
+        var start_date = document.getElementById("start_date").value;
+        var end_date = document.getElementById("end_date").value;
+        window.location = "/print_incoming_stock_report_printable?product_id=" + product_id + "&start_date=" + start_date + "&end_date=" + end_date
     }
 
     function loadReport() {

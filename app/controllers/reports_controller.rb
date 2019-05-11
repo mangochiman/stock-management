@@ -1,5 +1,5 @@
 class ReportsController < ApplicationController
-  before_filter :authorize, :except => [:incoming_stock_report_printable]
+  before_filter :authorize, :except => [:incoming_stock_report_printable, :print_incoming_stock_report_printable]
 
   def incoming_stock_report
     @page_header = "Incoming stock report"
@@ -14,13 +14,27 @@ class ReportsController < ApplicationController
   end
 
   def incoming_stock_report_printable
-    @page_header = "Incoming stock report"
-    @products = Product.order("product_id DESC")
     start_date = params[:start_date]
     end_date = params[:end_date]
-    product = Product.find(params[:product_id])
-    @data = product.get_incoming_stock_report(start_date, end_date)
+    @product = Product.find(params[:product_id])
+    @data = @product.get_incoming_stock_report(start_date, end_date)
     render layout: false
+  end
+
+  def print_incoming_stock_report_printable
+    product_id = params[:product_id]
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+
+    file_name = "product_#{product_id}"
+    t1 = Thread.new{
+      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+                        request.env["HTTP_HOST"] + "\"/incoming_stock_report_printable?product_id=#{product_id}&start_date=#{start_date}&end_date=#{end_date}" + "\" /tmp/#{file_name}" + ".pdf \n"
+    }
+    t1.join
+
+    pdf_filename = "/tmp/#{file_name}.pdf"
+    send_file(pdf_filename, :filename => "#{file_name}", :type => "application/pdf")
   end
 
   def products_with_enough_stock_report

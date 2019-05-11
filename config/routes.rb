@@ -74,6 +74,9 @@ Rails.application.routes.draw do
   post '/products_running_out_of_stock_report' => 'reports#products_running_out_of_stock_report'
 
   get '/incoming_stock_report_printable' => 'reports#incoming_stock_report_printable'
+  get '/print_incoming_stock_report_printable' => 'reports#print_incoming_stock_report_printable'
+
+
   get '/logout' => 'users#logout'
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
