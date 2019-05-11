@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_filter :authorize, :except => [:login]
+
   def login
     if request.post?
       user = User.find_by_username(params['username'])
@@ -13,6 +14,49 @@ class UsersController < ApplicationController
       end
     end
     render layout: false
+  end
+
+  def my_profile
+    @page_header = "My profile"
+  end
+
+  def update_profile
+    user = User.find(session[:user]["user_id"])
+    user.first_name = params[:user][:first_name]
+    user.last_name = params[:user][:last_name]
+    user.email = params[:user][:email]
+    user.phone_number = params[:user][:phone_number]
+    user.username = params[:user][:username]
+    if user.save
+      flash[:notice] = "Account was updated successfully"
+      redirect_to("/my_profile") and return
+    else
+      flash[:error] = user.errors.full_messages.join('<br />')
+      redirect_to("/my_profile") and return
+    end
+
+  end
+
+  def update_password
+    user = User.find(session[:user]["user_id"])
+    if (User.authenticate(user.username, params[:old_password]))
+      if (params[:new_password] == params[:confirm_password])
+        user.password = User.encrypt(params[:new_password], user.salt)
+        if (user.save)
+          flash[:notice] = "You have successfully updated your password. Your new password is <b>#{params[:new_password]}</b>"
+          redirect_to("/my_profile") and return
+        else
+          flash[:error] = user.errors.full_messages.join('<br />')
+          redirect_to("/my_profile") and return
+        end
+      else
+        flash[:error] = "Password update failed. New password and confirmation password does not match"
+        redirect_to("/my_profile") and return
+      end
+    else
+      flash[:error] = "Password update failed. Old password is not correct"
+      redirect_to("/my_profile") and return
+    end
   end
 
   def new_user

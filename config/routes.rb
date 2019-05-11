@@ -45,6 +45,9 @@ Rails.application.routes.draw do
   post '/void_products' => 'home#void_products'
 
   get '/new_user' => 'users#new_user'
+  get '/my_profile' => 'users#my_profile'
+  post '/update_profile' => 'users#update_profile'
+  post '/update_password' => 'users#update_password'
   post '/new_user' => 'users#new_user'
   get '/edit_user' => 'users#edit_user'
   post '/edit_user' => 'users#edit_user'
@@ -54,6 +57,22 @@ Rails.application.routes.draw do
   post '/void_users' => 'users#void_users'
 
   get '/reports' => 'home#reports'
+
+  get '/incoming_stock_report' => 'reports#incoming_stock_report'
+  post '/incoming_stock_report' => 'reports#incoming_stock_report'
+
+  get '/products_with_enough_stock_report' => 'reports#products_with_enough_stock_report'
+  post '/products_with_enough_stock_report' => 'reports#products_with_enough_stock_report'
+
+  get '/outgoing_stock_report' => 'reports#outgoing_stock_report'
+  post '/outgoing_stock_report' => 'reports#outgoing_stock_report'
+
+  get '/products_not_in_stock_report' => 'reports#products_not_in_stock_report'
+  post '/products_not_in_stock_report' => 'reports#products_not_in_stock_report'
+
+  get '/products_running_out_of_stock_report' => 'reports#products_running_out_of_stock_report'
+  post '/products_running_out_of_stock_report' => 'reports#products_running_out_of_stock_report'
+
   get '/logout' => 'users#logout'
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

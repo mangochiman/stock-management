@@ -62,6 +62,11 @@ class Product < ActiveRecord::Base
     return incoming_stock_by_range
   end
 
+  def get_incoming_stock_report(start_date, end_date)
+    incoming_stocks = self.stock_ins.where(["DATE(date_in) >= ? AND DATE(date_in) <= ?", start_date.to_date, end_date.to_date])
+    return incoming_stocks
+  end
+
   def self.outgoing_stock_by_date_range(start_date, end_date)
     outgoing_stock_by_range = StockOut.where(["DATE(date_out) >= ? AND DATE(date_out) <= ?", start_date.to_date, end_date.to_date])
     return outgoing_stock_by_range
