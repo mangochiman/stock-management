@@ -28,14 +28,11 @@ class User < ActiveRecord::Base
   end
 
   def authenticated?(plain)
-    encrypt(plain, salt) == password || Digest::SHA1.hexdigest("#{plain}#{salt}") == password || Digest::SHA512.hexdigest("#{plain}#{salt}") == password
+    User.encrypt(plain, salt) == password
   end
 
-  def encrypt(plain, salt)
-    encoding = ""
-    digest = Digest::SHA1.digest("#{plain}#{salt}")
-    (0..digest.size-1).each{|i| encoding << digest[i].to_s(16) }
-    encoding
+  def self.encrypt(password,salt)
+    Digest::SHA1.hexdigest(password+salt)
   end
 
   def set_password

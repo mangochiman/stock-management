@@ -1,5 +1,17 @@
 class UsersController < ApplicationController
+  before_filter :authorize, :except => [:login]
   def login
+    if request.post?
+      user = User.find_by_username(params['username'])
+      logged_in_user = User.authenticate(params[:username], params[:password])
+      if logged_in_user
+        session[:user] = user
+        redirect_to("/") and return
+      else
+        flash[:error] = "Invalid username or password"
+        redirect_to("/login") and return
+      end
+    end
     render layout: false
   end
 
@@ -55,6 +67,7 @@ class UsersController < ApplicationController
 
 
   def logout
-
+    reset_session #Destroy all sessions
+    redirect_to("/login") and return
   end
 end

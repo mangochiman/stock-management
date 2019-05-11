@@ -93,16 +93,24 @@
   <div class="panel panel-default">
     <p class="panel-heading no-collapse">Sign In</p>
     <div class="panel-body">
-      <form>
+      <form action="/login" method="POST">
+        <% if flash[:error] %>
+          <div class="alert alert-danger alert-dismissable">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            <%= flash[:error].html_safe %>
+          </div>
+        <% end %>
         <div class="form-group">
           <label>Username</label>
-          <input type="text" class="form-control span12">
+          <input type="text" name="username" class="form-control span12" required>
         </div>
+
         <div class="form-group">
           <label>Password</label>
-          <input type="password" class="form-controlspan12 form-control">
+          <input type="password" name="password" class="form-control span12 form-control" required>
         </div>
-        <a href="index.html" class="btn btn-primary pull-right">Sign In</a>
+
+        <button type="submit" class="btn btn-primary pull-right">Sign In</button>
         <label class="remember-me"><input type="checkbox"> Remember me</label>
         <div class="clearfix"></div>
       </form>

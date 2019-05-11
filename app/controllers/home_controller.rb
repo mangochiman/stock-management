@@ -1,4 +1,5 @@
 class HomeController < ApplicationController
+  before_filter :authorize
   def home
     @page_header = "Dashboard"
 
