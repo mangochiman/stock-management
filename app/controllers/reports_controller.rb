@@ -2,7 +2,8 @@ class ReportsController < ApplicationController
   before_filter :authorize, :except => [:incoming_stock_report_printable,
                                         :print_incoming_stock_report_printable,
                                         :products_with_enough_stock_report_printable,
-                                        :outgoing_stock_report_printable]
+                                        :outgoing_stock_report_printable,
+                                        :products_running_out_of_stock_report_printable]
 
   def incoming_stock_report
     @page_header = "Incoming stock report"
@@ -106,6 +107,23 @@ class ReportsController < ApplicationController
   def products_running_out_of_stock_report
     @page_header = "Products running out of stock report"
     @products = Product.running_out_of_stock
+  end
+
+  def products_running_out_of_stock_report_printable
+    @products = Product.running_out_of_stock
+    render layout: false
+  end
+
+  def print_products_running_out_of_stock_report_printable
+    file_name = "products_running_of_stock_all"
+    t1 = Thread.new {
+      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+                        request.env["HTTP_HOST"] + "\"/products_running_out_of_stock_report_printable" + "\" /tmp/#{file_name}" + ".pdf \n"
+    }
+    t1.join
+
+    pdf_filename = "/tmp/#{file_name}.pdf"
+    send_file(pdf_filename, :filename => "#{file_name}", :type => "application/pdf")
   end
 
 end
