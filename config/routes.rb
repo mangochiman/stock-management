@@ -44,6 +44,14 @@ Rails.application.routes.draw do
   get '/void_products' => 'home#void_products'
   post '/void_products' => 'home#void_products'
 
+  get '/add_stock' => 'home#add_stock'
+  post '/add_stock' => 'home#add_stock'
+
+  get '/close_stock' => 'home#close_stock'
+  post '/close_stock' => 'home#close_stock'
+
+  get '/stock_card' => 'home#stock_card'
+
   get '/new_user' => 'users#new_user'
   get '/my_profile' => 'users#my_profile'
   post '/update_profile' => 'users#update_profile'
@@ -84,6 +92,9 @@ Rails.application.routes.draw do
 
   get '/products_running_out_of_stock_report_printable' => 'reports#products_running_out_of_stock_report_printable'
   get '/print_products_running_out_of_stock_report_printable' => 'reports#print_products_running_out_of_stock_report_printable'
+
+  get '/products_not_in_stock_report_printable' => 'reports#products_not_in_stock_report_printable'
+  get '/print_products_not_in_stock_report_printable' => 'reports#print_products_not_in_stock_report_printable'
 
   get '/logout' => 'users#logout'
   # Example of named route that can be invoked with purchase_url(id: product.id)

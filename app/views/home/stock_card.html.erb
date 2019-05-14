@@ -1,0 +1,109 @@
+<div class="panel panel-default">
+  <div class="panel-body" style="background-color: lightyellow">
+    <form action="#" role="form" class="form-horizontal">
+
+
+      <table style="width: 50%;" class="center-block">
+        <tr>
+          <th>Date &nbsp;</th>
+          <th>
+            <input type="text" value="<%= @today %>" class="form-control datepicker" placeholder="Stock date" id="date"/>
+          </th>
+          <th>&nbsp;</th>
+          <th>
+            <input onclick="loadReport()" class="btn btn-primary" value="Update stock card"/>
+          </th>
+        </tr>
+      </table>
+    </form>
+  </div>
+</div>
+
+<table class="table table-bordered table-striped">
+  <thead>
+  <tr>
+    <th>Item</th>
+    <th>Opening</th>
+    <th>Add</th>
+    <th>Closing</th>
+    <th>Difference</th>
+    <th>Price</th>
+    <th>Total sales</th>
+  </tr>
+  </thead>
+  <tbody>
+
+  <% grand_total = 0 %>
+  <% @products.each do |product| %>
+    <tr>
+      <td><%= product.name %></td>
+      <%
+        current_stock = product.current_stock
+        current_price = product.price
+        added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
+        closing_stock = product.stock_card_by_date(params[:stock_date]).closing_stock rescue "Update"
+        difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
+
+        if (closing_stock.blank? || closing_stock.to_s.match(/Update/i))
+          closing_stock = "Update"
+          difference = "-"
+        end
+
+        formatted_amount = ""
+
+        if difference != "-"
+          total_sales = current_price.to_f * difference
+          grand_total += total_sales
+          formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
+        end
+
+
+      %>
+      <td><%= current_stock %></td>
+      <td>
+        <p>
+          <button onclick="addStock('<%= product.product_id %>')" class="btn btn-default btn-block" href="#"><%= added_stock %></button>
+        </p>
+      </td>
+      <td>
+        <p>
+          <button onclick="closeStock('<%= product.product_id %>')" class="btn btn-default btn-block" href="#"><%= closing_stock %></button>
+        </p>
+      </td>
+      <td><%= difference %></td>
+      <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
+      <td><span class="pull-right"><%= formatted_amount %></span></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<table class="table table-bordered table-striped">
+  <thead>
+  <tr>
+    <th>GRAND TOTAL</th>
+    <th><span class="pull-right"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
+  </tr>
+  </thead>
+</table>
+
+<script type="text/javascript">
+
+    function closeStock(productID) {
+        var stock_date = document.getElementById("date").value;
+        window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
+    }
+
+    function addStock(productID) {
+        var stock_date = document.getElementById("date").value;
+        window.location = "/add_stock?product_id=" + productID + "&stock_date=" + stock_date
+    }
+
+    window.onload = function () {
+        $(".datepicker").datepicker({
+            uiLibrary: 'bootstrap',
+            format: 'dd/mm/yyyy',
+            startDate: '-3d',
+            todayHighLight: true
+        });
+    };
+</script>

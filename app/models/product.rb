@@ -4,6 +4,7 @@ class Product < ActiveRecord::Base
   has_many :price_histories, :foreign_key => :product_id
   has_many :stock_ins, :foreign_key => :product_id
   has_many :stock_outs, :foreign_key => :product_id
+  has_many :stock_cards, :foreign_key => :product_id
 
   default_scope {where ("voided = 0")}
 
@@ -114,6 +115,14 @@ class Product < ActiveRecord::Base
     end
 
     return products_with_enough_stock
+  end
+
+  def stock_card_by_date(date)
+    self.stock_cards.where(["DATE(date) =?", date.to_date]).last
+  end
+
+  def opening_stock_by_date(date)
+
   end
 
 end

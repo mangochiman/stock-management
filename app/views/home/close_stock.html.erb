@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="pull-left well" style="margin-left: 16px;">
+    <table>
+      <tbody>
+      <tr>
+        <td class="pull-right padding-right"><strong>Product Name</strong></td>
+        <td><%= @product.name %></td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Opening stock</strong></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Minimum required</strong></td>
+        <td><%= @product.minimum_required %></td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Added stock</strong></td>
+        <td><%= @product.stock_card_by_date(params[:stock_date]).added_stock rescue "" %></td>
+      </tr>
+      <tr>
+        <td class="pull-right padding-right"><strong>Date of stock</strong></td>
+        <td><%= params[:stock_date] %></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<form action="/close_stock" role="form" class="form-horizontal" id="new-stock" method="POST">
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="quantity">Amount added</label>
+    <div class="col-lg-7">
+      <input type="text" name="stock[quantity]" class="form-control" placeholder="Quantity" id="quantity" required/>
+      <input type="hidden" value="<%= params[:product_id] %>" name="product_id"/>
+      <input type="hidden" value="<%= params[:stock_date] %>" name="stock[stock_date]"/>
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label class="control-label col-lg-3" for="">&nbsp;</label>
+    <div class="col-lg-7">
+      <input class="btn btn-primary" type="submit" value="Close Stock"/>
+      <input type="button" onclick="cancelAddStock();" class="btn btn-danger" style="margin-left: 20px;" value="Cancel"/>
+    </div>
+  </div>
+
+</form>
+
+<script type="text/javascript">
+    var stock_date = '<%= params[:stock_date] %>';
+
+    function cancelAddStock() {
+        window.location = "/stock_card?stock_date=" + stock_date;
+    }
+</script>

@@ -1,5 +1,6 @@
 class HomeController < ApplicationController
   before_filter :authorize
+
   def home
     @page_header = "Dashboard"
 
@@ -260,6 +261,51 @@ class HomeController < ApplicationController
 
   def reports
     @page_header = "Reports"
+  end
+
+  def stock_card
+    @page_header = "Stock card"
+    @products = Product.order("product_id DESC")
+    @today = Date.today.strftime("%d/%m/%Y")
+  end
+
+  def add_stock
+    @page_header = "Add stock"
+    @product = Product.find(params[:product_id])
+    if request.post?
+      stock_card = @product.stock_card_by_date(params[:stock][:stock_date])
+      stock_card = StockCard.new if stock_card.blank?
+      stock_card.added_stock = params[:stock][:quantity]
+      stock_card.product_id = params[:product_id]
+      stock_card.date = params[:stock][:stock_date]
+      if stock_card.save
+        flash[:notice] = "Items were added successfully"
+        redirect_to("/stock_card?stock_date=#{params[:stock][:stock_date]}") and return
+      else
+        flash[:error] = stock_card.errors.full_messages.join('<br />')
+        redirect_to("/add_stock?product_id=#{params[:product_id]}&stock_date=#{params[:stock][:stock_date]}") and return
+      end
+
+    end
+  end
+
+  def close_stock
+    @page_header = "Close stock"
+    @product = Product.find(params[:product_id])
+    if request.post?
+      stock_card = @product.stock_card_by_date(params[:stock][:stock_date])
+      stock_card = StockCard.new if stock_card.blank?
+      stock_card.closing_stock = params[:stock][:quantity]
+      stock_card.product_id = params[:product_id]
+      stock_card.date = params[:stock][:stock_date]
+      if stock_card.save
+        flash[:notice] = "Stock was closed successfully"
+        redirect_to("/stock_card?stock_date=#{params[:stock][:stock_date]}") and return
+      else
+        flash[:error] = stock_card.errors.full_messages.join('<br />')
+        redirect_to("/close_stock?product_id=#{params[:product_id]}&stock_date=#{params[:stock][:stock_date]}") and return
+      end
+    end
   end
 
 end
