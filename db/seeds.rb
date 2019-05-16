@@ -51,4 +51,23 @@ products.each do |product|
   new_product.minimum_required = 0
   new_product.starting_inventory = (50..500).to_a.shuffle[6]
   new_product.save
+
+  price_history = PriceHistory.new
+  price_history.product_id = new_product.product_id
+  price_history.price = product[:price]
+  price_history.start_date = "2000-01-01"
+  price_history.end_date = "2019-12-31"
+  price_history.save
+
 end
+
+salt = User.random_string(10)
+user = User.new
+user.first_name = "John"
+user.last_name = "Banda"
+user.email = "j@gmail.com"
+user.phone_number = "01000000"
+user.password = User.encrypt("test", salt)
+user.salt = salt
+user.username = "admin"
+user.save

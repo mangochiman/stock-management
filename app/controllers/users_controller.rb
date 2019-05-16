@@ -16,6 +16,11 @@ class UsersController < ApplicationController
     render layout: false
   end
 
+  def authenticate
+      data = User.authenticate(params[:username], params[:password])
+      render json: data.to_json
+  end
+
   def my_profile
     @page_header = "My profile"
   end

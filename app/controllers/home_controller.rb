@@ -266,7 +266,9 @@ class HomeController < ApplicationController
   def stock_card
     @page_header = "Stock card"
     @products = Product.order("product_id DESC")
-    @today = Date.today.strftime("%d/%m/%Y")
+    @today = params[:stock_date].to_date.strftime("%d/%m/%Y") rescue Date.today.strftime("%d/%m/%Y")
+    @last_stock_id = Stock.where(["DATE(stock_time) <= ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
+    @stock_cards = Stock.where(["DATE(stock_time) = ?", @today.to_date])
   end
 
   def add_stock
@@ -289,6 +291,43 @@ class HomeController < ApplicationController
     end
   end
 
+  def create_stock
+    stock_date = params[:stock_date]
+    stock = Stock.new
+    stock.user_id = params[:user_id]
+    stock.stock_time = Time.now
+    if stock.save
+      params[:products].each do |product_id, closing_amount|
+        product = Product.find(product_id)
+        opening_stock_by_date = product.opening_stock_by_date(params[:stock_date])
+        stock_item = StockItem.new
+        stock_item.stock_id = stock.stock_id
+        stock_item.product_id = product_id
+        stock_item.opening_stock = opening_stock_by_date
+        stock_item.closing_stock = closing_amount
+        stock_item.save
+      end
+      flash[:notice] = "You have successfully closed the stock card"
+      redirect_to("/stock_card?stock_date=#{stock_date}") and return
+    else
+      flash[:error] = stock.errors.full_messages.join('<br />')
+      redirect_to("/stock_card?stock_date=#{stock_date}") and return
+    end
+  end
+
+  def get_product_details
+    @product = Product.find(params[:product_id])
+    data = {
+        :product_name => @product.name,
+        :opening_stock => "",
+        :minimum_required => "",
+        :date_of_stock => "",
+    }
+    product_additions = @product.product_additions.where(["DATE(date_added) =?", params[:date].to_date])
+    data = {:product_details => data, :product_additions => product_additions}
+    render json: data.to_json
+  end
+
   def close_stock
     @page_header = "Close stock"
     @product = Product.find(params[:product_id])
@@ -306,6 +345,21 @@ class HomeController < ApplicationController
         redirect_to("/close_stock?product_id=#{params[:product_id]}&stock_date=#{params[:stock][:stock_date]}") and return
       end
     end
+  end
+
+  def add_products
+    product_addition = ProductAddition.new
+    product_addition.added_stock = params[:stock][:quantity]
+    product_addition.product_id = params[:stock][:product_id]
+    product_addition.date_added = params[:stock][:stock_date]
+    if product_addition.save
+      flash[:notice] = "Items were added successfully"
+      redirect_to("/stock_card?stock_date=#{params[:stock][:stock_date]}") and return
+    else
+      flash[:error] = product_addition.errors.full_messages.join('<br />')
+      redirect_to("/stock_card?stock_date=#{params[:stock][:stock_date]}") and return
+    end
+
   end
 
 end

@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   #   get 'products/:id' => 'catalog#view'
   get '/login' => 'users#login'
   post '/login' => 'users#login'
+  post '/authenticate' => 'users#authenticate'
   get '/new_stock' => 'home#new_stock'
   post '/new_stock' => 'home#new_stock'
   get '/adjust_stock' => 'home#adjust_stock'
@@ -19,10 +20,13 @@ Rails.application.routes.draw do
   post '/view_stock' => 'home#view_stock'
   get '/void_stock' => 'home#void_stock'
   post '/void_stock' => 'home#void_stock' #void_cash_in
+  post '/create_stock' => 'home#create_stock'
   post '/void_incoming_stock' => 'home#void_incoming_stock'
   post '/void_outgoing_stock' => 'home#void_outgoing_stock'
   get '/get_incoming_stock' => 'home#get_incoming_stock'
   get '/get_outgoing_stock' => 'home#get_outgoing_stock'
+  get '/get_product_details' => 'home#get_product_details'
+  post '/add_products' => 'home#add_products'
 
   get '/set_prices' => 'home#set_prices'
   post '/set_prices' => 'home#set_prices'

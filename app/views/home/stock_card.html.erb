@@ -11,13 +11,31 @@
           </th>
           <th>&nbsp;</th>
           <th>
-            <input onclick="loadReport()" class="btn btn-primary" value="Update stock card"/>
+            <input onclick="gotoStockcardDate()" class="btn btn-primary" value="Update stock card"/>
           </th>
         </tr>
       </table>
     </form>
   </div>
 </div>
+<% if @stock_cards.length > 1 %>
+  <div class="panel panel-default">
+    <p class="panel-heading">Available stock cards</p>
+    <div class="panel-body">
+      <div class="row" style="text-align: center;">
+        <% @stock_cards.each do |stock_card| %>
+          <div class="pull-left unstyled col-sm-4 col-md-4">
+            <p>
+              <a href="/stock_card?stock_date=<%= params[:stock_date] %>&stock_id=<%= stock_card.stock_id %>" class="btn btn-default"><%= stock_card.stock_time.strftime("%d-%b-%Y (%H-%M)") %></a>
+            </p>
+          </div>
+        <% end %>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+  </div>
+<% else %>
+<% end %>
 
 <table class="table table-bordered table-striped">
   <thead>
@@ -25,6 +43,7 @@
     <th>Item</th>
     <th>Opening</th>
     <th>Add</th>
+    <th>Current stock</th>
     <th>Closing</th>
     <th>Difference</th>
     <th>Price</th>
@@ -38,16 +57,11 @@
     <tr>
       <td><%= product.name %></td>
       <%
-        current_stock = product.current_stock
+        current_stock = product.current_stock(params[:stock_date], @last_stock_id)
         current_price = product.price
         added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
-        closing_stock = product.stock_card_by_date(params[:stock_date]).closing_stock rescue "Update"
+        closing_stock = product.closed_stock_by_date(params[:stock_date])
         difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
-
-        if (closing_stock.blank? || closing_stock.to_s.match(/Update/i))
-          closing_stock = "Update"
-          difference = "-"
-        end
 
         formatted_amount = ""
 
@@ -56,46 +70,429 @@
           grand_total += total_sales
           formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
         end
+        if @stock_cards.blank?
+          formatted_amount = " - "
+        end
 
+        #product.added_stock_by_date(params[:stock_date])
 
       %>
+      <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
+      <td>
+        <% unless @stock_cards.blank? %>
+          <button type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
+        <% else %>
+          <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
+
+        <% end %>
+      </td>
       <td><%= current_stock %></td>
-      <td>
-        <p>
-          <button onclick="addStock('<%= product.product_id %>')" class="btn btn-default btn-block" href="#"><%= added_stock %></button>
-        </p>
       </td>
       <td>
-        <p>
-          <button onclick="closeStock('<%= product.product_id %>')" class="btn btn-default btn-block" href="#"><%= closing_stock %></button>
-        </p>
+        <% if @stock_cards.blank? %>
+          <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
+        <% else %>
+          <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+            <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
+          </button>
+        <% end %>
       </td>
-      <td><%= difference %></td>
+      <% unless @stock_cards.blank? %>
+        <td><%= difference %></td>
+      <% else %>
+        <td> -</td>
+      <% end %>
+
       <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
       <td><span class="pull-right"><%= formatted_amount %></span></td>
     </tr>
   <% end %>
   </tbody>
 </table>
+
+<div>
+  <button style="width: 250px;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
+    <i class="fa fa-lock"> Cashier closure</i></button>
+  <span style="padding-left: 50px">&nbsp;</span>
+  <% unless @stock_cards.blank? %>
+    <button class="btn btn-primary"><i class="fa fa-edit"></i> Edit stock card</button>
+    <button class="btn btn-primary"><i class="fa fa-plus"></i> New stock card</button>
+  <% end %>
+  <br/><br/><br/><br/>
+</div>
+
 <table class="table table-bordered table-striped">
   <thead>
   <tr>
     <th>GRAND TOTAL</th>
-    <th><span class="pull-right"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
+    <% unless @stock_cards.blank? %>
+      <th><span class="pull-right"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
+    <% else %>
+      <td> &nbsp;</td>
+    <% end %>
+
   </tr>
   </thead>
 </table>
 
+
+<!-- Modal -->
+<div class="modal fade" id="addStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Add stock</h4>
+      </div>
+      <div class="modal-body">
+        <div id="productDetails">
+
+        </div>
+        <br/>
+        <form action="/add_products" role="form" class="form-horizontal" method="POST">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="quantity"><strong>Amount added</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="stock[quantity]" class="form-control" placeholder="Quantity" id="quantity" required/>
+            </div>
+          </div>
+          <input type="hidden" name="stock[product_id]" id="product_id"/>
+          <input type="hidden" name="stock[stock_date]" id="stock_date"/>
+          <input id="add_stock_submit_handle" type="submit" style="display: none">
+        </form>
+
+        <div id="productAdditions">
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="updateStock();" type="button" class="btn btn-primary">Update stock</button>
+      </div>
+
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="closeStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Close stock</h4>
+      </div>
+      <div class="modal-body">
+        <div id="productDetailsClose">
+
+        </div>
+        <form action="#" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="quantity"><strong>Closing amount</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="stock[closing_amount]" class="form-control" placeholder="Quantity" id="closingAmount" required/>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="closeStock();" type="button" class="btn btn-primary">Close stock</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="cashierClosureModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Cashier closure modal</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center;">Confirm cashier username and password</p>
+        <form action="#" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="username"><strong>Username</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="username" class="form-control" placeholder="username" id="username" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="password"><strong>Password</strong></label>
+            <div class="col-lg-7">
+              <input type="password" name="password" class="form-control" placeholder="password" id="password" required/>
+            </div>
+          </div>
+        </form>
+
+        <p id="wrong" style="color: red; text-align: center; display: none">Wrong username or password</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="authenticate();" type="button" class="btn btn-primary">Authenticate</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="noItemsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Cashier closure</h4>
+      </div>
+      <div class="modal-body">
+        <p>Please input closing figures to continue</p>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="incompleteItemsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Cashier closure</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center;">You have not selected all items. Are you sure you want to continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="showCashierClosurePopupMain();" type="button" class="btn btn-primary">Yes am sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
 <script type="text/javascript">
+    var selectedProductID;
+    var stock_date = "<%= params[:stock_date] %>";
+    var total_products = parseInt("<%= @products.length %>");
+    var user;
+
+    function updateStockPopup(productID) {
+        selectedProductID = productID;
+        getProductDetails(productID);
+        jQuery('#addStockModal').modal('show');
+
+    }
+
+    function showCashierClosurePopup() {
+        if (Object.keys(closedProducts).length == 0) {
+            jQuery('#noItemsModal').modal('show');
+            return
+        }
+
+        if (Object.keys(closedProducts).length < total_products) {
+            jQuery('#incompleteItemsModal').modal('show');
+            return
+        }
+
+        jQuery('#cashierClosureModal').modal('show');
+    }
+
+    function showCashierClosurePopupMain() {
+        jQuery('#incompleteItemsModal').modal('hide');
+        jQuery('#cashierClosureModal').modal('show');
+    }
+
+    function getProductDetails(productID) {
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var productAdditions = result["product_additions"];
+
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                var table = "<table class='table table-bordered table-striped'><thead><tr><th>Date </th><th>Quantity </th><th>&nbsp; </th></tr></thead>";
+                table += "<body>";
+                for (var i = 0; i <= productAdditions.length - 1; i++) {
+                    table += "<tr>";
+                    table += "<td>" + productAdditions[i]["date_added"] + "</td>";
+                    table += "<td>" + productAdditions[i]["added_stock"] + "</td>";
+                    table += "<td style='text-align: center;'><a href='#' role='button'><i class='fa fa-trash-o'></i></a></td>";
+                    table += "</tr>";
+                }
+                table += "</body>";
+                table += "</table>";
+                jQuery("#productDetails").html(html);
+                if (productAdditions.length > 0) {
+                    jQuery("#productAdditions").html(table);
+                } else {
+                    jQuery("#productAdditions").html("<p>No items added today</p>");
+                }
+
+            }
+
+        });
+    }
+
+    function closeStockPopup(productID) {
+        selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                jQuery("#productDetailsClose").html(html);
+            }
+
+        });
+
+        jQuery('#closeStockModal').modal('show');
+    }
+
+
+    function authenticate() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/authenticate",
+            data: "username=" + username + "&password=" + password,
+            beforeSend: function () {
+                jQuery("#wrong").hide();
+            },
+            success: function (result) {
+                if (result) {
+                    user = result;
+                    createFormElements();
+                } else {
+                    jQuery("#wrong").show();
+                }
+            }
+
+        });
+    }
+
+    function createFormElements() {
+        var body = document.getElementsByTagName("body")[0];
+
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/create_stock";
+        body.appendChild(form);
+
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.value = stock_date;
+        input.name = "stock_date";
+        form.appendChild(input);
+
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.value = user.user_id;
+        input.name = "user_id";
+        form.appendChild(input);
+
+        for (var productID in closedProducts) {
+            var closedAmount = closedProducts[productID];
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.value = closedAmount;
+            input.name = "products[" + productID + "]";
+            form.appendChild(input);
+        }
+
+        form.submit();
+    }
+
+    function updateStock() {
+        document.getElementById("product_id").value = selectedProductID;
+        document.getElementById("stock_date").value = stock_date;
+        $('#add_stock_submit_handle').click();
+    }
+
+    var closedProducts = {};
 
     function closeStock(productID) {
-        var stock_date = document.getElementById("date").value;
-        window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
+        var closingAmount = document.getElementById("closingAmount").value;
+        var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
+        closeAmountTag.innerHTML = closingAmount;
+        closedProducts[selectedProductID] = closingAmount;
+        jQuery(".close_stock_" + selectedProductID).show();
+        jQuery('#closeStockModal').modal('hide');
+        //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
     }
 
     function addStock(productID) {
         var stock_date = document.getElementById("date").value;
         window.location = "/add_stock?product_id=" + productID + "&stock_date=" + stock_date
+    }
+
+    function gotoStockcardDate() {
+        var date = document.getElementById("date").value;
+        window.location = "/stock_card?stock_date=" + date;
     }
 
     window.onload = function () {
@@ -107,3 +504,23 @@
         });
     };
 </script>
+
+<style type="text/css">
+  .modal-content {
+    height: 100% !important;
+    position: relative;
+  }
+
+  .modal-footer {
+    bottom: 0px !important;
+    position: relative;
+    width: 100%;
+  }
+
+  .btn-circle {
+    padding: 10px 16px;
+    border-radius: 25px;
+    line-height: 1.33;
+
+  }
+</style>

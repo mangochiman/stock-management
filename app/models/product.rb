@@ -5,6 +5,8 @@ class Product < ActiveRecord::Base
   has_many :stock_ins, :foreign_key => :product_id
   has_many :stock_outs, :foreign_key => :product_id
   has_many :stock_cards, :foreign_key => :product_id
+  has_many :product_additions, :foreign_key => :product_id
+  has_many :stock_items, :foreign_key => :product_id
 
   default_scope {where ("voided = 0")}
 
@@ -52,10 +54,12 @@ class Product < ActiveRecord::Base
     return sum
   end
 
-  def current_stock
-    starting_inventory = self.starting_inventory.to_i
-    available_stock = (starting_inventory + total_stock_ins) - total_stock_outs
-    return available_stock
+  def current_stock(date = Date.today, stock_id = nil)
+    opening_stock = self.opening_stock_by_date(date, stock_id)
+    added_stock = self.added_stock_by_date(date, stock_id)
+    closed_stock = self.closed_stock_by_date(date, stock_id)
+    current_stock_on_date = (opening_stock + added_stock)
+    return current_stock_on_date
   end
 
   def self.incoming_stock_by_date_range(start_date, end_date)
@@ -121,7 +125,59 @@ class Product < ActiveRecord::Base
     self.stock_cards.where(["DATE(date) =?", date.to_date]).last
   end
 
-  def opening_stock_by_date(date)
+  def opening_stock_by_date(date, stock_id = nil)
+    latest_closing_value = StockItem.joins(:stock).where(["product_id =? AND closing_stock is NOT NULL AND DATE(stock_time) <= ? ",
+                                                          self.product_id, date.to_date]).order("stocks.stock_id DESC").first
+    if stock_id.blank?
+      if latest_closing_value.blank?
+        return self.starting_inventory
+      else
+        latest_closing_value.closing_stock
+      end
+    else
+      stock_item = StockItem.where(["stock_id =? AND product_id =?", stock_id, self.product_id]).last
+      unless stock_item.blank?
+        return stock_item.opening_stock
+      else
+        if latest_closing_value.blank?
+          return self.starting_inventory
+        else
+          latest_closing_value.closing_stock
+        end
+      end
+    end
+  end
+
+  def added_stock_by_date(date, stock_id = nil)
+    product_additions = self.product_additions.where(["DATE(date_added) =?", date.to_date])
+    sum = 0
+    product_additions.each do |prediction|
+      sum += prediction.added_stock.to_i
+    end
+    return sum
+  end
+
+  def closed_stock_by_date(date, stock_id = nil)
+    closing_value_by_date = StockItem.joins(:stock).where(["product_id =? AND closing_stock is NOT NULL AND DATE(stock_time) = ? ",
+                                                           self.product_id, date.to_date]).order("stocks.stock_id DESC").first
+    if stock_id.blank?
+      if closing_value_by_date.blank?
+        return 0
+      else
+        closing_value_by_date.closing_stock.to_i
+      end
+    else
+      stock_item = StockItem.where(["stock_id =? AND product_id =?", stock_id, self.product_id]).last
+      unless stock_item.blank?
+        return stock_item.closing_stock
+      else
+        if closing_value_by_date.blank?
+          return 0
+        else
+          closing_value_by_date.closing_stock.to_i
+        end
+      end
+    end
 
   end
 
