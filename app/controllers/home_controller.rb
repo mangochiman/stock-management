@@ -297,7 +297,7 @@ class HomeController < ApplicationController
     stock_date = params[:stock_date]
     stock = Stock.new
     stock.user_id = params[:user_id]
-    stock.stock_time = Time.now
+    stock.stock_time = stock_date
     if stock.save
       params[:products].each do |product_id, closing_amount|
         product = Product.find(product_id)
