@@ -90,6 +90,9 @@
       </td>
       <td>
         <% if @stock_cards.blank? %>
+          <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+            <span id="close_stock_<%= product.product_id %>">?</span>
+          </button>
           <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
         <% else %>
           <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
