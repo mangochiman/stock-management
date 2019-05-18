@@ -142,25 +142,23 @@
           </tr>
           </thead>
           <tbody>
-
-          <% grand_total = 0 %>
+          <%
+            if !grand_total
+              grand_total = 0
+            end
+          %>
           <% @non_standard_products.each do |product| %>
             <tr>
               <td><%= product.name %></td>
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
-                added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
-                closing_stock = product.closed_stock_by_date(params[:stock_date])
-                difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
+                total_shots = (product.shots_by_date(params[:stock_date]))
 
-                formatted_amount = ""
+                total_sales = current_price.to_f * total_shots
+                grand_total += total_sales
+                formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
 
-                if difference != "-"
-                  total_sales = current_price.to_f * difference
-                  grand_total += total_sales
-                  formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
-                end
                 if @stock_cards.blank?
                   formatted_amount = " - "
                 end
@@ -544,7 +542,7 @@
         });
     }
 
-    function shotsSoldPopup(productID){
+    function shotsSoldPopup(productID) {
         selectedProductID = productID;
         var stock_date = document.getElementById("date").value;
         jQuery.ajax({
@@ -655,11 +653,25 @@
         form.appendChild(input);
 
         for (var productID in closedProducts) {
-            var closedAmount = closedProducts[productID];
+            var closedStock = closedProducts[productID]["stock"];
+            if (!closedStock) {
+                closedStock = "";
+            }
+            var closedShots = closedProducts[productID]["shots"];
+            if (!closedShots) {
+                closedShots = "";
+            }
+
             var input = document.createElement("input");
             input.type = "hidden";
-            input.value = closedAmount;
-            input.name = "products[" + productID + "]";
+            input.value = closedStock;
+            input.name = "products[" + productID + "][stock]";
+            form.appendChild(input);
+
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.value = closedShots;
+            input.name = "products[" + productID + "][shots]";
             form.appendChild(input);
         }
 
@@ -678,17 +690,23 @@
         var closingAmount = document.getElementById("closingAmount").value;
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingAmount;
-        closedProducts[selectedProductID] = closingAmount;
-        jQuery(".close_stock_" + selectedProductID).show();
+        if (!closedProducts[selectedProductID]) {
+            closedProducts[selectedProductID] = {};
+        }
+        closedProducts[selectedProductID]["stock"] = closingAmount;
+        //jQuery(".close_stock_" + selectedProductID).show();
         jQuery('#closeStockModal').modal('hide');
         //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
     }
 
-    function closeShots(){
-        var closingAmount = document.getElementById("closingShots").value;
+    function closeShots() {
+        var closingShots = document.getElementById("closingShots").value;
         var closeAmountTag = document.getElementById("shots_sold_stock_" + selectedProductID);
-        closeAmountTag.innerHTML = closingAmount;
-        closedProducts[selectedProductID] = closingAmount;
+        closeAmountTag.innerHTML = closingShots;
+        if (!closedProducts[selectedProductID]) {
+            closedProducts[selectedProductID] = {};
+        }
+        closedProducts[selectedProductID]["shots"] = closingShots;
         jQuery('#closeShotsModal').modal('hide');
     }
 

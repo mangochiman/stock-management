@@ -315,13 +315,16 @@ class HomeController < ApplicationController
     stock.user_id = params[:user_id]
     stock.stock_time = stock_date
     if stock.save
-      params[:products].each do |product_id, closing_amount|
+      params[:products].each do |product_id, values|
+        closing_amount = values["stock"]
+        closing_shots = values["shots"]
         product = Product.find(product_id)
         opening_stock_by_date = product.opening_stock_by_date(params[:stock_date])
         stock_item = StockItem.new
         stock_item.stock_id = stock.stock_id
         stock_item.product_id = product_id
         stock_item.opening_stock = opening_stock_by_date
+        stock_item.shots_sold = closing_shots
         stock_item.closing_stock = closing_amount
         stock_item.save
       end
