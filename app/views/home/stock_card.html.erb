@@ -188,7 +188,7 @@
                 <% end %>
               </td>
 
-              <td>
+              <td class="close-stock" product_id="<%= product.product_id %>">
                 <% if @stock_cards.blank? %>
                   <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
                     <span id="close_stock_<%= product.product_id %>">?</span>
@@ -468,13 +468,24 @@
     function newStockCard() {
         closedProducts = {};
         var closeStockTds = jQuery(".close-stock");
+        var closeShotsTds = jQuery(".close-shots");
+
         for (var i = 0; i <= closeStockTds.length - 1; i++) {
             var product_id = closeStockTds[i].getAttribute("product_id");
             var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_"' + product_id + '>';
             html += '<span id="close_stock_' + product_id + '">?</span>';
             html += '</button>';
-            html += '<button onclick="closeStockPopup(' + product_id + ')" class="btn btn-default" href="#">Update</button>';
+            html += '<button onclick="closeStockPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
             closeStockTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= closeShotsTds.length - 1; i++) {
+            var product_id = closeShotsTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat close_shots_stock_"' + product_id + '>';
+            html += '<span id="close_shots_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="shotsSoldPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
+            closeShotsTds[i].innerHTML = html;
         }
 
         var stockDifferenceTds = jQuery(".stock-difference");
@@ -752,6 +763,7 @@
     padding: 10px 16px;
     border-radius: 25px;
     line-height: 1.33;
+    min-width: 80px;
 
   }
 </style>
