@@ -412,7 +412,6 @@
     }
 
     function getProductDetails(productID) {
-        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -463,7 +462,6 @@
 
     function shotsSoldPopup(productID) {
         selectedProductID = productID;
-        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -496,7 +494,6 @@
 
     function closeStockPopup(productID) {
         selectedProductID = productID;
-        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
