@@ -136,6 +136,7 @@
             <th>Add</th>
             <th>Current stock</th>
             <th>Shots sold</th>
+            <th>Closing</th>
             <th>Price</th>
             <th>Total sales</th>
           </tr>
@@ -164,8 +165,6 @@
                   formatted_amount = " - "
                 end
 
-                #product.added_stock_by_date(params[:stock_date])
-
               %>
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
               <td>
@@ -189,6 +188,13 @@
                     <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
                   </button>
                 <% end %>
+              </td>
+
+              <td>
+                <button style="color: red;" type="button" class="btn btn-default btn-circle stat shots_sold_<%= product.product_id %>">
+                  <span id="shots_sold_<%= product.product_id %>">?</span>
+                </button>
+                <button onclick="shotsSoldPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
               </td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
