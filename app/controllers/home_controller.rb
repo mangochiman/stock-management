@@ -281,6 +281,9 @@ class HomeController < ApplicationController
     @products = Product.order("product_id DESC")
     @today = params[:stock_date].to_date.strftime("%d/%m/%Y") rescue Date.today.strftime("%d/%m/%Y")
 
+    @standard_products = Product.standard_items
+    @non_standard_products = Product.non_standard_items
+
     @last_stock_id = Stock.where(["DATE(stock_time) = ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
     #@last_stock_id = Stock.where(["DATE(stock_time) <= ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
     @stock_cards = Stock.where(["DATE(stock_time) = ?", @today.to_date])

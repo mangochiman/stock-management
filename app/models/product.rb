@@ -1,5 +1,6 @@
 class Product < ActiveRecord::Base
   self.primary_key = "product_id"
+  self.table_name = "products"
 
   has_many :price_histories, :foreign_key => :product_id
   has_many :stock_ins, :foreign_key => :product_id
@@ -19,6 +20,18 @@ class Product < ActiveRecord::Base
   def category_name
     product_category_name = self.product_category.category.name rescue nil
     product_category_name
+  end
+
+  def self.standard_items
+    standard_category_id = Category.find_by_name("Standard").category_id
+    standard_products = Product.joins([:product_category]).where(["category_id =?", standard_category_id])
+    return standard_products
+  end
+
+  def self.non_standard_items
+    non_standard_category_id = Category.find_by_name("Non standard").category_id
+    non_standard_products = Product.joins([:product_category]).where(["category_id =?", non_standard_category_id])
+    return non_standard_products
   end
 
   def price
