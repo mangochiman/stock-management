@@ -200,4 +200,14 @@ class Product < ActiveRecord::Base
 
   end
 
+  def shots_by_date(date, stock_id = nil)
+    stock_items = StockItem.joins(:stock).where(["product_id =? AND closing_stock is NOT NULL AND
+      DATE(stock_time) = ? ", self.product_id, date.to_date])
+    sum = 0
+    stock_items.each do |stock_item|
+      sum += stock_item.shots_sold.to_i
+    end
+    return sum
+  end
+
 end

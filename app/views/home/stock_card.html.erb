@@ -176,8 +176,21 @@
                 <% end %>
               </td>
               <td><%= current_stock %></td>
+
+              <td class="close-shots" product_id="<%= product.product_id %>">
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat shots_sold_stock_<%= product.product_id %>">
+                    <span id="shots_sold_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="shotsSoldPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+                    <span id="shots_sold_stock_<%= product.product_id %>"><%= product.shots_by_date(params[:stock_date]) %></span>
+                  </button>
+                <% end %>
               </td>
-              <td class="close-stock" product_id="<%= product.product_id %>">
+
+              <td>
                 <% if @stock_cards.blank? %>
                   <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
                     <span id="close_stock_<%= product.product_id %>">?</span>
@@ -188,13 +201,6 @@
                     <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
                   </button>
                 <% end %>
-              </td>
-
-              <td>
-                <button style="color: red;" type="button" class="btn btn-default btn-circle stat shots_sold_<%= product.product_id %>">
-                  <span id="shots_sold_<%= product.product_id %>">?</span>
-                </button>
-                <button onclick="shotsSoldPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
               </td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
@@ -303,6 +309,38 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         <button onclick="closeStock();" type="button" class="btn btn-primary">Close stock</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="closeShotsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Close stock</h4>
+      </div>
+      <div class="modal-body">
+        <div id="productDetailsShotsClose">
+
+        </div>
+        <form action="#" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="closingShots"><strong>Total shots sold</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="stock[closing_shots]" class="form-control" placeholder="Shots" id="closingShots" required/>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="closeShots();" type="button" class="btn btn-primary">Close stock</button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -506,6 +544,39 @@
         });
     }
 
+    function shotsSoldPopup(productID){
+        selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                jQuery("#productDetailsShotsClose").html(html);
+            }
+
+        });
+
+        jQuery('#closeShotsModal').modal('show');
+    }
+
     function closeStockPopup(productID) {
         selectedProductID = productID;
         var stock_date = document.getElementById("date").value;
@@ -611,6 +682,14 @@
         jQuery(".close_stock_" + selectedProductID).show();
         jQuery('#closeStockModal').modal('hide');
         //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
+    }
+
+    function closeShots(){
+        var closingAmount = document.getElementById("closingShots").value;
+        var closeAmountTag = document.getElementById("shots_sold_stock_" + selectedProductID);
+        closeAmountTag.innerHTML = closingAmount;
+        closedProducts[selectedProductID] = closingAmount;
+        jQuery('#closeShotsModal').modal('hide');
     }
 
     function addStock(productID) {
