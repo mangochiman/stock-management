@@ -2,6 +2,7 @@
   <thead>
   <tr>
     <th>Product</th>
+    <th>Category</th>
     <th>Price</th>
     <th>Start date</th>
     <th>End date</th>
@@ -11,8 +12,10 @@
   </thead>
   <tbody>
   <% @price_histories.each do |price_history| %>
+    <% next if price_history.product.blank? %>
     <tr>
       <td><%= price_history.product.name rescue "????"%> </td>
+      <td><%= price_history.product.category_name %></td>
       <td><%= number_to_currency(price_history.price, :unit => "MWK ") %></td>
       <td><%= price_history.start_date.to_date.strftime("%d-%b-%Y") rescue price_history.start_date %></td>
       <td><%= price_history.end_date.to_date.strftime("%d-%b-%Y") rescue price_history.end_date  %></td>

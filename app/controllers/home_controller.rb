@@ -177,6 +177,7 @@ class HomeController < ApplicationController
 
   def new_products
     @page_header = "New products"
+    @categories = Category.all
     if request.post?
       new_product = Product.new
       new_product.name = params[:product][:name]
@@ -186,6 +187,11 @@ class HomeController < ApplicationController
       new_product.minimum_required = params[:product][:minimum_required]
 
       if new_product.save
+        product_category = ProductCategory.new
+        product_category.category_id = params[:product][:category_id]
+        product_category.product_id = new_product.product_id
+        product_category.save
+
         flash[:notice] = "New product was created"
         redirect_to("/new_products") and return
       else
@@ -199,6 +205,7 @@ class HomeController < ApplicationController
   def edit_this_product
     @product = Product.find(params[:product_id])
     @page_header = "Editing products - #{@product.name}"
+    @categories = Category.all
     if request.post?
       @product.name = params[:product][:name]
       @product.label = params[:product][:product_label]
@@ -207,6 +214,12 @@ class HomeController < ApplicationController
       @product.minimum_required = params[:product][:minimum_required]
 
       if @product.save
+        product_category = @product.product_category
+        product_category = ProductCategory.new if product_category.blank?
+        product_category.category_id = params[:product][:category_id]
+        product_category.product_id = @product.product_id
+        product_category.save
+
         flash[:notice] = "#{@product.name} was updated successfully"
         redirect_to("/edit_products") and return
       else

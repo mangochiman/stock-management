@@ -37,81 +37,106 @@
 <% else %>
 <% end %>
 
-<table class="table table-bordered table-striped">
-  <thead>
-  <tr>
-    <th>Item</th>
-    <th>Opening</th>
-    <th>Add</th>
-    <th>Current stock</th>
-    <th>Closing</th>
-    <th>Difference</th>
-    <th>Price</th>
-    <th>Total sales</th>
-  </tr>
-  </thead>
-  <tbody>
 
-  <% grand_total = 0 %>
-  <% @products.each do |product| %>
-    <tr>
-      <td><%= product.name %></td>
-      <%
-        current_stock = product.current_stock(params[:stock_date], @last_stock_id)
-        current_price = product.price
-        added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
-        closing_stock = product.closed_stock_by_date(params[:stock_date])
-        difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
 
-        formatted_amount = ""
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#standard" data-toggle="tab">Standard items</a></li>
+  <li><a href="#non-standard" data-toggle="tab">Non standard items</a></li>
+</ul>
 
-        if difference != "-"
-          total_sales = current_price.to_f * difference
-          grand_total += total_sales
-          formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
-        end
-        if @stock_cards.blank?
-          formatted_amount = " - "
-        end
+<div class="row">
+  <div class="col-md-12">
+    <br>
+    <div id="myTabContent" class="tab-content">
 
-        #product.added_stock_by_date(params[:stock_date])
+      <div class="tab-pane active in" id="standard">
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Item</th>
+            <th>Opening</th>
+            <th>Add</th>
+            <th>Current stock</th>
+            <th>Closing</th>
+            <th>Difference</th>
+            <th>Price</th>
+            <th>Total sales</th>
+          </tr>
+          </thead>
+          <tbody>
 
-      %>
-      <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
-      <td>
-        <% unless @stock_cards.blank? %>
-          <button type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
-        <% else %>
-          <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
+          <% grand_total = 0 %>
+          <% @products.each do |product| %>
+            <tr>
+              <td><%= product.name %></td>
+              <%
+                current_stock = product.current_stock(params[:stock_date], @last_stock_id)
+                current_price = product.price
+                added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
+                closing_stock = product.closed_stock_by_date(params[:stock_date])
+                difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
 
-        <% end %>
-      </td>
-      <td><%= current_stock %></td>
-      </td>
-      <td>
-        <% if @stock_cards.blank? %>
-          <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-            <span id="close_stock_<%= product.product_id %>">?</span>
-          </button>
-          <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
-        <% else %>
-          <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-            <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
-          </button>
-        <% end %>
-      </td>
-      <% unless @stock_cards.blank? %>
-        <td><%= difference %></td>
-      <% else %>
-        <td> -</td>
-      <% end %>
+                formatted_amount = ""
 
-      <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
-      <td><span class="pull-right"><%= formatted_amount %></span></td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
+                if difference != "-"
+                  total_sales = current_price.to_f * difference
+                  grand_total += total_sales
+                  formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
+                end
+                if @stock_cards.blank?
+                  formatted_amount = " - "
+                end
+
+                #product.added_stock_by_date(params[:stock_date])
+
+              %>
+              <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
+              <td>
+                <% unless @stock_cards.blank? %>
+                  <button type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
+                <% else %>
+                  <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
+
+                <% end %>
+              </td>
+              <td><%= current_stock %></td>
+              </td>
+              <td class="close-stock" product_id="<%= product.product_id %>">
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
+                  </button>
+                <% end %>
+              </td>
+              <% unless @stock_cards.blank? %>
+                <td class="stock-difference"><%= difference %></td>
+              <% else %>
+                <td> -</td>
+              <% end %>
+
+              <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
+              <td><span class="pull-right total-sales"><%= formatted_amount %></span></td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-pane fade" id="non-standard">
+
+        &nbsp;
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 <div>
   <button style="width: 250px;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
@@ -119,7 +144,7 @@
   <span style="padding-left: 50px">&nbsp;</span>
   <% unless @stock_cards.blank? %>
     <button class="btn btn-primary"><i class="fa fa-edit"></i> Edit stock card</button>
-    <button class="btn btn-primary"><i class="fa fa-plus"></i> New stock card</button>
+    <button onclick="newStockCard();" class="btn btn-primary"><i class="fa fa-plus"></i> New stock card</button>
   <% end %>
   <br/><br/><br/><br/>
 </div>
@@ -129,7 +154,7 @@
   <tr>
     <th>GRAND TOTAL</th>
     <% unless @stock_cards.blank? %>
-      <th><span class="pull-right"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
+      <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
     <% else %>
       <td> &nbsp;</td>
     <% end %>
@@ -329,6 +354,33 @@
     function showCashierClosurePopupMain() {
         jQuery('#incompleteItemsModal').modal('hide');
         jQuery('#cashierClosureModal').modal('show');
+    }
+
+    function newStockCard() {
+        closedProducts = {};
+        var closeStockTds = jQuery(".close-stock");
+        for (var i = 0; i <= closeStockTds.length - 1; i++) {
+            var product_id = closeStockTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_"' + product_id + '>';
+            html += '<span id="close_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="closeStockPopup(' + product_id + ')" class="btn btn-default" href="#">Update</button>';
+            closeStockTds[i].innerHTML = html;
+        }
+
+        var stockDifferenceTds = jQuery(".stock-difference");
+        for (var i = 0; i <= stockDifferenceTds.length - 1; i++) {
+            stockDifferenceTds[i].innerHTML = " - "
+        }
+
+        //total-sales
+        var totalSaleTds = jQuery(".total-sales");
+        for (var i = 0; i <= totalSaleTds.length - 1; i++) {
+            totalSaleTds[i].innerHTML = " - "
+        }
+
+        //grand-total
+        jQuery(".grand-total").html("");
     }
 
     function getProductDetails(productID) {

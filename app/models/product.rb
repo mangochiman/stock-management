@@ -7,12 +7,18 @@ class Product < ActiveRecord::Base
   has_many :stock_cards, :foreign_key => :product_id
   has_many :product_additions, :foreign_key => :product_id
   has_many :stock_items, :foreign_key => :product_id
+  has_one :product_category, :foreign_key => :product_id
 
   default_scope {where ("voided = 0")}
 
   def self.search_products(q)
     products = Product.where(["name LIKE (?)", "%" + q.to_s + "%"]).order("product_id DESC")
     return products
+  end
+
+  def category_name
+    product_category_name = self.product_category.category.name rescue nil
+    product_category_name
   end
 
   def price

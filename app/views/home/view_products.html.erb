@@ -11,6 +11,7 @@
   <tr>
     <th> #</th>
     <th>Product Name</th>
+    <th>Product Category</th>
     <th>Minimum required</th>
     <th>Current stock</th>
     <th>Expected run out date</th>
@@ -23,6 +24,7 @@
       <% count = count + 1 %>
       <td><%= count %></td>
       <td><%= product.name  %></td>
+      <td><%= product.category_name  %></td>
       <td><%= product.minimum_required %></td>
       <td>&nbsp;</td>
       <td>&nbsp;</td>

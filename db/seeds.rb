@@ -8,41 +8,48 @@
 #
 #
 products = [
-    {:name => "Bado", :price => "3000"},
-    {:name => "Water", :price => "300"},
-    {:name => "Gualana", :price => "1200"},
-    {:name => "Castlite", :price => "1200"},
-    {:name => "Heinken", :price => "1200"},
-    {:name => "Dragon", :price => "1000"},
-    {:name => "Hunters", :price => "1200"},
-    {:name => "Amstel", :price => "1200"},
-    {:name => "Manica", :price => "800"},
-    {:name => "Miller", :price => "1200"},
-    {:name => "Green large", :price => "1000"},
-    {:name => "Green", :price => "700"},
-    {:name => "Special", :price => "700"},
-    {:name => "Soft drinks", :price => "400"},
-    {:name => "Chill", :price => "900"},
-    {:name => "Kuchekuche", :price => "500"},
-    {:name => "Ginger", :price => "400"},
-    {:name => "Booster", :price => "700"},
-    {:name => "Jameson", :price => "1200"},
-    {:name => "Amarula", :price => "1000"},
-    {:name => "Lime", :price => "300"},
-    {:name => "Jack Daniel", :price => "1000"},
-    {:name => "Captain Morgan", :price => "1000"},
-    {:name => "Brandy", :price => "500"},
-    {:name => "Malawi Gin", :price => "400"},
-    {:name => "Grants", :price => "1000"},
-    {:name => "Overmeer", :price => "1000"},
-    {:name => "Black label", :price => "1500"},
-    {:name => "NP Brandy", :price => "2500"},
-    {:name => "NP Gin", :price => "2000"},
-    {:name => "Special large", :price => "1000"},
-    {:name => "Lays", :price => "500"},
-    {:name => "Nuts", :price => "500"},
-    {:name => "Manyuchi", :price => "500"}
+    {:name => "Bado", :price => "3000", :category => "Standard"},
+    {:name => "Water", :price => "300", :category => "Standard"},
+    {:name => "Gualana", :price => "1200", :category => "Standard"},
+    {:name => "Castlite", :price => "1200", :category => "Standard"},
+    {:name => "Heinken", :price => "1200", :category => "Standard"},
+    {:name => "Dragon", :price => "1000", :category => "Standard"},
+    {:name => "Hunters", :price => "1200", :category => "Standard"},
+    {:name => "Amstel", :price => "1200", :category => "Standard"},
+    {:name => "Manica", :price => "800", :category => "Standard"},
+    {:name => "Miller", :price => "1200", :category => "Standard"},
+    {:name => "Green large", :price => "1000", :category => "Standard"},
+    {:name => "Green", :price => "700", :category => "Standard"},
+    {:name => "Special", :price => "700", :category => "Standard"},
+    {:name => "Soft drinks", :price => "400", :category => "Standard"},
+    {:name => "Chill", :price => "900", :category => "Standard"},
+    {:name => "Kuchekuche", :price => "500", :category => "Standard"},
+    {:name => "Ginger", :price => "400", :category => "Standard"},
+    {:name => "Booster", :price => "700", :category => "Standard"},
+    {:name => "Jameson", :price => "1200", :category => "Non standard"},
+    {:name => "Amarula", :price => "1000", :category => "Non standard"},
+    {:name => "Lime", :price => "300", :category => "Non standard"},
+    {:name => "Jack Daniel", :price => "1000", :category => "Non standard"},
+    {:name => "Captain Morgan", :price => "1000", :category => "Non standard"},
+    {:name => "Brandy", :price => "500", :category => "Non standard"},
+    {:name => "Malawi Gin", :price => "400", :category => "Non standard"},
+    {:name => "Grants", :price => "1000", :category => "Non standard"},
+    {:name => "Overmeer", :price => "1000", :category => "Non standard"},
+    {:name => "Black label", :price => "1500", :category => "Non Standard"},
+    {:name => "NP Brandy", :price => "2500", :category => "Standard"},
+    {:name => "NP Gin", :price => "2000", :category => "Standard"},
+    {:name => "Special large", :price => "1000", :category => "Standard"},
+    {:name => "Lays", :price => "500", :category => "Standard"},
+    {:name => "Nuts", :price => "500", :category => "Standard"},
+    {:name => "Manyuchi", :price => "500", :category => "Standard"}
 ]
+
+categories = ["Standard", "Non Standard"]
+categories.each do |category_name|
+  category = Category.new
+  category.name = category_name
+  category.save
+end
 
 products.each do |product|
   puts "Creating #{product[:name]}"
@@ -51,6 +58,12 @@ products.each do |product|
   new_product.minimum_required = 0
   new_product.starting_inventory = (50..500).to_a.shuffle[6]
   new_product.save
+
+  category = Category.find_by_name(product[:category])
+  product_category = ProductCategory.new
+  product_category.category_id = category.category_id
+  product_category.product_id = new_product.product_id
+  product_category.save
 
   price_history = PriceHistory.new
   price_history.product_id = new_product.product_id

@@ -11,6 +11,7 @@
   <tr>
     <th> #</th>
     <th>Name</th>
+    <th>Product Category</th>
     <th>Starting inventory</th>
     <th>Current price</th><th style="width: 3.5em;"></th>
 
@@ -23,6 +24,7 @@
       <% count = count + 1 %>
       <td><%= count %></td>
       <td><%= product.name %></td>
+      <td><%= product.category_name  %></td>
       <td><%= product.starting_inventory %></td>
       <td><%= number_to_currency(product.price, :unit => "MWK ") %></td>
       <td>
