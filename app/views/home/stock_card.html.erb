@@ -481,8 +481,8 @@
 
         for (var i = 0; i <= closeShotsTds.length - 1; i++) {
             var product_id = closeShotsTds[i].getAttribute("product_id");
-            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat close_shots_stock_"' + product_id + '>';
-            html += '<span id="close_shots_stock_' + product_id + '">?</span>';
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat shots_sold_stock_"' + product_id + '>';
+            html += '<span id="shots_sold_stock_' + product_id + '">?</span>';
             html += '</button>';
             html += '<button onclick="shotsSoldPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
             closeShotsTds[i].innerHTML = html;
