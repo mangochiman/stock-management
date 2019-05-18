@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   post '/close_stock' => 'home#close_stock'
 
   get '/stock_card' => 'home#stock_card'
+  get '/edit_stock_card' => 'home#edit_stock_card'
 
   get '/new_user' => 'users#new_user'
   get '/my_profile' => 'users#my_profile'
