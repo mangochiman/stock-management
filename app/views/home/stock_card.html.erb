@@ -63,6 +63,7 @@
             <th>Add</th>
             <th>Current stock</th>
             <th>Closing</th>
+            <th>Damages</th>
             <th>Difference</th>
             <th>Price</th>
             <th>Total sales</th>
@@ -80,11 +81,11 @@
                 added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
                 closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
-
+                damaged_stock = product.damaged_stock(@last_stock_id)
                 formatted_amount = ""
 
                 if difference != "-"
-                  total_sales = current_price.to_f * difference
+                  total_sales = current_price.to_f * (difference - damaged_stock.to_i)
                   if product.stock_closed?(@last_stock_id).blank?
                     total_sales = 0
                   end
@@ -100,6 +101,9 @@
                   closing_stock = "?"
                 end
 
+                if damaged_stock.blank?
+                  damaged_stock = "?"
+                end
                 #product.added_stock_by_date(params[:stock_date])
 
               %>
@@ -113,7 +117,7 @@
                 <% end %>
               </td>
               <td><%= current_stock %></td>
-              </td>
+
               <td class="close-stock" product_id="<%= product.product_id %>">
                 <% if @stock_cards.blank? %>
                   <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
@@ -126,6 +130,21 @@
                   </button>
                 <% end %>
               </td>
+
+              <td class="damage-stock" product_id="<%= product.product_id %>">
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                    <span id="damage_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="damageStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>"><%= damaged_stock %></span>
+                  </button>
+                <% end %>
+              </td>
+
+
               <% unless @stock_cards.blank? %>
                 <td class="stock-difference"><%= difference %></td>
               <% else %>
@@ -150,6 +169,7 @@
             <th>Current stock</th>
             <th>Shots sold</th>
             <th>Closing</th>
+            <th>Damages</th>
             <th>Price</th>
             <th>Total sales</th>
           </tr>
@@ -169,6 +189,7 @@
                 total_shots = (product.shots_by_date(params[:stock_date], @last_stock_id))
                 closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 shots_sold = product.shots_by_date(params[:stock_date], @last_stock_id)
+                damaged_stock = product.damaged_stock(@last_stock_id)
 
                 if product.stock_closed?(@last_stock_id).blank?
                   closing_stock = "?"
@@ -185,6 +206,10 @@
 
                 if @stock_cards.blank?
                   formatted_amount = " - "
+                end
+
+                if damaged_stock.blank?
+                  damaged_stock = "?"
                 end
 
               %>
@@ -221,6 +246,19 @@
                 <% else %>
                   <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
                     <span id="close_stock_<%= product.product_id %>"><%= closing_stock %></span>
+                  </button>
+                <% end %>
+              </td>
+
+              <td class="damage-stock" product_id="<%= product.product_id %>">
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                    <span id="damage_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="damageStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>"><%= damaged_stock %></span>
                   </button>
                 <% end %>
               </td>
@@ -331,6 +369,37 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         <button onclick="closeStock();" type="button" class="btn btn-primary">Close stock</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="damageStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Damaged stock</h4>
+      </div>
+      <div class="modal-body">
+        <div id="productDetailsDamage">
+
+        </div>
+        <form action="#" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="quantity"><strong>Damaged amount</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="stock[damaged_amount]" class="form-control" placeholder="Quantity" id="damagedAmount" required/>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="updateDamagedStock();" type="button" class="btn btn-primary">Close stock</button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -465,7 +534,7 @@
         <h4 class="modal-title" id="myModalLabel">Product additions</h4>
       </div>
       <div class="modal-body">
-        <p id="product-additions-data-header"></p><br />
+        <p id="product-additions-data-header"></p><br/>
         <p style="text-align: center;" id="product-additions-data"></p>
       </div>
       <div class="modal-footer">
@@ -727,6 +796,39 @@
         jQuery('#closeStockModal').modal('show');
     }
 
+    function damageStockPopup(productID) {
+        selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                jQuery("#productDetailsDamage").html(html);
+            }
+
+        });
+
+        jQuery('#damageStockModal').modal('show');
+    }
+
 
     function authenticate() {
         var username = document.getElementById("username").value;
@@ -776,9 +878,15 @@
             if (!closedStock) {
                 closedStock = "";
             }
+
             var closedShots = closedProducts[productID]["shots"];
             if (!closedShots) {
                 closedShots = "";
+            }
+
+            var damagedStock = closedProducts[productID]["damage"];
+            if (!damagedStock) {
+                damagedStock = "";
             }
 
             var input = document.createElement("input");
@@ -791,6 +899,12 @@
             input.type = "hidden";
             input.value = closedShots;
             input.name = "products[" + productID + "][shots]";
+            form.appendChild(input);
+
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.value = damagedStock;
+            input.name = "products[" + productID + "][damage]";
             form.appendChild(input);
         }
 
@@ -816,6 +930,17 @@
         //jQuery(".close_stock_" + selectedProductID).show();
         jQuery('#closeStockModal').modal('hide');
         //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
+    }
+
+    function updateDamagedStock() {
+        var damagedAmount = document.getElementById("damagedAmount").value;
+        var damagedAmountTag = document.getElementById("damage_stock_" + selectedProductID);
+        damagedAmountTag.innerHTML = damagedAmount;
+        if (!closedProducts[selectedProductID]) {
+            closedProducts[selectedProductID] = {};
+        }
+        closedProducts[selectedProductID]["damage"] = damagedAmount;
+        jQuery('#damageStockModal').modal('hide');
     }
 
     function closeShots() {

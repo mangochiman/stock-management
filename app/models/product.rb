@@ -231,4 +231,8 @@ class Product < ActiveRecord::Base
     self.stock_items.where(["stock_id =?", stock_id]).last.shots_sold rescue nil
   end
 
+  def damaged_stock(stock_id)
+    self.stock_items.where(["stock_id =?", stock_id]).last.damaged_stock rescue nil
+  end
+
 end

@@ -374,6 +374,8 @@ class HomeController < ApplicationController
       params[:products].each do |product_id, values|
         closing_amount = values["stock"]
         closing_shots = values["shots"]
+        damaged_stock = values["damage"]
+
         product = Product.find(product_id)
         opening_stock_by_date = product.opening_stock_by_date(params[:stock_date])
         stock_item = StockItem.new
@@ -381,6 +383,7 @@ class HomeController < ApplicationController
         stock_item.product_id = product_id
         stock_item.opening_stock = opening_stock_by_date
         stock_item.shots_sold = closing_shots
+        stock_item.damaged_stock = damaged_stock
         stock_item.closing_stock = closing_amount
         stock_item.save
       end
