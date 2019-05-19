@@ -32,15 +32,22 @@
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
                 added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
-                closing_stock = product.closed_stock_by_date(params[:stock_date])
+                closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
 
                 formatted_amount = ""
 
                 if difference != "-"
                   total_sales = current_price.to_f * difference
+                  if product.stock_closed?(@last_stock_id).blank?
+                    total_sales = 0
+                  end
                   grand_total += total_sales
                   formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
+                end
+
+                if product.stock_closed?(@last_stock_id).blank?
+                  closing_stock = "?"
                 end
 
               %>
@@ -53,7 +60,7 @@
               </td>
               <td class="close-stock" product_id="<%= product.product_id %>">
                 <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-                  <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
+                  <span id="close_stock_<%= product.product_id %>"><%= closing_stock %></span>
                 </button>
                 <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>

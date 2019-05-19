@@ -301,7 +301,9 @@ class HomeController < ApplicationController
     @non_standard_products = Product.non_standard_items
 
     @last_stock_id = Stock.where(["DATE(stock_time) = ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
-    #@last_stock_id = Stock.where(["DATE(stock_time) <= ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
+    if params[:stock_id]
+      @last_stock_id = params[:stock_id]
+    end
     @stock_cards = []
   end
 

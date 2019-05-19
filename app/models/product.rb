@@ -201,13 +201,34 @@ class Product < ActiveRecord::Base
   end
 
   def shots_by_date(date, stock_id = nil)
-    stock_items = StockItem.joins(:stock).where(["product_id =? AND closing_stock is NOT NULL AND
+    stock_items = StockItem.joins(:stock).where(["product_id =? AND shots_sold is NOT NULL AND
       DATE(stock_time) = ? ", self.product_id, date.to_date])
     sum = 0
-    stock_items.each do |stock_item|
-      sum += stock_item.shots_sold.to_i
+
+    if stock_id.blank?
+      stock_items.each do |stock_item|
+        sum += stock_item.shots_sold.to_i
+      end
+      return sum
+    else
+      stock_items = StockItem.where(["stock_id =? AND product_id =? AND shots_sold is NOT NULL", stock_id, self.product_id])
+      unless stock_items.blank?
+        stock_items.each do |stock_item|
+          sum += stock_item.shots_sold.to_i
+        end
+        return sum
+      else
+        return 0
+      end
     end
-    return sum
+  end
+
+  def stock_closed?(stock_id)
+    self.stock_items.where(["stock_id =?", stock_id]).last.closing_stock rescue nil
+  end
+
+  def shots_sold?(stock_id)
+    self.stock_items.where(["stock_id =?", stock_id]).last.shots_sold rescue nil
   end
 
 end
