@@ -101,11 +101,20 @@
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
-                total_shots = (product.shots_by_date(params[:stock_date]))
+                total_shots = product.shots_by_date(params[:stock_date], @last_stock_id)
+                closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
+
+                if product.stock_closed?(@last_stock_id).blank?
+                  closing_stock = "?"
+                end
 
                 total_sales = current_price.to_f * total_shots
                 grand_total += total_sales
                 formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
+
+                if product.shots_sold?(@last_stock_id).blank?
+                  total_shots = "?"
+                end
 
               %>
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
@@ -117,14 +126,14 @@
 
               <td class="close-shots" product_id="<%= product.product_id %>">
                 <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-                  <span id="shots_sold_stock_<%= product.product_id %>"><%= product.shots_by_date(params[:stock_date]) %></span>
+                  <span id="shots_sold_stock_<%= product.product_id %>"><%= total_shots%></span>
                 </button>
                 <button onclick="shotsSoldPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>
 
               <td>
                 <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-                  <span id="close_stock_<%= product.product_id %>"><%= product.closed_stock_by_date(params[:stock_date]) %></span>
+                  <span id="close_stock_<%= product.product_id %>"><%= closing_stock %></span>
                 </button>
                 <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>
