@@ -585,6 +585,7 @@
         var closeStockTds = jQuery(".close-stock");
         var closeShotsTds = jQuery(".close-shots");
         var addStockTds = jQuery(".add-stock");
+        var damageStockTds = jQuery(".damage-stock");
 
         for (var i = 0; i <= closeStockTds.length - 1; i++) {
             var product_id = closeStockTds[i].getAttribute("product_id");
@@ -602,6 +603,15 @@
             html += '</button>';
             html += '<button onclick="shotsSoldPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
             closeShotsTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= damageStockTds.length - 1; i++) {
+            var product_id = damageStockTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_"' + product_id + '>';
+            html += '<span id="damage_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="damageStockPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
+            damageStockTds[i].innerHTML = html;
         }
 
         for (var i = 0; i <= addStockTds.length - 1; i++) {
