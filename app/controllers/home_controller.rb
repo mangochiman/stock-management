@@ -317,6 +317,7 @@ class HomeController < ApplicationController
     params[:products].each do |product_id, values|
       closing_amount = values["stock"]
       closing_shots = values["shots"]
+      damaged_stock = values["damage"]
       product = Product.find(product_id)
 
       stock_item = StockItem.where(["stock_id =? AND product_id =?", params[:stock_id], product_id]).last
@@ -335,6 +336,10 @@ class HomeController < ApplicationController
 
       unless closing_amount.blank?
         stock_item.closing_stock = closing_amount
+      end
+
+      unless damaged_stock.blank?
+        stock_item.damaged_stock = damaged_stock
       end
 
       stock_item.save
