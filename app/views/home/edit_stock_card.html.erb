@@ -378,32 +378,6 @@
         jQuery('#cashierClosureModal').modal('show');
     }
 
-    function newStockCard() {
-        closedProducts = {};
-        var closeStockTds = jQuery(".close-stock");
-        for (var i = 0; i <= closeStockTds.length - 1; i++) {
-            var product_id = closeStockTds[i].getAttribute("product_id");
-            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_"' + product_id + '>';
-            html += '<span id="close_stock_' + product_id + '">?</span>';
-            html += '</button>';
-            html += '<button onclick="closeStockPopup(' + product_id + ')" class="btn btn-default" href="#">Update</button>';
-            closeStockTds[i].innerHTML = html;
-        }
-
-        var stockDifferenceTds = jQuery(".stock-difference");
-        for (var i = 0; i <= stockDifferenceTds.length - 1; i++) {
-            stockDifferenceTds[i].innerHTML = " - "
-        }
-
-        //total-sales
-        var totalSaleTds = jQuery(".total-sales");
-        for (var i = 0; i <= totalSaleTds.length - 1; i++) {
-            totalSaleTds[i].innerHTML = " - "
-        }
-
-        //grand-total
-        jQuery(".grand-total").html("");
-    }
 
     var last_stock_id = "<%= @last_stock_id %>";
 
@@ -553,13 +527,19 @@
 
         var form = document.createElement("form");
         form.method = "POST";
-        form.action = "/create_stock";
+        form.action = "/update_stock";
         body.appendChild(form);
 
         var input = document.createElement("input");
         input.type = "hidden";
         input.value = stock_date;
         input.name = "stock_date";
+        form.appendChild(input);
+
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.value = last_stock_id;
+        input.name = "stock_id";
         form.appendChild(input);
 
         var input = document.createElement("input");
@@ -606,6 +586,8 @@
         var closingAmount = document.getElementById("closingAmount").value;
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingAmount;
+        closeAmountTag.style.color = "green";
+        closeAmountTag.style.fontWeight = "bold";
         if (!closedProducts[selectedProductID]) {
             closedProducts[selectedProductID] = {};
         }
@@ -619,6 +601,8 @@
         var closingShots = document.getElementById("closingShots").value;
         var closeAmountTag = document.getElementById("shots_sold_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingShots;
+        closeAmountTag.style.color = "green";
+        closeAmountTag.style.fontWeight = "bold";
         if (!closedProducts[selectedProductID]) {
             closedProducts[selectedProductID] = {};
         }

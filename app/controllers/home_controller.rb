@@ -301,6 +301,44 @@ class HomeController < ApplicationController
     @stock_cards = []
   end
 
+  def update_stock
+    stock_date = params[:stock_date]
+
+    stock = Stock.find(params[:stock_id])
+    stock.user_id = params[:user_id]
+    stock.save
+
+    params[:products].each do |product_id, values|
+      closing_amount = values["stock"]
+      closing_shots = values["shots"]
+      product = Product.find(product_id)
+
+      stock_item = StockItem.where(["stock_id =? AND product_id =?", params[:stock_id], product_id]).last
+      stock_item = StockItem.new if stock_item.blank?
+      stock_item.stock_id = stock.stock_id
+      stock_item.product_id = product_id
+
+      if stock_item.opening_stock.blank?
+        opening_stock_by_date = product.opening_stock_by_date(params[:stock_date])
+        stock_item.opening_stock = opening_stock_by_date
+      end
+
+      unless closing_shots.blank?
+        stock_item.shots_sold = closing_shots
+      end
+
+      unless closing_amount.blank?
+        stock_item.closing_stock = closing_amount
+      end
+
+      stock_item.save
+    end
+
+    flash[:notice] = "You have successfully closed the stock card"
+    redirect_to("/stock_card?stock_date=#{stock_date}") and return
+
+  end
+
   def add_stock
     @page_header = "Add stock"
     @product = Product.find(params[:product_id])
