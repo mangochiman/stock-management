@@ -73,7 +73,7 @@
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
                 added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
-                closing_stock = product.closed_stock_by_date(params[:stock_date])
+                closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
 
                 formatted_amount = ""
