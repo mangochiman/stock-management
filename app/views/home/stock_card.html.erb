@@ -108,7 +108,7 @@
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
               <td>
                 <% unless @stock_cards.blank? %>
-                  <button type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
+                  <button onclick="getProductAdditions('<%= product.product_id %>')" type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
                 <% else %>
                   <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
 
@@ -458,6 +458,28 @@
 </div>
 <!-- /.modal -->
 
+<!-- Modal -->
+<div class="modal fade" id="productAdditionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Product additions</h4>
+      </div>
+      <div class="modal-body">
+        <p id="product-additions-data-header"></p><br />
+        <p style="text-align: center;" id="product-additions-data"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 
 <script type="text/javascript">
     var selectedProductID;
@@ -583,6 +605,55 @@
             }
 
         });
+    }
+
+    function getProductAdditions(productID) {
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                jQuery("#product-additions-data").html("Please wait ...");
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var productAdditions = result["product_additions"];
+
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                var table = "<table class='table table-bordered table-striped'><thead><tr><th>Date </th><th>Quantity </th></tr></thead>";
+                table += "<body>";
+                for (var i = 0; i <= productAdditions.length - 1; i++) {
+                    table += "<tr>";
+                    table += "<td>" + productAdditions[i]["date_added"] + "</td>";
+                    table += "<td>" + productAdditions[i]["added_stock"] + "</td>";
+                    table += "</tr>";
+                }
+                table += "</body>";
+                table += "</table>";
+                jQuery("#product-additions-data-header").html(html);
+                if (productAdditions.length > 0) {
+                    jQuery("#product-additions-data").html(table);
+                } else {
+                    jQuery("#product-additions-data").html("<p>No items added today</p>");
+                }
+
+            }
+        });
+        jQuery('#productAdditionModal').modal('show');
     }
 
     function shotsSoldPopup(productID) {
