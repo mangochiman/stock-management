@@ -1,8 +1,6 @@
 <div class="panel panel-default">
   <div class="panel-body" style="background-color: lightyellow">
     <form action="#" role="form" class="form-horizontal">
-
-
       <table style="width: 50%;" class="center-block">
         <tr>
           <th>Date &nbsp;</th>
@@ -18,6 +16,7 @@
     </form>
   </div>
 </div>
+
 <% if @stock_cards.length > 1 %>
   <div class="panel panel-default">
     <p class="panel-heading">Available stock cards</p>
@@ -38,7 +37,6 @@
           </div>
         <% end %>
       </div>
-
 
       <div class="clearfix"></div>
     </div>
@@ -106,11 +104,11 @@
 
               %>
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
-              <td>
+              <td class="add-stock" product_id="<%= product.product_id %>">
                 <% unless @stock_cards.blank? %>
                   <button onclick="getProductAdditions('<%= product.product_id %>')" type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
                 <% else %>
-                  <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
+                  <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
 
                 <% end %>
               </td>
@@ -121,7 +119,7 @@
                   <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
                     <span id="close_stock_<%= product.product_id %>">?</span>
                   </button>
-                  <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default" href="#">Update</button>
+                  <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
                 <% else %>
                   <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
                     <span id="close_stock_<%= product.product_id %>"><%= closing_stock %></span>
@@ -191,9 +189,9 @@
 
               %>
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
-              <td>
+              <td class="add-stock" product_id="<%= product.product_id %>">
                 <% unless @stock_cards.blank? %>
-                  <button type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
+                  <button onclick="getProductAdditions('<%= product.product_id %>')" type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
                 <% else %>
                   <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
 
@@ -517,6 +515,7 @@
         closedProducts = {};
         var closeStockTds = jQuery(".close-stock");
         var closeShotsTds = jQuery(".close-shots");
+        var addStockTds = jQuery(".add-stock");
 
         for (var i = 0; i <= closeStockTds.length - 1; i++) {
             var product_id = closeStockTds[i].getAttribute("product_id");
@@ -534,6 +533,12 @@
             html += '</button>';
             html += '<button onclick="shotsSoldPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
             closeShotsTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= addStockTds.length - 1; i++) {
+            var product_id = addStockTds[i].getAttribute("product_id");
+            var html = '<button onclick="updateStockPopup(' + product_id + ')" class="btn btn-default" href="#">Update</button>';
+            //addStockTds[i].innerHTML = html;
         }
 
         var stockDifferenceTds = jQuery(".stock-difference");
@@ -599,7 +604,7 @@
                 if (productAdditions.length > 0) {
                     jQuery("#productAdditions").html(table);
                 } else {
-                    jQuery("#productAdditions").html("<p>No items added today</p>");
+                    jQuery("#productAdditions").html("<p>No items added on this date</p>");
                 }
 
             }
@@ -648,7 +653,7 @@
                 if (productAdditions.length > 0) {
                     jQuery("#product-additions-data").html(table);
                 } else {
-                    jQuery("#product-additions-data").html("<p>No items added today</p>");
+                    jQuery("#product-additions-data").html("<p>No items added on this date</p>");
                 }
 
             }
