@@ -290,6 +290,7 @@ class HomeController < ApplicationController
     end
     #@last_stock_id = Stock.where(["DATE(stock_time) <= ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
     @stock_cards = Stock.where(["DATE(stock_time) = ?", @today.to_date])
+    #raise @last_stock_id.inspect
   end
 
   def edit_stock_card
