@@ -378,17 +378,24 @@ class HomeController < ApplicationController
     if stock.save
       params[:products].each do |product_id, values|
         closing_amount = values["stock"]
-        closing_shots = values["shots"]
+        #closing_shots = values["shots"]
+        closing_shots = ""
         damaged_stock = values["damage"]
+        complementary_stock = values["complementary"]
 
         product = Product.find(product_id)
         opening_stock_by_date = product.opening_stock_by_date(params[:stock_date])
         stock_item = StockItem.new
+        if product.category_name.match(/NON/i)
+          closing_shots = closing_amount
+          closing_amount = opening_stock_by_date - closing_amount.to_i - damaged_stock.to_i - complementary_stock.to_i
+        end
         stock_item.stock_id = stock.stock_id
         stock_item.product_id = product_id
         stock_item.opening_stock = opening_stock_by_date
         stock_item.shots_sold = closing_shots
         stock_item.damaged_stock = damaged_stock
+        stock_item.complementary_stock = complementary_stock
         stock_item.closing_stock = closing_amount
         stock_item.save
       end
