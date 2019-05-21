@@ -18,6 +18,7 @@
             <th>Current stock</th>
             <th>Closing</th>
             <th>Damages</th>
+            <th>Complementary</th>
             <th>Difference</th>
             <th>Price</th>
             <th>Total sales</th>
@@ -36,11 +37,14 @@
                 closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
                 damaged_stock = product.damaged_stock(@last_stock_id)
-
+                complementary_stock = product.complementary_stock(@last_stock_id)
+                if complementary_stock.blank?
+                  complementary_stock = "?"
+                end
                 formatted_amount = ""
 
                 if difference != "-"
-                  total_sales = current_price.to_f * difference
+                  total_sales = current_price.to_f * (difference - damaged_stock.to_i - complementary_stock.to_i)
                   if product.stock_closed?(@last_stock_id).blank?
                     total_sales = 0
                   end
@@ -83,6 +87,13 @@
                 <% end %>
               </td>
 
+              <td class="complementary-stock" product_id="<%= product.product_id %>">
+                <button style="color: red;" type="button" class="btn btn-default btn-circle stat complementary_stock_<%= product.product_id %>">
+                  <span id="complementary_stock_<%= product.product_id %>"><%= complementary_stock %></span>
+                </button>
+                <button onclick="complementaryStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+              </td>
+
               <td class="stock-difference"><%= difference %></td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
@@ -104,6 +115,7 @@
             <th>Shots sold</th>
             <th>Closing</th>
             <th>Damages</th>
+            <th>Complementary</th>
             <th>Price</th>
             <th>Total sales</th>
           </tr>
@@ -120,15 +132,16 @@
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
-                total_shots = product.shots_by_date(params[:stock_date], @last_stock_id)
+                total_shots = product.shots_sold?(@last_stock_id)
                 closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 damaged_stock = product.damaged_stock(@last_stock_id)
+                complementary_stock = product.complementary_stock(@last_stock_id)
 
                 if product.stock_closed?(@last_stock_id).blank?
                   closing_stock = "?"
                 end
 
-                total_sales = current_price.to_f * total_shots
+                total_sales = current_price.to_f * total_shots.to_i
                 grand_total += total_sales
                 formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
 
@@ -138,6 +151,10 @@
 
                 if damaged_stock.blank?
                   damaged_stock = "?"
+                end
+
+                if complementary_stock.blank?
+                  complementary_stock = "?"
                 end
 
               %>
@@ -150,7 +167,7 @@
 
               <td class="close-shots" product_id="<%= product.product_id %>">
                 <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-                  <span id="shots_sold_stock_<%= product.product_id %>"><%= total_shots%></span>
+                  <span id="shots_sold_stock_<%= product.product_id %>"><%= total_shots %></span>
                 </button>
                 <button onclick="shotsSoldPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>
@@ -163,16 +180,17 @@
               </td>
 
               <td class="damage-stock" product_id="<%= product.product_id %>">
-                <% if @stock_cards.blank? %>
-                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
-                    <span id="damage_stock_<%= product.product_id %>">?</span>
-                  </button>
-                  <button onclick="damageStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
-                <% else %>
-                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
-                    <span id="close_stock_<%= product.product_id %>"><%= damaged_stock %></span>
-                  </button>
-                <% end %>
+                <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                  <span id="damage_stock_<%= product.product_id %>"><%= damaged_stock %></span>
+                </button>
+                <button onclick="damageStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+              </td>
+
+              <td class="complementary-stock" product_id="<%= product.product_id %>">
+                <button style="color: red;" type="button" class="btn btn-default btn-circle stat complementary_stock_<%= product.product_id %>">
+                  <span id="complementary_stock_<%= product.product_id %>"><%= complementary_stock %></span>
+                </button>
+                <button onclick="complementaryStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
@@ -306,6 +324,37 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         <button onclick="updateDamagedStock();" type="button" class="btn btn-primary">Close stock</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="complementaryStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Complementary stock</h4>
+      </div>
+      <div class="modal-body">
+        <div id="productDetailsComplementary">
+
+        </div>
+        <form action="#" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="quantity"><strong>Complementary amount</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="stock[complementary_amount]" class="form-control" placeholder="Quantity" id="complementaryAmount" required/>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="updateComplementaryStock();" type="button" class="btn btn-primary">Update stock</button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -617,6 +666,38 @@
     }
 
 
+    function complementaryStockPopup(productID) {
+        selectedProductID = productID;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                jQuery("#productDetailsComplementary").html(html);
+            }
+
+        });
+
+        jQuery('#complementaryStockModal').modal('show');
+    }
+
     function authenticate() {
         var username = document.getElementById("username").value;
         var password = document.getElementById("password").value;
@@ -681,6 +762,11 @@
                 damagedStock = "";
             }
 
+            var complementaryStock = closedProducts[productID]["complementary"];
+            if (!complementaryStock) {
+                complementaryStock = "";
+            }
+
             var input = document.createElement("input");
             input.type = "hidden";
             input.value = closedStock;
@@ -697,6 +783,12 @@
             input.type = "hidden";
             input.value = damagedStock;
             input.name = "products[" + productID + "][damage]";
+            form.appendChild(input);
+
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.value = complementaryStock;
+            input.name = "products[" + productID + "][complementary]";
             form.appendChild(input);
         }
 
@@ -736,6 +828,18 @@
         }
         closedProducts[selectedProductID]["damage"] = damagedAmount;
         jQuery('#damageStockModal').modal('hide');
+    }
+
+
+    function updateComplementaryStock() {
+        var complementaryAmount = document.getElementById("complementaryAmount").value;
+        var complementaryAmountTag = document.getElementById("complementary_stock_" + selectedProductID);
+        complementaryAmountTag.innerHTML = complementaryAmount;
+        if (!closedProducts[selectedProductID]) {
+            closedProducts[selectedProductID] = {};
+        }
+        closedProducts[selectedProductID]["complementary"] = complementaryAmount;
+        jQuery('#complementaryStockModal').modal('hide');
     }
 
     function closeShots() {
