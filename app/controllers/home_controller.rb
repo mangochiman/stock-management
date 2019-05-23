@@ -290,6 +290,7 @@ class HomeController < ApplicationController
     end
     #@last_stock_id = Stock.where(["DATE(stock_time) <= ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
     @stock_cards = Stock.where(["DATE(stock_time) = ?", @today.to_date])
+    @debtors = Debtor.where(["DATE(date) = ?", @today.to_date])
     #raise @last_stock_id.inspect
   end
 
@@ -452,6 +453,30 @@ class HomeController < ApplicationController
       redirect_to("/stock_card?stock_date=#{params[:stock][:stock_date]}") and return
     end
 
+  end
+
+  def create_debtors
+    debtor = Debtor.new
+    debtor.name = params[:name]
+    debtor.amount_owed = params[:amount]
+    debtor.description = params[:description]
+    debtor.date = params[:date]
+
+    if debtor.save
+      data = {:data => debtor.to_json, :status => "success"}
+      render json: data.to_json
+    else
+      errors = debtor.errors.full_messages.join('<br />')
+      data = {:data => errors, :status => "fail"}
+      render json: data.to_json
+    end
+
+  end
+
+  def void_debtors
+    debtor = Debtor.find(params[:debtor_id])
+    debtor.delete
+    render text: "success"
   end
 
 end

@@ -47,6 +47,8 @@
 <ul class="nav nav-tabs">
   <li class="active"><a href="#standard" data-toggle="tab">Standard items</a></li>
   <li><a href="#non-standard" data-toggle="tab">Non standard items</a></li>
+  <li><a href="#debtors" data-toggle="tab">Debtors</a></li>
+  <li onclick="updateSummary();"><a href="#summary" data-toggle="tab">Summary</a></li>
 </ul>
 
 <div class="row">
@@ -175,6 +177,26 @@
           <% end %>
           </tbody>
         </table>
+
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>GRAND TOTAL</th>
+            <% unless @stock_cards.blank? %>
+              <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span>
+              </th>
+            <% else %>
+              <td> &nbsp;</td>
+            <% end %>
+
+          </tr>
+          </thead>
+        </table>
+
+        <% unless @stock_cards.blank? %>
+          <button onclick="editStockCard()" class="btn btn-primary"><i class="fa fa-edit"></i> Edit stock card</button>
+          <button onclick="newStockCard();" class="btn btn-primary"><i class="fa fa-plus"></i> New stock card</button>
+        <% end %>
       </div>
 
       <div class="tab-pane fade" id="non-standard">
@@ -291,38 +313,132 @@
           <% end %>
           </tbody>
         </table>
+
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>GRAND TOTAL</th>
+            <% unless @stock_cards.blank? %>
+              <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span>
+              </th>
+            <% else %>
+              <td> &nbsp;</td>
+            <% end %>
+
+          </tr>
+          </thead>
+        </table>
+
+        <% unless @stock_cards.blank? %>
+          <button onclick="editStockCard()" class="btn btn-primary"><i class="fa fa-edit"></i> Edit stock card</button>
+          <button onclick="newStockCard();" class="btn btn-primary"><i class="fa fa-plus"></i> New stock card</button>
+        <% end %>
       </div>
+      <div class="tab-pane in" id="debtors">
+        <form action="#" role="form" class="form-horizontal">
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="productName">Name</label>
+            <div class="col-lg-5">
+              <input type="text" name="debtor[name]" class="form-control" placeholder="Name" id="debtorName" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="amount">Amount </label>
+            <div class="col-lg-5">
+              <input type="text" name="debtor[amount]" class="form-control" placeholder="Amount" id="debtorAmount" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="description">Description </label>
+            <div class="col-lg-5">
+              <textarea rows="3" class="form-control" id="description"></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="">&nbsp;</label>
+            <div class="col-lg-5">
+              <button id="debtorSubmit" type="submit" style="display: none;"></button>
+              <a href='#' onclick="createDebtor();" role='button'><i class='btn btn-primary' id="createRecord">Create
+                Record</i></a>
+            </div>
+          </div>
+
+
+        </form>
+
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Amount owed</th>
+            <th>Amount paid</th>
+            <th>Balance due</th>
+            <th>&nbsp;</th>
+          </tr>
+          </thead>
+          <tbody id="debtorsTbody">
+          <% @debtors.each do |debtor| %>
+            <tr id="tr_<%= debtor.debtor_id %>">
+              <td><%= debtor.name %></td>
+              <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
+              <td><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></td>
+              <td><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></td>
+              <td>
+                <a href="#" onclick="showvoidDebtorConfirm('<%= debtor.debtor_id%>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-pane in" id="summary">
+        <table class="table table-bordered" style="width: 50%;">
+
+          <tbody>
+          <tr>
+            <td>Complementary</td>
+            <td></td>
+          </tr>
+
+          <tr>
+            <td>Damages</td>
+            <td></td>
+          </tr>
+
+          <tr>
+            <td>Total sales</td>
+            <td></td>
+          </tr>
+
+          <tr>
+            <td>Debtors</td>
+            <td></td>
+          </tr>
+
+
+          <tr>
+            <td>Cash at hand</td>
+            <td></td>
+          </tr>
+
+          </tbody>
+        </table>
+
+        <button style="width: 250px;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
+          <i class="fa fa-lock"> Cashier closure</i></button>
+        <span style="padding-left: 50px">&nbsp;</span>
+
+      </div>
+
+      <br/><br/><br/>
     </div>
   </div>
 </div>
-
-
-
-
-<div>
-  <button style="width: 250px;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
-    <i class="fa fa-lock"> Cashier closure</i></button>
-  <span style="padding-left: 50px">&nbsp;</span>
-  <% unless @stock_cards.blank? %>
-    <button onclick="editStockCard()" class="btn btn-primary"><i class="fa fa-edit"></i> Edit stock card</button>
-    <button onclick="newStockCard();" class="btn btn-primary"><i class="fa fa-plus"></i> New stock card</button>
-  <% end %>
-  <br/><br/><br/><br/>
-</div>
-
-<table class="table table-bordered table-striped">
-  <thead>
-  <tr>
-    <th>GRAND TOTAL</th>
-    <% unless @stock_cards.blank? %>
-      <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
-    <% else %>
-      <td> &nbsp;</td>
-    <% end %>
-
-  </tr>
-  </thead>
-</table>
 
 
 <!-- Modal -->
@@ -600,6 +716,28 @@
 </div>
 <!-- /.modal -->
 
+
+<!-- Modal -->
+<div class="modal fade" id="voidDebtorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Void debtors</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center;">You are about to delete a record. Are you sure you want to continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="voidDebtor();" type="button" class="btn btn-primary">Yes am sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <script type="text/javascript">
     var selectedProductID;
@@ -1060,7 +1198,7 @@
         jQuery('#damageStockModal').modal('hide');
     }
 
-    function updateComplementaryStock(){
+    function updateComplementaryStock() {
         var complementaryAmount = document.getElementById("complementaryAmount").value;
         var complementaryAmountTag = document.getElementById("complementary_stock_" + selectedProductID);
         complementaryAmountTag.innerHTML = complementaryAmount;
@@ -1091,6 +1229,90 @@
         var date = document.getElementById("date").value;
         window.location = "/stock_card?stock_date=" + date;
     }
+
+    function updateSummary() {
+        console.log("here")
+    }
+
+    function createDebtor() {
+        var name = document.getElementById("debtorName").value;
+        var amount = document.getElementById("debtorAmount").value;
+        var description = document.getElementById("description").value;
+
+        if (name.length == 0 || amount.length == 0) {
+            $('#debtorSubmit').click();
+            return
+        }
+
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "POST",
+            url: "/create_debtors",
+            data: "name=" + name + "&date=" + stock_date + "&amount=" + amount + "&description=" + description,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                jQuery("#debtorName").val("");
+                jQuery("#debtorAmount").val("");
+                jQuery("#description").val("");
+                if (result["status"] == "success") {
+                    var data = JSON.parse(result["data"]);
+                    var debtor_id = data["debtor_id"];
+                    var amount_owed = formatMoney(data["amount_owed"]);
+                    var amount_paid = formatMoney(data["amount_paid"]);
+                    var balance_due = formatMoney(data["balance_due"]);
+
+                    var html = "<tr id='tr_" + debtor_id + "'>";
+                    html += "<td>" + data["name"] + "</td>";
+                    html += "<td> MWK " + amount_owed + "</td>";
+                    html += "<td> MWK " + amount_paid + "</td>";
+                    html += "<td> MWK " + balance_due + "</td>";
+                    html += '<td><a href="#" onclick="showvoidDebtorConfirm(' + debtor_id + ')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a></td>';
+                    html += "</tr>";
+                    jQuery("#debtorsTbody").append(html);
+                    var target = jQuery('html,body');
+                    target.animate({scrollTop: target.height()}, 1000);
+                }
+            }
+
+        });
+    }
+
+    var selectedDebtorID;
+
+    function showvoidDebtorConfirm(debtorID) {
+        selectedDebtorID = debtorID;
+        jQuery('#voidDebtorModal').modal('show');
+    }
+
+    function voidDebtor() {
+        jQuery.ajax({
+            type: "POST",
+            url: "/void_debtors",
+            data: "debtor_id=" + selectedDebtorID,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                jQuery("#tr_" + selectedDebtorID).remove();
+                jQuery('#voidDebtorModal').modal('hide');
+            }
+
+        });
+    }
+
+    function formatMoney(n, c, d, t) {
+        var c = isNaN(c = Math.abs(c)) ? 2 : c,
+            d = d == undefined ? "." : d,
+            t = t == undefined ? "," : t,
+            s = n < 0 ? "-" : "",
+            i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+            j = (j = i.length) > 3 ? j % 3 : 0;
+
+        return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+    };
 
     window.onload = function () {
         $(".datepicker").datepicker({
