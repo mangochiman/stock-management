@@ -479,4 +479,19 @@ class HomeController < ApplicationController
     render text: "success"
   end
 
+
+  def get_product_data
+    products = Product.all
+    data = {}
+    debts = Stock.debtors(params[:stock_date], @last_stock_id)
+    products.each do |product|
+      product_id = product.product_id
+      data[product_id] = {}
+      data[product_id]["current_stock"] = product.current_stock(params[:stock_date], @last_stock_id)
+      data[product_id]["current_price"] = product.price
+      data[product_id]["debts"] = debts
+    end
+    render json: data.to_json
+  end
+
 end

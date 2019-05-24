@@ -402,28 +402,28 @@
           <tbody>
           <tr>
             <td>Complementary</td>
-            <td></td>
+            <td><span id="complementaryTotal" class="pull-right" style="font-weight: bold;"></span></td>
           </tr>
 
           <tr>
             <td>Damages</td>
-            <td></td>
+            <td><span id="damagesTotal" class="pull-right" style="font-weight: bold;"></span></td>
           </tr>
 
           <tr>
             <td>Total sales</td>
-            <td></td>
+            <td><span id="salesTotal" class="pull-right" style="font-weight: bold;"></span></td>
           </tr>
 
           <tr>
             <td>Debtors</td>
-            <td></td>
+            <td><span id="debtorsTotal" class="pull-right" style="font-weight: bold;"></span></td>
           </tr>
 
 
           <tr>
             <td>Cash at hand</td>
-            <td></td>
+            <td><span id="cashTotal" class="pull-right" style="font-weight: bold;"></span></td>
           </tr>
 
           </tbody>
@@ -743,7 +743,14 @@
     var selectedProductID;
     var stock_date = "<%= params[:stock_date] %>";
     var total_products = parseInt("<%= @products.length %>");
+    var closedProducts = {};
     var user;
+    var product_data = {}
+    <% @products.each do |product| %>
+    product_data["<%= product.product_id %>"] = {};
+    product_data["<%= product.product_id %>"]["price"] = "<%= product.price %>";
+    product_data["<%= product.product_id %>"]["opening"] = "<%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %>";
+    <% end %>
 
     function updateStockPopup(productID) {
         selectedProductID = productID;
@@ -1172,8 +1179,6 @@
         $('#add_stock_submit_handle').click();
     }
 
-    var closedProducts = {};
-
     function closeStock(productID) {
         var closingAmount = document.getElementById("closingAmount").value;
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
@@ -1231,7 +1236,78 @@
     }
 
     function updateSummary() {
-        console.log("here")
+
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_data",
+            data: "stock_date=" + stock_date + "&last_stock_id=" + last_stock_id,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                var total_sales = 0;
+                var complementary_total = 0;
+                var damages_total = 0;
+                var debtors_total = 0;
+
+                for (var productID in result) {
+                    if (closedProducts[productID]) {
+                        var current_price = result[productID]["current_price"];
+                        var current_stock = result[productID]["current_stock"];
+                        debtors_total = result[productID]["debts"];
+
+                        var closing_stock = closedProducts[productID]["stock"];
+                        if (isNumeric(closing_stock)){
+                            closing_stock = parseInt(closing_stock)
+                        } else {
+                            closing_stock = 0
+                        }
+
+                        var closedShots = closedProducts[productID]["shots"];
+                        if (isNumeric(closedShots)){
+                            closedShots = parseInt(closedShots)
+                        } else {
+                            closedShots = 0
+                        }
+
+                        var damaged_stock = closedProducts[productID]["damage"];
+                        if (isNumeric(damaged_stock)){
+                            damaged_stock = parseInt(damaged_stock)
+                        } else {
+                            damaged_stock = 0
+                        }
+
+                        var complementary_stock = closedProducts[productID]["complementary"];
+                        if (isNumeric(damaged_stock)){
+                            complementary_stock = parseInt(complementary_stock)
+                        } else {
+                            complementary_stock = 0
+                        }
+
+                        var difference = current_stock - closing_stock;
+                        total_sales += current_price * (difference - damaged_stock - complementary_stock);
+                        complementary_total += current_price * complementary_stock;
+                        damages_total += current_price * damaged_stock;
+                    }
+                }
+
+                var cash_at_hand = total_sales - debtors_total;
+
+                jQuery("#complementaryTotal").html("MWK " + formatMoney(complementary_total));
+                jQuery("#damagesTotal").html("MWK " + formatMoney(damages_total));
+                jQuery("#salesTotal").html("MWK " + formatMoney(total_sales));
+                jQuery("#debtorsTotal").html("MWK " + formatMoney(debtors_total));
+                jQuery("#cashTotal").html("MWK " + formatMoney(cash_at_hand));
+
+            }
+
+        });
+
+    }
+
+    function isNumeric(num){
+        return !isNaN(num)
     }
 
     function createDebtor() {

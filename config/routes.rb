@@ -60,6 +60,7 @@ Rails.application.routes.draw do
   post '/update_stock' => 'home#update_stock' #creator_debtors
   post '/create_debtors' => 'home#create_debtors'
   post '/void_debtors' => 'home#void_debtors'
+  get '/get_product_data' => 'home#get_product_data'
 
   get '/new_user' => 'users#new_user'
   get '/my_profile' => 'users#my_profile'
