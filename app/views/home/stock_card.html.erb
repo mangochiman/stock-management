@@ -768,9 +768,10 @@
     function updateStockPopup(productID) {
         selectedProductID = productID;
         getProductDetails(productID);
+        jQuery('#quantity').val("");
         jQuery('#addStockModal').modal('show');
-
     }
+
 
     function showCashierClosurePopup() {
         if (Object.keys(closedProducts).length == 0) {
@@ -1024,6 +1025,7 @@
 
         });
 
+        jQuery('#closingAmount').val('');
         jQuery('#closeStockModal').modal('show');
     }
 
@@ -1056,7 +1058,8 @@
             }
 
         });
-
+        //damagedAmount
+        jQuery('#damagedAmount').val('');
         jQuery('#damageStockModal').modal('show');
     }
 
@@ -1090,6 +1093,7 @@
 
         });
 
+        jQuery('#complementaryAmount').val('');
         jQuery('#complementaryStockModal').modal('show');
     }
 
