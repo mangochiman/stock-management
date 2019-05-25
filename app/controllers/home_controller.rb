@@ -291,6 +291,9 @@ class HomeController < ApplicationController
     #@last_stock_id = Stock.where(["DATE(stock_time) <= ?", @today.to_date]).order("stock_id DESC").first.stock_id rescue nil
     @stock_cards = Stock.where(["DATE(stock_time) = ?", @today.to_date])
     @debtors = Debtor.where(["DATE(date) = ?", @today.to_date])
+    @stock_stats_by_date = Product.stock_stats_by_date(@today, @last_stock_id)
+    @total_debts = Debtor.total_un_paid_debt(@today)
+
     #raise @last_stock_id.inspect
   end
 

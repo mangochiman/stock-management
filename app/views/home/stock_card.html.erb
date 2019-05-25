@@ -402,34 +402,44 @@
           <tbody>
           <tr>
             <td>Complementary</td>
-            <td><span id="complementaryTotal" class="pull-right" style="font-weight: bold;"></span></td>
+            <td>
+              <span id="complementaryTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["complementary_total"], :unit => "MWK ") %></span>
+            </td>
           </tr>
 
           <tr>
             <td>Damages</td>
-            <td><span id="damagesTotal" class="pull-right" style="font-weight: bold;"></span></td>
+            <td>
+              <span id="damagesTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["damages_total"], :unit => "MWK ") %></span>
+            </td>
           </tr>
 
           <tr>
             <td>Total sales</td>
-            <td><span id="salesTotal" class="pull-right" style="font-weight: bold;"></span></td>
+            <td>
+              <span id="salesTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["total_sales"], :unit => "MWK ") %></span>
+            </td>
           </tr>
 
           <tr>
             <td>Debtors</td>
-            <td><span id="debtorsTotal" class="pull-right" style="font-weight: bold;"></span></td>
+            <td>
+              <span id="debtorsTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@total_debts, :unit => "MWK ") %></span>
+            </td>
           </tr>
 
 
           <tr>
             <td>Cash at hand</td>
-            <td><span id="cashTotal" class="pull-right" style="font-weight: bold;"></span></td>
+            <td>
+              <span id="cashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts), :unit => "MWK ") %></span>
+            </td>
           </tr>
 
           </tbody>
         </table>
 
-        <button style="width: 250px;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
+        <button id="cashierClosure" style="width: 250px; display: none;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
           <i class="fa fa-lock"> Cashier closure</i></button>
         <span style="padding-left: 50px">&nbsp;</span>
 
@@ -745,12 +755,15 @@
     var total_products = parseInt("<%= @products.length %>");
     var closedProducts = {};
     var user;
-    var product_data = {}
+    var product_data = {};
     <% @products.each do |product| %>
     product_data["<%= product.product_id %>"] = {};
     product_data["<%= product.product_id %>"]["price"] = "<%= product.price %>";
     product_data["<%= product.product_id %>"]["opening"] = "<%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %>";
     <% end %>
+
+    var standard_product_ids = JSON.parse("<%= @standard_products.collect{|p|p.product_id} %>");
+    var non_standard_product_ids = JSON.parse("<%= @non_standard_products.collect{|p|p.product_id} %>");
 
     function updateStockPopup(productID) {
         selectedProductID = productID;
@@ -1187,9 +1200,21 @@
             closedProducts[selectedProductID] = {};
         }
         closedProducts[selectedProductID]["stock"] = closingAmount;
+        if (valueInArray(selectedProductID, non_standard_product_ids)) {
+            closedProducts[selectedProductID]["product_type"] = "non_standard";
+        } else {
+            closedProducts[selectedProductID]["product_type"] = "standard";
+        }
         //jQuery(".close_stock_" + selectedProductID).show();
         jQuery('#closeStockModal').modal('hide');
         //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
+    }
+
+    function valueInArray(val, options) {
+        for (var i = 0; i < options.length; i++) {
+            if (parseInt(val) == parseInt(options[i])) return true;
+        }
+        return false;
     }
 
     function updateDamagedStock() {
@@ -1236,77 +1261,86 @@
     }
 
     function updateSummary() {
+        if (Object.keys(closedProducts).length > 0) {
+            jQuery("#cashierClosure").show();
+            var stock_date = document.getElementById("date").value;
+            jQuery.ajax({
+                type: "GET",
+                url: "/get_product_data",
+                data: "stock_date=" + stock_date + "&last_stock_id=" + last_stock_id,
+                beforeSend: function () {
+                    //jQuery("#incomingStocks").show();
+                },
+                success: function (result) {
+                    var total_sales = 0;
+                    var complementary_total = 0;
+                    var damages_total = 0;
+                    var debtors_total = 0;
 
-        var stock_date = document.getElementById("date").value;
-        jQuery.ajax({
-            type: "GET",
-            url: "/get_product_data",
-            data: "stock_date=" + stock_date + "&last_stock_id=" + last_stock_id,
-            beforeSend: function () {
-                //jQuery("#incomingStocks").show();
-            },
-            success: function (result) {
-                var total_sales = 0;
-                var complementary_total = 0;
-                var damages_total = 0;
-                var debtors_total = 0;
+                    for (var productID in result) {
+                        if (closedProducts[productID]) {
+                            var current_price = result[productID]["current_price"];
+                            var current_stock = result[productID]["current_stock"];
+                            var complementary_stock = closedProducts[productID]["complementary"];
+                            var product_type = closedProducts[productID]["product_type"];
 
-                for (var productID in result) {
-                    if (closedProducts[productID]) {
-                        var current_price = result[productID]["current_price"];
-                        var current_stock = result[productID]["current_stock"];
-                        debtors_total = result[productID]["debts"];
+                            debtors_total = result[productID]["debts"];
 
-                        var closing_stock = closedProducts[productID]["stock"];
-                        if (isNumeric(closing_stock)){
-                            closing_stock = parseInt(closing_stock)
-                        } else {
-                            closing_stock = 0
+                            var closing_stock = closedProducts[productID]["stock"];
+                            if (isNumeric(closing_stock)) {
+                                closing_stock = parseInt(closing_stock)
+                            } else {
+                                closing_stock = 0
+                            }
+
+                            var closedShots = closedProducts[productID]["shots"];
+                            if (isNumeric(closedShots)) {
+                                closedShots = parseInt(closedShots)
+                            } else {
+                                closedShots = 0
+                            }
+
+                            var damaged_stock = closedProducts[productID]["damage"];
+                            if (isNumeric(damaged_stock)) {
+                                damaged_stock = parseInt(damaged_stock)
+                            } else {
+                                damaged_stock = 0
+                            }
+
+                            var complementary_stock = closedProducts[productID]["complementary"];
+                            if (isNumeric(damaged_stock)) {
+                                complementary_stock = parseInt(complementary_stock)
+                            } else {
+                                complementary_stock = 0
+                            }
+
+                            if (product_type == "non_standard") {
+                                total_sales += current_price * closing_stock;
+                            } else {
+                                var difference = current_stock - closing_stock;
+                                total_sales += current_price * (difference - damaged_stock - complementary_stock);
+                            }
+
+                            complementary_total += current_price * complementary_stock;
+                            damages_total += current_price * damaged_stock;
                         }
-
-                        var closedShots = closedProducts[productID]["shots"];
-                        if (isNumeric(closedShots)){
-                            closedShots = parseInt(closedShots)
-                        } else {
-                            closedShots = 0
-                        }
-
-                        var damaged_stock = closedProducts[productID]["damage"];
-                        if (isNumeric(damaged_stock)){
-                            damaged_stock = parseInt(damaged_stock)
-                        } else {
-                            damaged_stock = 0
-                        }
-
-                        var complementary_stock = closedProducts[productID]["complementary"];
-                        if (isNumeric(damaged_stock)){
-                            complementary_stock = parseInt(complementary_stock)
-                        } else {
-                            complementary_stock = 0
-                        }
-
-                        var difference = current_stock - closing_stock;
-                        total_sales += current_price * (difference - damaged_stock - complementary_stock);
-                        complementary_total += current_price * complementary_stock;
-                        damages_total += current_price * damaged_stock;
                     }
+
+                    var cash_at_hand = total_sales - debtors_total;
+
+                    jQuery("#complementaryTotal").html("MWK " + formatMoney(complementary_total));
+                    jQuery("#damagesTotal").html("MWK " + formatMoney(damages_total));
+                    jQuery("#salesTotal").html("MWK " + formatMoney(total_sales));
+                    jQuery("#debtorsTotal").html("MWK " + formatMoney(debtors_total));
+                    jQuery("#cashTotal").html("MWK " + formatMoney(cash_at_hand));
+
                 }
 
-                var cash_at_hand = total_sales - debtors_total;
-
-                jQuery("#complementaryTotal").html("MWK " + formatMoney(complementary_total));
-                jQuery("#damagesTotal").html("MWK " + formatMoney(damages_total));
-                jQuery("#salesTotal").html("MWK " + formatMoney(total_sales));
-                jQuery("#debtorsTotal").html("MWK " + formatMoney(debtors_total));
-                jQuery("#cashTotal").html("MWK " + formatMoney(cash_at_hand));
-
-            }
-
-        });
-
+            });
+        }
     }
 
-    function isNumeric(num){
+    function isNumeric(num) {
         return !isNaN(num)
     }
 
