@@ -483,7 +483,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="updateStock();" type="button" class="btn btn-primary">Update stock</button>
+        <button id="updateStockButton" onclick="updateStock();" type="button" class="btn btn-primary">Update stock
+        </button>
       </div>
 
     </div>
@@ -516,7 +517,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="closeStock();" type="button" class="btn btn-primary">Close stock</button>
+        <button id="closingAmountButton" onclick="closeStock();" type="button" class="btn btn-primary">Close stock
+        </button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -547,7 +549,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="updateDamagedStock();" type="button" class="btn btn-primary">Close stock</button>
+        <button id="damagedAmountButton" onclick="updateDamagedStock();" type="button" class="btn btn-primary">Close
+          stock
+        </button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -578,7 +582,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="updateComplementaryStock();" type="button" class="btn btn-primary">Update stock</button>
+        <button id="complementaryAmountButton" onclick="updateComplementaryStock();" type="button" class="btn btn-primary">Update
+          stock
+        </button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -764,6 +770,7 @@
 
     var standard_product_ids = JSON.parse("<%= @standard_products.collect{|p|p.product_id} %>");
     var non_standard_product_ids = JSON.parse("<%= @non_standard_products.collect{|p|p.product_id} %>");
+
 
     function updateStockPopup(productID) {
         selectedProductID = productID;
@@ -1435,6 +1442,44 @@
             startDate: '-3d',
             todayHighLight: true
         });
+
+        jQuery('#quantity').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#updateStockButton').click();
+                return false;
+            }
+        });
+
+        jQuery('#closingAmount').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#closingAmountButton').click();
+                return false;
+            }
+        });
+
+        //damagedAmountButton
+        jQuery('#damagedAmount').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#damagedAmountButton').click();
+                return false;
+            }
+        });
+
+        jQuery('#complementaryAmount').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#complementaryAmountButton').click();
+                return false;
+            }
+        });
+
     };
 </script>
 
