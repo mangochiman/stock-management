@@ -335,7 +335,7 @@
         <% end %>
       </div>
       <div class="tab-pane in" id="debtors">
-        <form action="#" role="form" class="form-horizontal">
+        <form action="#" role="form" class="form-horizontal" id="debtorsForm">
 
           <div class="form-group">
             <label class="control-label col-lg-2" for="productName">Name</label>
@@ -1476,6 +1476,14 @@
             if (key == 13)  // the enter key code
             {
                 jQuery('#complementaryAmountButton').click();
+                return false;
+            }
+        });
+
+        $('#debtorsForm').on('keyup keypress', function(e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                e.preventDefault();
                 return false;
             }
         });
