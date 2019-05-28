@@ -166,13 +166,17 @@
 
 
               <% unless @stock_cards.blank? %>
-                <td class="stock-difference"><%= difference %></td>
+                <td class="stock-difference" id="stock-difference-<%= product.product_id %>" product_id="<%= product.product_id %>"><%= difference %></td>
               <% else %>
-                <td> -</td>
+                <td class="stock-difference" id="stock-difference-<%= product.product_id %>" product_id="<%= product.product_id %>">
+                  -
+                </td>
               <% end %>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
-              <td><span class="pull-right total-sales"><%= formatted_amount %></span></td>
+              <td>
+                <span class="pull-right total-sales" id="total-sales-<%= product.product_id %>" product_id="<%= product.product_id %>"><%= formatted_amount %></span>
+              </td>
             </tr>
           <% end %>
           </tbody>
@@ -186,7 +190,7 @@
               <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span>
               </th>
             <% else %>
-              <td> &nbsp;</td>
+              <th><span class="pull-right grand-total">-</span></th>
             <% end %>
 
           </tr>
@@ -308,7 +312,9 @@
               </td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
-              <td><span class="pull-right total-sales"><%= formatted_amount %></span></td>
+              <td>
+                <span class="pull-right total-sales" id="total-sales-<%= product.product_id %>" product_id="<%= product.product_id %>"><%= formatted_amount %></span>
+              </td>
             </tr>
           <% end %>
           </tbody>
@@ -322,7 +328,7 @@
               <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span>
               </th>
             <% else %>
-              <td> &nbsp;</td>
+              <th><span class="pull-right grand-total">-</span></th>
             <% end %>
 
           </tr>
@@ -506,6 +512,7 @@
         <div id="productDetailsClose">
 
         </div>
+        <div id="closeStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Closing amount</strong></label>
@@ -538,6 +545,7 @@
         <div id="productDetailsDamage">
 
         </div>
+        <div id="damageStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Damaged amount</strong></label>
@@ -571,6 +579,7 @@
         <div id="productDetailsComplementary">
 
         </div>
+        <div id="complementaryStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Complementary amount</strong></label>
@@ -605,6 +614,7 @@
         <div id="productDetailsShotsClose">
 
         </div>
+        <div id="closehotsError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="closingShots"><strong>Total shots sold</strong></label>
@@ -1204,7 +1214,17 @@
     }
 
     function closeStock(productID) {
-        var closingAmount = document.getElementById("closingAmount").value;
+        var closingAmount = document.getElementById("closingAmount").value.trim();
+        if (closingAmount.length == 0) {
+            jQuery("#closeStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(closingAmount)) {
+            jQuery("#closeStockError").html("Please input a valid number");
+            return false
+        }
+
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingAmount;
         if (!closedProducts[selectedProductID]) {
@@ -1218,6 +1238,7 @@
         }
         //jQuery(".close_stock_" + selectedProductID).show();
         jQuery('#closeStockModal').modal('hide');
+        updateDifferenceAndTotalSales();
         //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
     }
 
@@ -1229,7 +1250,17 @@
     }
 
     function updateDamagedStock() {
-        var damagedAmount = document.getElementById("damagedAmount").value;
+        var damagedAmount = document.getElementById("damagedAmount").value.trim();
+        if (damagedAmount.length == 0) {
+            jQuery("#damageStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(damagedAmount)) {
+            jQuery("#damageStockError").html("Please input a valid number");
+            return false
+        }
+
         var damagedAmountTag = document.getElementById("damage_stock_" + selectedProductID);
         damagedAmountTag.innerHTML = damagedAmount;
         if (!closedProducts[selectedProductID]) {
@@ -1237,10 +1268,21 @@
         }
         closedProducts[selectedProductID]["damage"] = damagedAmount;
         jQuery('#damageStockModal').modal('hide');
+        updateDifferenceAndTotalSales();
     }
 
     function updateComplementaryStock() {
-        var complementaryAmount = document.getElementById("complementaryAmount").value;
+        var complementaryAmount = document.getElementById("complementaryAmount").value.trim();
+        if (complementaryAmount.length == 0) {
+            jQuery("#complementaryStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(complementaryAmount)) {
+            jQuery("#complementaryStockError").html("Please input a valid number");
+            return false
+        }
+
         var complementaryAmountTag = document.getElementById("complementary_stock_" + selectedProductID);
         complementaryAmountTag.innerHTML = complementaryAmount;
         if (!closedProducts[selectedProductID]) {
@@ -1248,6 +1290,7 @@
         }
         closedProducts[selectedProductID]["complementary"] = complementaryAmount;
         jQuery('#complementaryStockModal').modal('hide');
+        updateDifferenceAndTotalSales();
     }
 
     function closeShots() {
@@ -1319,7 +1362,7 @@
                             }
 
                             var complementary_stock = closedProducts[productID]["complementary"];
-                            if (isNumeric(damaged_stock)) {
+                            if (isNumeric(complementary_stock)) {
                                 complementary_stock = parseInt(complementary_stock)
                             } else {
                                 complementary_stock = 0
@@ -1331,7 +1374,8 @@
                                 var difference = current_stock - closing_stock;
                                 total_sales += current_price * (difference - damaged_stock - complementary_stock);
                             }
-
+                            console.log(complementary_stock)
+console.log("current_stock = " + current_stock + " current_price = " + current_price + " damaged_stock = " + damaged_stock + " difference = " + difference)
                             complementary_total += current_price * complementary_stock;
                             damages_total += current_price * damaged_stock;
                         }
@@ -1348,6 +1392,66 @@
                 }
 
             });
+        }
+    }
+
+    var product_sales = {};
+    function updateDifferenceAndTotalSales() {
+        if (selectedProductID) {
+            var closing_stock = jQuery("#close_stock_" + selectedProductID).html();
+            if (!isNumeric(closing_stock)) {
+                closing_stock = 0
+            }
+
+            var damaged_stock = jQuery("#damage_stock_" + selectedProductID).html();
+            if (!isNumeric(damaged_stock)) {
+                damaged_stock = 0
+            }
+
+            var complementary_stock = jQuery("#complementary_stock_" + selectedProductID).html();
+            if (!isNumeric(complementary_stock)) {
+                complementary_stock = 0
+            }
+
+            var stock_date = document.getElementById("date").value;
+            jQuery.ajax({
+                type: "GET",
+                url: "/get_product_stock_data",
+                data: "product_id=" + selectedProductID + "&stock_date=" + stock_date,
+                beforeSend: function () {
+                    //jQuery("#incomingStocks").show();
+                },
+                success: function (result) {
+                    var current_price = result["current_price"];
+                    var current_stock = result["current_stock"];
+
+                    if (valueInArray(selectedProductID, non_standard_product_ids)) {
+                        var product_type = "non_standard";
+                    } else {
+                        var product_type = "standard";
+                    }
+
+                    if (product_type == "non_standard") {
+                        var total_sales = current_price * closing_stock;
+                    } else {
+                        var difference = current_stock - closing_stock;
+                        var total_sales = current_price * (difference - damaged_stock - complementary_stock);
+                        jQuery("#stock-difference-" + selectedProductID).html(difference);
+                    }
+
+                    var grand_total_sales = 0;
+                    product_sales[selectedProductID] = total_sales;
+                    for (var productID in product_sales){
+                        grand_total_sales += product_sales[productID]
+                    }
+
+                    var formatted_total_sales = formatMoney(total_sales);
+                    jQuery("#total-sales-" + selectedProductID).html("MWK " + formatted_total_sales);
+                    jQuery(".grand-total").html("MWK " + formatMoney(grand_total_sales))
+                }
+
+            });
+
         }
     }
 
@@ -1480,7 +1584,7 @@
             }
         });
 
-        $('#debtorsForm').on('keyup keypress', function(e) {
+        $('#debtorsForm').on('keyup keypress', function (e) {
             var keyCode = e.keyCode || e.which;
             if (keyCode === 13) {
                 e.preventDefault();

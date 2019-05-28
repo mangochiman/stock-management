@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   get '/get_incoming_stock' => 'home#get_incoming_stock'
   get '/get_outgoing_stock' => 'home#get_outgoing_stock'
   get '/get_product_details' => 'home#get_product_details'
+  get '/get_product_stock_data' => 'home#get_product_stock_data'
   post '/add_products' => 'home#add_products'
 
   get '/set_prices' => 'home#set_prices'

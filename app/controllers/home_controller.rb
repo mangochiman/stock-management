@@ -497,4 +497,12 @@ class HomeController < ApplicationController
     render json: data.to_json
   end
 
+  def get_product_stock_data
+    data = {}
+    product = Product.find(params[:product_id])
+    data["current_stock"] = product.current_stock(params[:stock_date], params[:stock_id])
+    data["current_price"] = product.price
+    render json: data.to_json
+  end
+
 end
