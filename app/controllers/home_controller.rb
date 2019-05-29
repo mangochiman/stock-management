@@ -17,6 +17,11 @@ class HomeController < ApplicationController
     start_month_date = Date.today.beginning_of_month
     end_month_date = Date.today.end_of_month
 
+    @total_ever_un_paid_debt = Debtor.total_ever_un_paid_debt
+    @damages_ever = Stock.damages_ever
+    @complementary_ever = Stock.complementary_ever
+    @user_accounts = User.all.count
+    @total_products = Product.all.count
     #start_year_date = Date.today.beginning_of_year
     #end_year_date = Date.today.end_of_year
 

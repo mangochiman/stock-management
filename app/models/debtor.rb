@@ -50,4 +50,28 @@ class Debtor < ActiveRecord::Base
     return amount_remaining
   end
 
+  def self.total_ever_un_paid_debt
+    total_unpaid = 0
+    debtors = Debtor.all
+
+    debtors.each do |debtor|
+      debtor_payments = debtor.debtor_payments
+      amount_owed = debtor.amount_owed.to_f
+      total_amount_paid = 0
+
+      debtor_payments.each do |debtor_payment|
+        amount_paid = debtor_payment.amount_paid.to_f
+        total_amount_paid += amount_paid
+      end
+
+      amount_remaining = amount_owed - total_amount_paid
+      if amount_remaining > 0
+        total_unpaid += 1
+      end
+    end
+
+    return total_unpaid
+  end
+
+
 end

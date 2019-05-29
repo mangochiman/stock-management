@@ -13,4 +13,22 @@ class Stock < ActiveRecord::Base
     return total_debt
   end
 
+  def self.damages_ever
+    stock_items = StockItem.all
+    total_damaged_stock = 0
+    stock_items.each do |stock_item|
+      total_damaged_stock += stock_item.damaged_stock.to_i
+    end
+    return total_damaged_stock
+  end
+
+  def self.complementary_ever
+    stock_items = StockItem.all
+    total_complementary_stock = 0
+    stock_items.each do |stock_item|
+      total_complementary_stock += stock_item.complementary_stock.to_i
+    end
+    return total_complementary_stock
+  end
+
 end

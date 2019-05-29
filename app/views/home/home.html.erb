@@ -5,26 +5,26 @@
     <div class="row">
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="500" data-displayPrevious="true" value="<%= @this_weeks_incoming_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
-          <h3 class="text-muted text-center">This week's incoming stock</h3>
+          <input class="knob" data-width="200" data-min="0" data-max="<%= @total_products %>" data-displayPrevious="true" value="<%= @total_ever_un_paid_debt %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">Debtors</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="2000" data-displayPrevious="true" value="<%= @this_months_incoming_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
-          <h3 class="text-muted text-center">This month's incoming stock</h3>
+          <input class="knob" data-width="200" data-min="0" data-max="<%= @total_products %>" data-displayPrevious="true" value="<%= @damages_ever %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">Damages</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="500" data-displayPrevious="true" value="<%= @this_weeks_outgoing_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
-          <h3 class="text-muted text-center">This week's outgoing stock</h3>
+          <input class="knob" data-width="200" data-min="0" data-max="<%= @total_products %>" data-displayPrevious="true" value="<%= @complementary_ever %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">Complementary</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="2000" data-displayPrevious="true" value="<%= @this_months_outgoing_stock %>" data-fgColor="#92A3C2" data-readOnly=true;/>
-          <h3 class="text-muted text-center">This month's outgoing stock</h3>
+          <input class="knob" data-width="200" data-min="0" data-max="20" data-displayPrevious="true" value="<%= @user_accounts %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <h3 class="text-muted text-center">User accounts</h3>
         </div>
       </div>
     </div>
@@ -34,79 +34,73 @@
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-default">
-      <div class="panel-heading no-collapse">Products running out of stock</div>
-      <table class="table">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Part Number</th>
-          <th>Product Label</th>
-          <th>Starting inventory</th>
-          <th>Stock (In)</th>
-          <th>Stock (Out)</th>
-          <th>Current stock</th>
-          <th>Minimum required</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% @running_out_of_stock.each do |product| %>
-          <tr>
-            <td><%= product.name %></td>
-            <td><%= product.part_number %></td>
-            <td><%= product.label %></td>
-            <td><%= product.starting_inventory %></td>
-            <td>&nbsp;<%= product.total_stock_ins %></td>
-            <td>&nbsp;<%= product.total_stock_outs %></td>
-            <td><%= product.current_stock %></td>
-            <td><%= product.minimum_required %></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading no-collapse">Products not in stock</div>
-      <table class="table">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Part Number</th>
-          <th>Product Label</th>
-          <th>Starting inventory</th>
-          <th>Stock (In)</th>
-          <th>Stock (Out)</th>
-          <th>Current stock</th>
-          <th>Minimum required</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% @products_not_in_stock.each do |product| %>
-          <tr>
-            <td><%= product.name %></td>
-            <td><%= product.part_number %></td>
-            <td><%= product.label %></td>
-            <td><%= product.starting_inventory %></td>
-            <td>&nbsp;<%= product.total_stock_ins %></td>
-            <td>&nbsp;<%= product.total_stock_outs %></td>
-            <td><%= product.current_stock %></td>
-            <td><%= product.minimum_required %></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
+      <div class="panel-heading no-collapse">Total sales this month</div>
+      <div id="container"></div>
     </div>
   </div>
 </div>
 
 
 <style type="text/css">
-  .knob{
+  .knob {
     cursor: pointer;
 
   }
 </style>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var title = {
+            text: 'Total sales of January'
+        };
+        var subtitle = {
+            text: ''
+        };
+        var xAxis = {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        };
+        var yAxis = {
+            title: {
+                text: 'Total sales (MWK)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        };
+        var tooltip = {
+            valueSuffix: ' MWK'
+        }
+        var legend = {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        };
+        var series = [{
+            showInLegend: false,
+            name: 'Sales',
+            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2,
+                26.5, 23.3, 18.3, 13.9, 9.6]
+        }
+        ];
+
+        var credits = {
+            enabled: false
+        }
+
+        var json = {};
+        json.title = title;
+        json.subtitle = subtitle;
+        json.xAxis = xAxis;
+        json.yAxis = yAxis;
+        json.tooltip = tooltip;
+        json.legend = legend;
+        json.series = series;
+        json.credits = credits;
+
+        $('#container').highcharts(json);
+    });
+</script>
