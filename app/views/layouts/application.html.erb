@@ -119,7 +119,7 @@
           <li><a href="/my_profile">My Account</a></li>
           <li class="divider"></li>
           <li class="dropdown-header">Admin Panel</li>
-          <li><a href="/view_stock">Stock</a></li>
+          <li><a href="/stock_card?stock_date=<%= Date.today.strftime("%d/%m/%Y") %>">Stock card</a></li>
           <li><a href="/view_prices">Pricing</a></li>
           <li><a tabindex="-1" href="/view_products">Products</a></li>
           <li><a tabindex="-1" href="/view_users">User accounts</a></li>
@@ -199,8 +199,8 @@
     <div class="stats">
       <p class="stat"><span class="label label-warning"><%= Product.running_out_of_stock.count %></span> Products running out of stock</p>
       <p class="stat"><span class="label label-success"><%= Product.products_with_enough_stock.count %></span> Products with enough stock</p>
-      <p class="stat"><span class="label label-danger"><%= Product.products_not_in_stock.count %></span> Products not in stock</p>
-      <p class="stat"><span class="label label-danger">30</span> Debtors</p>
+      <p class="stat"><span class="label label-primary"><%= Product.products_not_in_stock.count %></span> Products not in stock</p>
+      <p class="stat"><span class="label label-danger"><%= Debtor.total_ever_un_paid_debt %></span> Debtors</p>
     </div>
 
     <h1 class="page-title"><%= @page_header %></h1>

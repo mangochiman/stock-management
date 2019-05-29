@@ -22,6 +22,19 @@ class HomeController < ApplicationController
     @complementary_ever = Stock.complementary_ever
     @user_accounts = User.all.count
     @total_products = Product.all.count
+
+    @xaxis = []
+
+    (start_month_date..end_month_date).to_a.each do |date|
+      @xaxis << date.strftime('%d/%b/%Y')
+    end
+
+    @total_sales = []
+    (start_month_date..end_month_date).to_a.each do |date|
+      stock_stats_by_date = Product.stock_stats_by_date(date)
+      @total_sales << stock_stats_by_date["total_sales"]
+    end
+
     #start_year_date = Date.today.beginning_of_year
     #end_year_date = Date.today.end_of_year
 
