@@ -37,17 +37,26 @@ class HomeController < ApplicationController
 
     #start_year_date = Date.today.beginning_of_year
     #end_year_date = Date.today.end_of_year
-
-    @this_weeks_incoming_stock = Product.incoming_stock_by_date_range(start_week_date, end_week_date).count
-    @this_months_incoming_stock = Product.incoming_stock_by_date_range(start_month_date, end_month_date).count
-
-    @this_weeks_outgoing_stock = Product.outgoing_stock_by_date_range(start_week_date, end_week_date).count
-    @this_months_outgoing_stock = Product.outgoing_stock_by_date_range(start_month_date, end_month_date).count
-
     @running_out_of_stock = Product.running_out_of_stock
     @products_not_in_stock = Product.products_not_in_stock
     @products_with_enough_stock = Product.products_with_enough_stock
 
+  end
+
+  def products_running_out_of_stock
+    @page_header = "Products running out of stock"
+  end
+
+  def products_not_in_stock
+    @page_header = "Products not in stock"
+  end
+
+  def products_with_enough_stock
+    @page_header = "Products with enough stock"
+  end
+
+  def debtors
+    @page_header = "Debtors"
   end
 
   def new_stock

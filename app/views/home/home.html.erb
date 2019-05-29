@@ -53,6 +53,7 @@
     var days = JSON.parse('<%= @xaxis.to_json.html_safe %>');
     var sales = JSON.parse('<%= @total_sales.to_json.html_safe %>');
     var series_data = [];
+    var this_month = '<%= Date.today.strftime("%b") %>';
 
     for (var i = 0; i <= days.length - 1; i++) {
         series_data.push([new Date(days[i]).getTime(), sales[i]])
@@ -60,7 +61,7 @@
 
     $(document).ready(function () {
         var title = {
-            text: 'Total sales of January'
+            text: 'Total sales of ' + this_month
         };
         var subtitle = {
             text: ''

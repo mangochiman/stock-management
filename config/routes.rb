@@ -29,6 +29,14 @@ Rails.application.routes.draw do
   get '/get_product_stock_data' => 'home#get_product_stock_data'
   post '/add_products' => 'home#add_products'
 
+
+  get '/products_running_out_of_stock' => 'home#products_running_out_of_stock'
+  get '/products_not_in_stock' => 'home#products_not_in_stock'
+  get '/products_with_enough_stock' => 'home#products_with_enough_stock'
+  get '/debtors' => 'home#debtors'
+
+
+
   get '/set_prices' => 'home#set_prices'
   post '/set_prices' => 'home#set_prices'
   get '/manage_product_prices' => 'home#manage_product_prices'

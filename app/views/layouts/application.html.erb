@@ -197,10 +197,10 @@
 <div class="content">
   <div class="header">
     <div class="stats">
-      <p class="stat"><span class="label label-warning"><%= Product.running_out_of_stock.count %></span> Products running out of stock</p>
-      <p class="stat"><span class="label label-success"><%= Product.products_with_enough_stock.count %></span> Products with enough stock</p>
-      <p class="stat"><span class="label label-primary"><%= Product.products_not_in_stock.count %></span> Products not in stock</p>
-      <p class="stat"><span class="label label-danger"><%= Debtor.total_ever_un_paid_debt %></span> Debtors</p>
+      <a href="/products_running_out_of_stock" class="stat"><span class="label label-warning"><%= Product.running_out_of_stock.count %></span> Products running out of stock</a>
+      <a href="/products_with_enough_stock" class="stat"><span class="label label-success"><%= Product.products_with_enough_stock.count %></span> Products with enough stock</a>
+      <a href="/products_not_in_stock" class="stat"><span class="label label-primary"><%= Product.products_not_in_stock.count %></span> Products not in stock</a>
+      <a href="/debtors" class="stat"><span class="label label-danger"><%= Debtor.total_ever_un_paid_debt %></span> Debtors</a>
     </div>
 
     <h1 class="page-title"><%= @page_header %></h1>
