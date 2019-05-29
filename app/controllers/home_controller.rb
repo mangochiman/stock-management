@@ -45,18 +45,22 @@ class HomeController < ApplicationController
 
   def products_running_out_of_stock
     @page_header = "Products running out of stock"
+    @products = Product.running_out_of_stock
   end
 
   def products_not_in_stock
     @page_header = "Products not in stock"
+    @products = Product.products_not_in_stock
   end
 
   def products_with_enough_stock
     @page_header = "Products with enough stock"
+    @products = Product.products_with_enough_stock
   end
 
   def debtors
     @page_header = "Debtors"
+    @debtors = Debtor.unpaid_debts_records
   end
 
   def new_stock
@@ -530,6 +534,27 @@ class HomeController < ApplicationController
     data["current_stock"] = product.current_stock(params[:stock_date], params[:stock_id])
     data["current_price"] = product.price
     render json: data.to_json
+  end
+
+  def create_debtor_payment
+    debtor_payment = DebtorPayment.new
+    debtor_payment.debtor_id = params[:debtor_id]
+    debtor_payment.amount_paid = params[:amount_paid]
+    debtor_payment.date_paid = Date.today
+
+    if debtor_payment.save
+      debtor = Debtor.find(params[:debtor_id])
+      amount_paid = debtor.amount_paid
+      balance_due = debtor.balance_due
+
+      data = {:amount_paid => amount_paid, :balance_due => balance_due, :status => "success"}
+      render json: data.to_json
+    else
+      errors = debtor_payment.errors.full_messages.join('<br />')
+      data = {:errors => errors, :status => "fail"}
+      render json: data.to_json
+    end
+
   end
 
 end

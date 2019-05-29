@@ -251,12 +251,13 @@ class Product < ActiveRecord::Base
     damages_total = 0
 
     stock_items.each do |stock_item|
+      stock_id = stock_item.stock_id
       product = Product.find(stock_item.product_id)
       current_price = product.price
-      current_stock = product.current_stock(date, stock_id)
-      damaged_stock = product.damaged_stock(stock_id)
-      complementary_stock = product.complementary_stock(stock_id)
-      closing_stock = product.closed_stock_by_date(date, stock_id)
+      current_stock = product.current_stock(date, stock_id).to_i
+      damaged_stock = product.damaged_stock(stock_id).to_i
+      complementary_stock = product.complementary_stock(stock_id).to_i
+      closing_stock = product.closed_stock_by_date(date, stock_id).to_i
 
       difference = current_stock - closing_stock
       total_sales += current_price * (difference.to_i - damaged_stock.to_i - complementary_stock.to_i)

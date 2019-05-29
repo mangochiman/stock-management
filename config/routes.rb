@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   get '/get_product_details' => 'home#get_product_details'
   get '/get_product_stock_data' => 'home#get_product_stock_data'
   post '/add_products' => 'home#add_products'
+  post '/create_debtor_payment' => 'home#create_debtor_payment'
 
 
   get '/products_running_out_of_stock' => 'home#products_running_out_of_stock'

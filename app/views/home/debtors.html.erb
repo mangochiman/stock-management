@@ -1,0 +1,147 @@
+<table class="table table-bordered table-striped">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Amount owed</th>
+    <th>Amount paid</th>
+    <th>Balance due</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tbody id="debtorsTbody">
+  <% @debtors.each do |debtor| %>
+    <tr id="tr_<%= debtor.debtor_id %>">
+      <td><%= debtor.name %></td>
+      <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
+      <td id="previousPayment-<%= debtor.debtor_id %>"><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></td>
+      <td id="balanceDue-<%= debtor.debtor_id %>"><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></td>
+      <td>
+        <button onclick="showPaymentPopup('<%= debtor.debtor_id %>');" class="btn btn-primary btn-block">
+          <i class="fa fa-plus"></i> Update amount paid
+        </button>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Add payment</h4>
+      </div>
+      <div class="modal-body">
+        <br/>
+        <div id="paymentError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
+        <form action="#" role="form" class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="amountPaid"><strong>Amount paid</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="debt[payment]" class="form-control" placeholder="Amount paid" id="amountPaid" required/>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="updatePaymentButton" onclick="updatePayment();" type="button" class="btn btn-primary">Update payment
+        </button>
+      </div>
+
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="errorPaymentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Error!!</h4>
+      </div>
+      <div class="modal-body">
+        <p>There was an error. Your operation was not successful. Refer below for details</p>
+        <div id="serverErrors"></div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<script type="text/javascript">
+    function showPaymentPopup(debtorID) {
+        selected_debtor_id = debtorID;
+        jQuery("#amountPaid").val('');
+        jQuery('#addPaymentModal').modal('show');
+    }
+
+    var selected_debtor_id;
+
+    function updatePayment() {
+        var amountPaid = document.getElementById("amountPaid").value.trim();
+        if (amountPaid.length == 0) {
+            jQuery("#paymentError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(amountPaid)) {
+            jQuery("#paymentError").html("Please input a valid number");
+            return false
+        }
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/create_debtor_payment",
+            data: "amount_paid=" + amountPaid + "&debtor_id=" + selected_debtor_id,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                jQuery('#addPaymentModal').modal('hide');
+                if (result["status"] == 'success') {
+                    var amount_paid = result["amount_paid"];
+                    var balance_due = result["balance_due"];
+                    jQuery("#previousPayment-" + selected_debtor_id).html("MWK " + formatMoney(amount_paid));
+                    jQuery("#balanceDue-" + selected_debtor_id).html("MWK " + formatMoney(balance_due))
+                } else {
+                    var errors = result["errors"];
+                    jQuery("#serverErrors").html(errors);
+                    jQuery('#errorPaymentModal').modal('show');
+                }
+            }
+
+        });
+    }
+
+    function isNumeric(num) {
+        return !isNaN(num)
+    }
+
+    window.onload = function () {
+        jQuery('#amountPaid').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#updatePaymentButton').click();
+                return false;
+            }
+        });
+    }
+
+</script>
