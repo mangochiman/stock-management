@@ -29,7 +29,7 @@ Rails.application.routes.draw do
   get '/get_product_stock_data' => 'home#get_product_stock_data'
   post '/add_products' => 'home#add_products'
   post '/create_debtor_payment' => 'home#create_debtor_payment'
-
+  get '/get_previous_debt_payments' => 'home#get_previous_debt_payments'
 
   get '/products_running_out_of_stock' => 'home#products_running_out_of_stock'
   get '/products_not_in_stock' => 'home#products_not_in_stock'
@@ -115,6 +115,13 @@ Rails.application.routes.draw do
 
   get '/products_not_in_stock_report_printable' => 'reports#products_not_in_stock_report_printable'
   get '/print_products_not_in_stock_report_printable' => 'reports#print_products_not_in_stock_report_printable'
+
+  get '/sales_report' => 'reports#sales_report'
+  post '/sales_report' => 'reports#sales_report'
+
+  get '404', to: 'errors#page_not_found'
+  get '422', to: 'errors#server_error'
+  get '500', to:  'errors#server_error'
 
   get '/logout' => 'users#logout'
   # Example of named route that can be invoked with purchase_url(id: product.id)

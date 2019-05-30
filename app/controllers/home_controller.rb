@@ -536,6 +536,11 @@ class HomeController < ApplicationController
     render json: data.to_json
   end
 
+  def get_previous_debt_payments
+    debtor = Debtor.find(params[:debtor_id])
+    render json: debtor.debtor_payments.to_json
+  end
+
   def create_debtor_payment
     debtor_payment = DebtorPayment.new
     debtor_payment.debtor_id = params[:debtor_id]

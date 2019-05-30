@@ -1044,6 +1044,9 @@
 
         jQuery('#closingAmount').val('');
         jQuery('#closeStockModal').modal('show');
+        jQuery('#closeStockModal').on('shown.bs.modal', function () {
+            jQuery('#closingAmount').focus();
+        });
     }
 
     function damageStockPopup(productID) {
@@ -1078,6 +1081,9 @@
         //damagedAmount
         jQuery('#damagedAmount').val('');
         jQuery('#damageStockModal').modal('show');
+        jQuery('#damageStockModal').on('shown.bs.modal', function () {
+            jQuery('#damagedAmount').focus();
+        });
     }
 
     function complementaryStockPopup(productID) {
@@ -1112,6 +1118,9 @@
 
         jQuery('#complementaryAmount').val('');
         jQuery('#complementaryStockModal').modal('show');
+        jQuery('#complementaryStockModal').on('shown.bs.modal', function () {
+            jQuery('#complementaryAmount').focus();
+        });
     }
 
 

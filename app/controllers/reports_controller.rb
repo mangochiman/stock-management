@@ -42,6 +42,18 @@ class ReportsController < ApplicationController
     send_file(pdf_filename, :filename => "#{file_name}", :type => "application/pdf")
   end
 
+  def sales_report
+    @page_header = "Sales report"
+    @products = Product.order("product_id DESC")
+    if request.post?
+      start_date = params[:start_date]
+      end_date = params[:end_date]
+      #product = Product.find(params[:product_id])
+      #data = product.get_incoming_stock_report(start_date, end_date)
+      #render json: data.to_json
+    end
+  end
+
   def products_with_enough_stock_report
     @page_header = "Products with enough stock report"
     @products = Product.products_with_enough_stock

@@ -3,6 +3,7 @@
   <tr>
     <th>Name</th>
     <th>Amount owed</th>
+    <th>Date</th>
     <th>Amount paid</th>
     <th>Balance due</th>
     <th>&nbsp;</th>
@@ -13,7 +14,10 @@
     <tr id="tr_<%= debtor.debtor_id %>">
       <td><%= debtor.name %></td>
       <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
-      <td id="previousPayment-<%= debtor.debtor_id %>"><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></td>
+      <td><%= debtor.date.to_date.strftime("%d/%b/%Y") rescue debtor.date %></td>
+      <td>
+        <a onclick="showPreviousPayments('<%= debtor.debtor_id %>')" href="#" id="previousPayment-<%= debtor.debtor_id %>"><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></a>
+      </td>
       <td id="balanceDue-<%= debtor.debtor_id %>"><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></td>
       <td>
         <button onclick="showPaymentPopup('<%= debtor.debtor_id %>');" class="btn btn-primary btn-block">
@@ -84,6 +88,29 @@
 </div>
 <!-- /.modal -->
 
+<!-- Modal -->
+<div class="modal fade" id="previousPaymentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Previous payments</h4>
+      </div>
+      <div class="modal-body">
+        <div id="previousPaymentsData"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <script type="text/javascript">
     function showPaymentPopup(debtorID) {
         selected_debtor_id = debtorID;
@@ -131,6 +158,26 @@
 
     function isNumeric(num) {
         return !isNaN(num)
+    }
+
+    function showPreviousPayments(debtorID) {
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_previous_debt_payments",
+            data: "debtor_id=" + debtorID,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                var html
+                for (var i=0; i<=result.length -1; i++){
+                    var amount_paid = result[i]["amount_paid"];
+                    var date_paid = result[i]["date_paid"];
+                }
+                jQuery('#previousPaymentModal').modal('show');
+            }
+
+        });
     }
 
     window.onload = function () {
