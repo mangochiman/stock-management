@@ -15,6 +15,13 @@
       </div>
 
       <div class="form-group">
+        <label class="control-label col-lg-3" for="start_date">Date</label>
+        <div class="col-lg-7">
+          <input type="text" name="date" class="form-control datepicker" placeholder="Date" id="date"/>
+        </div>
+      </div>
+
+      <!--<div class="form-group">
         <label class="control-label col-lg-3" for="start_date">Start date</label>
         <div class="col-lg-7">
           <input type="text" name="start_date" class="form-control datepicker" placeholder="Start date" id="start_date"/>
@@ -26,7 +33,7 @@
         <div class="col-lg-7">
           <input type="text" name="end_date" class="form-control datepicker" placeholder="Start date" id="end_date"/>
         </div>
-      </div>
+      </div>-->
 
 
       <div class="form-group">
@@ -61,38 +68,78 @@
 
     function downloadPDFReport() {
         var product_id = document.getElementById("product_id").value;
-        var start_date = document.getElementById("start_date").value;
-        var end_date = document.getElementById("end_date").value;
-        window.location = "/print_incoming_stock_report_printable?product_id=" + product_id + "&start_date=" + start_date + "&end_date=" + end_date
+        var date = document.getElementById("date").value;
+        window.location = "/print_incoming_stock_report_printable?product_id=" + product_id + "&date=" + date
     }
 
     function loadReport() {
         var product_id = document.getElementById("product_id").value;
-        var start_date = document.getElementById("start_date").value;
-        var end_date = document.getElementById("end_date").value;
+        var date = document.getElementById("date").value;
 
         var downloadButton = '<button onclick="downloadPDFReport();" class="btn btn-primary"><i class="fa fa-download"></i> Download pdf</button>';
 
         jQuery.ajax({
             type: "POST",
             url: "/sales_report",
-            data: "product_id=" + product_id + "&start_date=" + start_date + "&end_date=" + end_date,
+            data: "product_id=" + product_id + "&date=" + date,
             beforeSend: function () {
                 jQuery("#report").html("Loading....");
             },
             success: function (result) {
-                var html = "<table class='table table-bordered table-striped'><thead><tr><th>Date in</th><th>Quantity</th></tr></thead>";
+                console.log(result)
+                var html = "<table class='table table-bordered table-striped'>";
+                html += "<thead><tr>";
+                html += "<th>Item</th>";
+                html += "<th>Opening</th>";
+                html += "<th>Add</th>";
+                html += "<th>Current stock</th>";
+                html += "<th>Closing</th>";
+                html += "<th>Damages</th>";
+                html += "<th>Complementary</th>";
+                html += "<th>Difference</th>";
+                html += "<th>Price</th>";
+                html += "<th>Total sales</th>";
+                html += "</tr></thead>";
                 html += "<tbody>";
-                for (var i = 0; i <= result.length - 1; i++) {
-                    var date_in = result[i]["date_in"];
-                    var quantity = result[i]["quantity"];
+
+                var grand_total = 0
+                for (var productID in result){
+                    var opening_stock = result[productID]["opening_stock"];
+                    var added_stock = result[productID]["added_stock"];
+                    var current_stock = result[productID]["current_stock"];
+                    var closing_stock = result[productID]["closing_stock"];
+                    var damaged_stock = result[productID]["damaged_stock"];
+                    var complementary_stock = result[productID]["complementary_stock"];
+                    var difference = result[productID]["difference"];
+                    var current_price = result[productID]["current_price"];
+                    var total_sales = result[productID]["total_sales"];
+                    var product_name = result[productID]["product_name"];
+                    grand_total = grand_total + total_sales;
                     html += "<tr>";
-                    html += "<td>" + date_in + "</td>";
-                    html += "<td>" + quantity + "</td>";
+                    html += "<td>" + product_name + "</td>";
+                    html += "<td>" + opening_stock + "</td>";
+                    html += "<td>" + added_stock + "</td>";
+                    html += "<td>" + current_stock + "</td>";
+                    html += "<td>" + closing_stock + "</td>";
+                    html += "<td>" + damaged_stock + "</td>";
+                    html += "<td>" + complementary_stock + "</td>";
+                    html += "<td>" + difference + "</td>";
+                    html += "<td> MWK " + formatMoney(current_price) + "</td>";
+                    html += "<td><span class='pull-right'> MWK " + formatMoney(total_sales) + "</span></td>";
                     html += "</tr>"
+
                 }
+
                 html += "</tbody>";
                 html += "</table>";
+
+                html += "<table class='table table-bordered table-striped'>";
+                html += "<tr>";
+                html += "<th>Grand total</th>";
+                html += "<th><span class='pull-right'> MWK " + formatMoney(grand_total) + "</span></th>";
+                html += "</tr>";
+                html += "</table>";
+
                 jQuery("#report").html(html);
                 jQuery("#report").append(downloadButton)
 

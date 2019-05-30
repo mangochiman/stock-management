@@ -269,5 +269,30 @@ class Product < ActiveRecord::Base
     return data
   end
 
+  def self.stock_stats_by_date_and_product(date, product)
+    stock_items = StockItem.joins(:stock).where(["DATE(stock_time) = ? AND product_id =?", date.to_date, product.product_id])
+    total_sales = 0
+    complementary_total = 0
+    damages_total = 0
+
+    stock_items.each do |stock_item|
+      stock_id = stock_item.stock_id
+      product = Product.find(stock_item.product_id)
+      current_price = product.price
+      current_stock = product.current_stock(date, stock_id).to_i
+      damaged_stock = product.damaged_stock(stock_id).to_i
+      complementary_stock = product.complementary_stock(stock_id).to_i
+      closing_stock = product.closed_stock_by_date(date, stock_id).to_i
+
+      difference = current_stock - closing_stock
+      total_sales += current_price * (difference.to_i - damaged_stock.to_i - complementary_stock.to_i)
+      complementary_total += current_price * complementary_stock
+      damages_total += current_price * damaged_stock
+    end
+
+    data = {"total_sales" => total_sales, "complementary_total" => complementary_total, "damages_total" => damages_total}
+    return data
+  end
+
 
 end

@@ -46,11 +46,42 @@ class ReportsController < ApplicationController
     @page_header = "Sales report"
     @products = Product.order("product_id DESC")
     if request.post?
-      start_date = params[:start_date]
-      end_date = params[:end_date]
-      #product = Product.find(params[:product_id])
-      #data = product.get_incoming_stock_report(start_date, end_date)
-      #render json: data.to_json
+      date = params[:date].to_date
+      if params[:product_id].match(/ALL/i)
+        products = Product.all
+      else
+        products = [Product.find(params[:product_id])]
+      end
+      stock_id = Stock.where(["DATE(stock_time) = ? ", date.to_date]).last.stock_id rescue nil
+      data = {}
+      products.each do |product|
+        product_id = product.product_id
+        product_name = product.name
+        data[product_id] = {}
+        opening_stock = product.opening_stock_by_date(date, stock_id)
+        added_stock = product.added_stock_by_date(date, stock_id).to_i
+        current_stock = product.current_stock(date, stock_id).to_i
+        closing_stock = product.closed_stock_by_date(date, stock_id).to_i
+        damaged_stock = product.damaged_stock(stock_id).to_i
+        complementary_stock = product.complementary_stock(stock_id).to_i
+        difference = current_stock - closing_stock
+        current_price = product.price
+        stock_stats_by_date_and_product = Product.stock_stats_by_date_and_product(date, product)
+        total_sales = stock_stats_by_date_and_product["total_sales"]
+
+        data[product_id]["opening_stock"] = opening_stock
+        data[product_id]["added_stock"] = added_stock
+        data[product_id]["current_stock"] = current_stock
+        data[product_id]["closing_stock"] = closing_stock
+        data[product_id]["damaged_stock"] = damaged_stock
+        data[product_id]["complementary_stock"] = complementary_stock
+        data[product_id]["difference"] = difference
+        data[product_id]["current_price"] = current_price
+        data[product_id]["total_sales"] = total_sales
+        data[product_id]["product_name"] = product_name
+      end
+
+      render json: data.to_json
     end
   end
 
