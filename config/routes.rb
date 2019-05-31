@@ -116,6 +116,9 @@ Rails.application.routes.draw do
   get '/products_not_in_stock_report_printable' => 'reports#products_not_in_stock_report_printable'
   get '/print_products_not_in_stock_report_printable' => 'reports#print_products_not_in_stock_report_printable'
 
+  get '/sales_report_printable' => 'reports#sales_report_printable'
+  get '/print_sales_report_printable' => 'reports#print_sales_report_printable'
+
   get '/sales_report' => 'reports#sales_report'
   post '/sales_report' => 'reports#sales_report'
 

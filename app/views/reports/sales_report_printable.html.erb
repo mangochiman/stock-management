@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mahara Wipha Bar</title>
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/lib/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="/AircraftAdmin-Free/lib/font-awesome/css/font-awesome.css">
+
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/stylesheets/premium.css">
+
+</head>
+<body class=" theme-blue">
+
+<div class="content" style="">
+
+  <div class="main-content" style="padding-top: 10px;">
+
+    <div class="pull-left well">
+      <table>
+        <tbody>
+        <tr>
+          <td class="pull-right padding-right"><strong>Bar Name: &nbsp;</strong></td>
+          <td>Mahara Wipha Bar</td>
+        </tr>
+        <tr>
+          <td class="pull-right padding-right"><strong>Report Type: &nbsp; </strong></td>
+          <td>Sales Report</td>
+        </tr>
+        <tr>
+          <td class="pull-right padding-right"><strong>Product: &nbsp;</strong></td>
+          <td><%= @product_name %></td>
+        </tr>
+        <tr>
+          <td class="pull-right padding-right"><strong>Date of sales: &nbsp;</strong></td>
+          <td><%= params[:date].to_date.strftime("%d-%b-%Y") rescue "Error" %></td>
+        </tr>
+        <tr>
+          <td class="pull-right padding-right"><strong>Authorized by: &nbsp;</strong></td>
+          <td><%= @authorizer %></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <table class="table table-bordered table-striped">
+      <thead>
+      <tr>
+        <th>Item</th>
+        <th>Opening</th>
+        <th>Add</th>
+        <th>Current stock</th>
+        <th>Closing</th>
+        <th>Damages</th>
+        <th>Complementary</th>
+        <th>Difference</th>
+        <th>Price</th>
+        <th>Total sales</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% grand_total = 0 %>
+      <% @data.each do |product_id, values| %>
+        <% grand_total += values["total_sales"] %>
+        <tr>
+          <td><%= values["product_name"] %></td>
+          <td><%= values["opening_stock"] %></td>
+          <td><%= values["added_stock"] %></td>
+          <td><%= values["current_stock"] %></td>
+          <td><%= values["closing_stock"] %></td>
+          <td><%= values["damaged_stock"] %></td>
+          <td><%= values["complementary_stock"] %></td>
+          <td><%= values["difference"] %></td>
+          <td><span class="pull-right"><%= number_to_currency(values["current_price"], :unit => "MWK ") %></span></td>
+          <td><span class="pull-right"><%= number_to_currency(values["total_sales"], :unit => "MWK ") %></span></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+
+    <table class="table table-bordered table-striped">
+      <thead>
+      <tr>
+        <th>GRAND TOTAL</th>
+        <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
+      </tr>
+      </thead>
+    </table>
+
+    <% unless @debtors.blank? %>
+      <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+          <th colspan="4" style="text-align: center; font-weight: bold;">Debtors</th>
+        </tr>
+        <tr>
+          <th>Name</th>
+          <th>Amount owed</th>
+          <th>Amount paid</th>
+          <th>Balance due</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @debtors.each do |debtor| %>
+          <tr>
+            <td><%= debtor.name %></td>
+            <td><span class="pull-right"><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></span></td>
+            <td><span class="pull-right"><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></span></td>
+            <td><span class="pull-right"><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></span></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <table class="table table-bordered">
+      <tbody>
+      <tr>
+        <td colspan="2" style="text-align: center; font-weight: bold;">Summary</td>
+      </tr>
+      <tr>
+        <td>Complementary</td>
+        <td>
+          <span id="complementaryTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["complementary_total"], :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Damages</td>
+        <td>
+          <span id="damagesTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["damages_total"], :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Total sales</td>
+        <td>
+          <span id="salesTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["total_sales"], :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Debtors</td>
+        <td>
+          <span id="debtorsTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@total_debts, :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td>Cash at hand</td>
+        <td>
+          <span id="cashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts), :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+      </tbody>
+    </table>
+
+    <br/>
+    <br/>
+    <p class="pull-right">This report was generated on <i style="font-weight: bold;"><%= Date.today.strftime("%d-%b-%Y") %></i></p>
+  </div>
+</div>
+
+</body>
+</html>
