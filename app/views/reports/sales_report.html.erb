@@ -86,7 +86,13 @@
                 jQuery("#report").html("Loading....");
             },
             success: function (result) {
-                console.log(result)
+                console.log(result);
+                var stock_card = result["stock_card"];
+                var debtors = result["debtors"];
+                var total_debts = result["total_debts"];
+                var stats = result["stats"];
+
+
                 var html = "<table class='table table-bordered table-striped'>";
                 html += "<thead><tr>";
                 html += "<th>Item</th>";
@@ -102,18 +108,18 @@
                 html += "</tr></thead>";
                 html += "<tbody>";
 
-                var grand_total = 0
-                for (var productID in result){
-                    var opening_stock = result[productID]["opening_stock"];
-                    var added_stock = result[productID]["added_stock"];
-                    var current_stock = result[productID]["current_stock"];
-                    var closing_stock = result[productID]["closing_stock"];
-                    var damaged_stock = result[productID]["damaged_stock"];
-                    var complementary_stock = result[productID]["complementary_stock"];
-                    var difference = result[productID]["difference"];
-                    var current_price = result[productID]["current_price"];
-                    var total_sales = result[productID]["total_sales"];
-                    var product_name = result[productID]["product_name"];
+                var grand_total = 0;
+                for (var productID in stock_card) {
+                    var opening_stock = stock_card[productID]["opening_stock"];
+                    var added_stock = stock_card[productID]["added_stock"];
+                    var current_stock = stock_card[productID]["current_stock"];
+                    var closing_stock = stock_card[productID]["closing_stock"];
+                    var damaged_stock = stock_card[productID]["damaged_stock"];
+                    var complementary_stock = stock_card[productID]["complementary_stock"];
+                    var difference = stock_card[productID]["difference"];
+                    var current_price = stock_card[productID]["current_price"];
+                    var total_sales = stock_card[productID]["total_sales"];
+                    var product_name = stock_card[productID]["product_name"];
                     grand_total = grand_total + total_sales;
                     html += "<tr>";
                     html += "<td>" + product_name + "</td>";
@@ -127,7 +133,6 @@
                     html += "<td> MWK " + formatMoney(current_price) + "</td>";
                     html += "<td><span class='pull-right'> MWK " + formatMoney(total_sales) + "</span></td>";
                     html += "</tr>"
-
                 }
 
                 html += "</tbody>";
@@ -141,7 +146,79 @@
                 html += "</table>";
 
                 jQuery("#report").html(html);
-                jQuery("#report").append(downloadButton)
+
+                var debtors_html = "<table class='table table-bordered table-striped'>";
+                debtors_html += "<thead>";
+                debtors_html += "<tr><td colspan='4' style='text-align: center; font-weight: bold'>Debtors</td></tr>";
+                debtors_html += "<tr>";
+                debtors_html += "<th>Name</th>";
+                debtors_html += "<th>Amount owed</th>";
+                debtors_html += "<th>Amount paid</th>";
+                debtors_html += "<th>Balance Due</th>";
+                debtors_html += "</tr></thead>";
+                debtors_html += "<tbody>";
+
+                for (var debtorID in debtors) {
+                    var name = debtors[debtorID]["name"];
+                    var amount_owed = debtors[debtorID]["amount_owed"];
+                    var amount_paid = debtors[debtorID]["amount_paid"];
+                    var balance_due = debtors[debtorID]["balance_due"];
+
+                    debtors_html += "<tr>";
+                    debtors_html += "<td>" + name + "</td>";
+                    debtors_html += "<td><span class='pull-right'> MWK " + formatMoney(amount_owed) + "</span></td>";
+                    debtors_html += "<td><span class='pull-right'> MWK " + formatMoney(amount_paid) + "</span></td>";
+                    debtors_html += "<td><span class='pull-right'> MWK " + formatMoney(balance_due) + "</span></td>";
+
+                    debtors_html += "</tr>"
+                }
+
+                debtors_html += "</tbody>";
+                debtors_html += "</table>";
+
+                jQuery("#report").append(debtors_html);
+
+
+                var summary_html = "<table class='table table-bordered table-striped'>";
+                summary_html += "<thead>";
+                summary_html += "<tr><td colspan='2' style='text-align: center; font-weight: bold'>Summary</td></tr>";
+                summary_html += "</tr></thead>";
+                summary_html += "<tbody>";
+
+                var complementary_total = stats["complementary_total"];
+                var total_sales = stats["total_sales"];
+                var damages_total = stats["damages_total"];
+
+                summary_html += "<tr>";
+                summary_html += "<td> Complementary</td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney(complementary_total) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "<tr>";
+                summary_html += "<td> Damages</td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney(damages_total) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "<tr>";
+                summary_html += "<td> Total sales </td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney(total_sales) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "<tr>";
+                summary_html += "<td> Debtors </td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney(total_debts) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "<tr>";
+                summary_html += "<td> Cash at hand </td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney((total_sales - total_debts)) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "</tbody>";
+                summary_html += "</table>";
+
+                jQuery("#report").append(summary_html);
+                jQuery("#report").append(downloadButton);
 
             }
 

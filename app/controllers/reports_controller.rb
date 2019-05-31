@@ -83,7 +83,26 @@ class ReportsController < ApplicationController
         data[product_id]["product_name"] = product_name
       end
 
-      render json: data.to_json
+      stock_stats_by_date = Product.stock_stats_by_date(date, stock_id)
+      total_debts = Debtor.total_un_paid_debt(date)
+      debtors = Debtor.where(["DATE(date) = ?", date.to_date])
+      debts = {}
+      debtors.each do |debtor|
+        debtor_id = debtor.debtor_id
+        debtor_name = debtor.name
+        amount_owed = debtor.amount_owed
+        amount_paid = debtor.amount_paid
+        balance_due = debtor.balance_due
+        debts[debtor_id] = {}
+        debts[debtor_id]["amount_owed"] = amount_owed
+        debts[debtor_id]["amount_paid"] = amount_paid
+        debts[debtor_id]["balance_due"] = balance_due
+        debts[debtor_id]["name"] = debtor_name
+      end
+
+      response = {"stock_card" => data, "debtors" => debts, "total_debts" => total_debts, "stats" => stock_stats_by_date}
+
+      render json: response.to_json
     end
   end
 
