@@ -1,0 +1,5 @@
+settings:
+ bar_name: BAR-NAME
+ recipients: NAME1:EMAIL1, NAME2:EMAIL2
+ email: EMAIL
+ password: PASSWORD
