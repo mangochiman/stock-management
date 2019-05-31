@@ -406,6 +406,9 @@ class HomeController < ApplicationController
   end
 
   def create_stock
+
+    settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
+    recipients = settings["recipients"].split(", ")
     stock_date = params[:stock_date]
     stock = Stock.new
     stock.user_id = params[:user_id]
@@ -434,6 +437,19 @@ class HomeController < ApplicationController
         stock_item.closing_stock = closing_amount
         stock_item.save
       end
+
+      recipients.each do |recipient|
+        recipient_split = recipient.split(":")
+        name = recipient_split[0]
+        email = recipient_split[1]
+        #SendEmailJob.set(wait: 10.seconds).perform_later(stock_date, email, name)
+        #NotificationMailer.sales_summary(stock_date, email, name).deliver_later
+
+        NotificationMailer.sales_summary(stock_date, email, name).deliver_later
+        NotificationMailer.products_running_low(email, name).deliver_later
+        NotificationMailer.products_out_of_stock(email, name).deliver_later
+      end
+
       flash[:notice] = "You have successfully closed the stock card"
       redirect_to("/stock_card?stock_date=#{stock_date}") and return
     else

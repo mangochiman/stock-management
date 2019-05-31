@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <%
+    settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
+    bar_name = settings["bar_name"]
+  %>
   <title><%= bar_name %></title>
   <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +46,7 @@
           <table style="padding: 10px;font-size:14px; width:100%;">
             <tr>
               <td style="padding:10px;font-size:14px; width:100%;">
-                <p>Hi Ernest,</p>
+                <p>Hi <%= @name %>,</p>
                 <p><br/> Please refer below for items running out of stock as of
                   <i style="font-weight: bold;"><%= Date.today.strftime("%d-%b-%Y") %></i></p>
 
@@ -80,7 +84,6 @@
       </td>
     </tr>
   </table>
-
-
+</div>
 </body>
 </html>

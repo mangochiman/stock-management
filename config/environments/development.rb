@@ -38,10 +38,11 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+  config.active_job.queue_adapter = :delayed_job
 
   config.action_mailer.delivery_method = :smtp
   # SMTP settings for gmail
-  settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")
+  settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
   config.action_mailer.smtp_settings = {
       :address              => "smtp.gmail.com",
       :port                 => 587,
