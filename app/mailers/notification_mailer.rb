@@ -10,4 +10,21 @@ class NotificationMailer < ApplicationMailer
         subject: "SALES SUMMARY"
     )
   end
+
+  def products_running_low
+    @products = Product.Product.running_out_of_stock
+    mail(
+        to: ["mangochiman@gmail.com"],
+        subject: "PRODUCTS RUNNING OUT OF STOCK"
+    )
+  end
+
+  def products_out_of_stock
+    @products = Product.products_not_in_stock
+    mail(
+        to: ["mangochiman@gmail.com"],
+        subject: "PRODUCTS OUT OF STOCK"
+    )
+  end
+
 end
