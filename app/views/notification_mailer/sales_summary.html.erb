@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mahara Wipha Bar</title>
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/lib/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="/AircraftAdmin-Free/lib/font-awesome/css/font-awesome.css">
+
+  <link rel="stylesheet" type="text/css" href="/AircraftAdmin-Free/stylesheets/premium.css">
+
+</head>
+<body class=" theme-blue">
+
+<div style="font-family: Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif;">
+  <table style="width: 100%;">
+    <tr>
+      <td></td>
+      <td bgcolor="#FFFFFF ">
+        <div style="padding: 15px; max-width: 600px;margin: 0 auto;display: block; border-radius: 0px;padding: 0px; border: 1px solid lightseagreen;">
+          <table style="width: 100%;background: #5d5657 ;">
+            <tr>
+              <td></td>
+              <td>
+                <div>
+                  <table width="100%">
+                    <tr>
+                      <td rowspan="2" style="text-align:center;padding:10px;">
+                        <span style="color:white;float:right;font-size: 13px;font-style: italic;margin-top: 20px; padding:10px; font-size: 14px; font-weight:normal;">
+							Sales summary<span></span></span></td>
+                    </tr>
+                  </table>
+                </div>
+              </td>
+              <td></td>
+            </tr>
+          </table>
+          <table style="padding: 10px;font-size:14px; width:100%;">
+            <tr>
+              <td style="padding:10px;font-size:14px; width:100%;">
+                <p>Hi Ernest,</p>
+                <p><br/> Please refer below for sales dated <i style="font-weight: bold;"><%= @date.to_date.strftime("%d-%b-%Y") %></i></p>
+                <p>Complementary:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency(@sales_summary["complementary_total"], :unit => "MWK ") %></span>
+                </p>
+                <p>Damages:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency(@sales_summary["damages_total"], :unit => "MWK ") %></span>
+                </p>
+                <p>Total sales:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency(@sales_summary["total_sales"], :unit => "MWK ") %></span>
+                </p>
+                <p>Debtors:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency(@total_debts, :unit => "MWK ") %></span>
+                </p>
+                <p>Cash at hand:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency((@sales_summary["total_sales"] - @total_debts), :unit => "MWK ") %></span>
+                </p>
+                <p>Thank you</p>
+                <br>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div align="center" style="font-size:12px; margin-top:20px; padding:5px; width:100%; background:#eee;">
+                  © <%=Date.today.year %>
+                  <a href="#" style="color: blue;">webTech++</a>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <small>This message is confidential and intended to the specified recipient. If you receive this
+                  email and you are not the intended recipient, please ignore it and delete all the copies
+                  immediately
+                </small>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+
+</body>
+</html>
