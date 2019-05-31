@@ -1,7 +1,13 @@
 <ul class="nav nav-tabs">
   <li class="active"><a href="#standard" data-toggle="tab">Standard items</a></li>
   <li><a href="#non-standard" data-toggle="tab">Non standard items</a></li>
+  <li><a href="#debtors" data-toggle="tab">Debtors</a></li>
+  <li onclick="updateSummary();"><a href="#summary" data-toggle="tab">Summary</a></li>
 </ul>
+
+<form>
+  <input type="hidden" value="<%= params[:stock_date] %>" id="date"/>
+</form>
 
 <div class="row">
   <div class="col-md-12">
@@ -33,7 +39,7 @@
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
-                added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
+                added_stock = product.added_stock_by_date(params[:stock_date], @last_stock_id)
                 closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
                 damaged_stock = product.damaged_stock(@last_stock_id)
@@ -52,6 +58,10 @@
                   formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
                 end
 
+                if @stock_cards.blank?
+                  formatted_amount = " - "
+                end
+
                 if product.stock_closed?(@last_stock_id).blank?
                   closing_stock = "?"
                 end
@@ -59,6 +69,7 @@
                 if damaged_stock.blank?
                   damaged_stock = "?"
                 end
+
               %>
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
               <td>
@@ -66,7 +77,7 @@
                 <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>
               <td><%= current_stock %></td>
-              </td>
+
               <td class="close-stock" product_id="<%= product.product_id %>">
                 <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
                   <span id="close_stock_<%= product.product_id %>"><%= closing_stock %></span>
@@ -94,13 +105,25 @@
                 <button onclick="complementaryStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
               </td>
 
-              <td class="stock-difference"><%= difference %></td>
+              <td class="stock-difference" id="stock-difference-<%= product.product_id %>" product_id="<%= product.product_id %>"><%= difference %></td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
-              <td><span class="pull-right total-sales"><%= formatted_amount %></span></td>
+              <td>
+                <span class="pull-right total-sales" id="total-sales-<%= product.product_id %>" product_id="<%= product.product_id %>"><%= formatted_amount %></span>
+              </td>
             </tr>
           <% end %>
           </tbody>
+        </table>
+
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>GRAND TOTAL</th>
+              <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span>
+              </th>
+          </tr>
+          </thead>
         </table>
       </div>
 
@@ -113,7 +136,6 @@
             <th>Add</th>
             <th>Current stock</th>
             <th>Shots sold</th>
-            <th>Closing</th>
             <th>Damages</th>
             <th>Complementary</th>
             <th>Price</th>
@@ -132,21 +154,22 @@
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price
-                total_shots = product.shots_sold?(@last_stock_id)
-                closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
+                #closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 damaged_stock = product.damaged_stock(@last_stock_id)
                 complementary_stock = product.complementary_stock(@last_stock_id)
+                shots_sold = product.shots_sold?(@last_stock_id)
 
                 if product.stock_closed?(@last_stock_id).blank?
-                  closing_stock = "?"
+                  #closing_stock = "?"
                 end
 
-                total_sales = current_price.to_f * total_shots.to_i
+                total_sales = current_price.to_f * shots_sold.to_i
+
                 grand_total += total_sales
                 formatted_amount = number_to_currency(total_sales, :unit => "MWK ")
 
-                if product.shots_sold?(@last_stock_id).blank?
-                  total_shots = "?"
+                if @stock_cards.blank?
+                  formatted_amount = " - "
                 end
 
                 if damaged_stock.blank?
@@ -157,72 +180,202 @@
                   complementary_stock = "?"
                 end
 
+                if shots_sold.blank?
+                  shots_sold = "?"
+                end
+
               %>
               <td><%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %></td>
-              <td>
-                <button type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
-                <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
+              <td class="add-stock" product_id="<%= product.product_id %>">
+                <% unless @stock_cards.blank? %>
+                  <button onclick="getProductAdditions('<%= product.product_id %>')" type="button" class="btn btn-default btn-circle "><%= product.added_stock_by_date(params[:stock_date]) %></button>
+                <% else %>
+                  <button onclick="updateStockPopup('<%= product.product_id %>')" class="btn btn-default " href="#">Update</button>
+
+                <% end %>
               </td>
               <td><%= current_stock %></td>
 
-              <td class="close-shots" product_id="<%= product.product_id %>">
-                <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-                  <span id="shots_sold_stock_<%= product.product_id %>"><%= total_shots %></span>
-                </button>
-                <button onclick="shotsSoldPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
-              </td>
-
-              <td>
-                <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
-                  <span id="close_stock_<%= product.product_id %>"><%= closing_stock %></span>
-                </button>
-                <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+              <td class="close-stock" product_id="<%= product.product_id %>">
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="closeStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>"><%= shots_sold %></span>
+                  </button>
+                <% end %>
               </td>
 
               <td class="damage-stock" product_id="<%= product.product_id %>">
-                <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
-                  <span id="damage_stock_<%= product.product_id %>"><%= damaged_stock %></span>
-                </button>
-                <button onclick="damageStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                    <span id="damage_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="damageStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_<%= product.product_id %>">
+                    <span id="close_stock_<%= product.product_id %>"><%= damaged_stock %></span>
+                  </button>
+                <% end %>
               </td>
 
               <td class="complementary-stock" product_id="<%= product.product_id %>">
-                <button style="color: red;" type="button" class="btn btn-default btn-circle stat complementary_stock_<%= product.product_id %>">
-                  <span id="complementary_stock_<%= product.product_id %>"><%= complementary_stock %></span>
-                </button>
-                <button onclick="complementaryStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% if @stock_cards.blank? %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat complementary_stock_<%= product.product_id %>">
+                    <span id="complementary_stock_<%= product.product_id %>">?</span>
+                  </button>
+                  <button onclick="complementaryStockPopup('<%= product.product_id %>')" class="btn btn-default pull-right" href="#">Update</button>
+                <% else %>
+                  <button style="color: red;" type="button" class="btn btn-default btn-circle stat complementary_stock_<%= product.product_id %>">
+                    <span id="complementary_stock_<%= product.product_id %>"><%= complementary_stock %></span>
+                  </button>
+                <% end %>
               </td>
 
               <td><span class="pull-right"><%= number_to_currency(current_price, :unit => "MWK ") %></span></td>
-              <td><span class="pull-right total-sales"><%= formatted_amount %></span></td>
+              <td>
+                <span class="pull-right total-sales" id="total-sales-<%= product.product_id %>" product_id="<%= product.product_id %>"><%= formatted_amount %></span>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>GRAND TOTAL</th>
+            <% unless @stock_cards.blank? %>
+              <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span>
+              </th>
+            <% else %>
+              <th><span class="pull-right grand-total">-</span></th>
+            <% end %>
+
+          </tr>
+          </thead>
+        </table>
+
+      </div>
+
+      <div class="tab-pane in" id="debtors">
+        <form action="#" role="form" class="form-horizontal" id="debtorsForm">
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="productName">Name</label>
+            <div class="col-lg-5">
+              <input type="text" name="debtor[name]" class="form-control" placeholder="Name" id="debtorName" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="amount">Amount </label>
+            <div class="col-lg-5">
+              <input type="text" name="debtor[amount]" class="form-control" placeholder="Amount" id="debtorAmount" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="description">Description </label>
+            <div class="col-lg-5">
+              <textarea rows="3" class="form-control" id="description"></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-lg-2" for="">&nbsp;</label>
+            <div class="col-lg-5">
+              <button id="debtorSubmit" type="submit" style="display: none;"></button>
+              <a href='#' onclick="createDebtor();" role='button'><i class='btn btn-primary' id="createRecord">Create
+                Record</i></a>
+            </div>
+          </div>
+
+
+        </form>
+
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Amount owed</th>
+            <th>Amount paid</th>
+            <th>Balance due</th>
+            <th>&nbsp;</th>
+          </tr>
+          </thead>
+          <tbody id="debtorsTbody">
+          <% @debtors.each do |debtor| %>
+            <tr id="tr_<%= debtor.debtor_id %>">
+              <td><%= debtor.name %></td>
+              <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
+              <td><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></td>
+              <td><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></td>
+              <td>
+                <a href="#" onclick="showvoidDebtorConfirm('<%= debtor.debtor_id%>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+              </td>
             </tr>
           <% end %>
           </tbody>
         </table>
       </div>
+
+      <div class="tab-pane in" id="summary">
+        <table class="table table-bordered" style="width: 50%;">
+
+          <tbody>
+          <tr>
+            <td>Complementary</td>
+            <td>
+              <span id="complementaryTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["complementary_total"], :unit => "MWK ") %></span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Damages</td>
+            <td>
+              <span id="damagesTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["damages_total"], :unit => "MWK ") %></span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Total sales</td>
+            <td>
+              <span id="salesTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@stock_stats_by_date["total_sales"], :unit => "MWK ") %></span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Debtors</td>
+            <td>
+              <span id="debtorsTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@total_debts, :unit => "MWK ") %></span>
+            </td>
+          </tr>
+
+
+          <tr>
+            <td>Cash at hand</td>
+            <td>
+              <span id="cashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts), :unit => "MWK ") %></span>
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+
+        <button id="cashierClosure" style="width: 250px; display: none;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
+          <i class="fa fa-lock"> Cashier closure</i></button>
+        <span style="padding-left: 50px">&nbsp;</span>
+
+      </div>
+
+      <br/><br/><br/>
     </div>
   </div>
 </div>
-
-
-
-
-<div>
-  <button style="width: 250px;" onclick="showCashierClosurePopup();" class="btn btn-danger" href="#">
-    <i class="fa fa-lock"> Update stock card</i></button>
-  <span style="padding-left: 50px">&nbsp;</span>
-  <br/><br/><br/><br/>
-</div>
-
-<table class="table table-bordered table-striped">
-  <thead>
-  <tr>
-    <th>GRAND TOTAL</th>
-    <th><span class="pull-right grand-total"><%= number_to_currency(grand_total, :unit => "MWK ") %></span></th>
-
-  </tr>
-  </thead>
-</table>
 
 
 <!-- Modal -->
@@ -257,7 +410,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="updateStock();" type="button" class="btn btn-primary">Update stock</button>
+        <button id="updateStockButton" onclick="updateStock();" type="button" class="btn btn-primary">Update stock
+        </button>
       </div>
 
     </div>
@@ -279,6 +433,7 @@
         <div id="productDetailsClose">
 
         </div>
+        <div id="closeStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Closing amount</strong></label>
@@ -290,15 +445,14 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="closeStock();" type="button" class="btn btn-primary">Close stock</button>
+        <button id="closingAmountButton" onclick="closeStock();" type="button" class="btn btn-primary">Close stock
+        </button>
       </div>
     </div>
     <!-- /.modal-content -->
   </div>
   <!-- /.modal-dialog -->
 </div>
-<!-- /.modal -->
-
 <!-- /.modal -->
 
 <div class="modal fade" id="damageStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -312,6 +466,7 @@
         <div id="productDetailsDamage">
 
         </div>
+        <div id="damageStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Damaged amount</strong></label>
@@ -323,7 +478,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="updateDamagedStock();" type="button" class="btn btn-primary">Close stock</button>
+        <button id="damagedAmountButton" onclick="updateDamagedStock();" type="button" class="btn btn-primary">Close
+          stock
+        </button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -343,6 +500,7 @@
         <div id="productDetailsComplementary">
 
         </div>
+        <div id="complementaryStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Complementary amount</strong></label>
@@ -354,7 +512,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="updateComplementaryStock();" type="button" class="btn btn-primary">Update stock</button>
+        <button id="complementaryAmountButton" onclick="updateComplementaryStock();" type="button" class="btn btn-primary">Update
+          stock
+        </button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -375,6 +535,7 @@
         <div id="productDetailsShotsClose">
 
         </div>
+        <div id="closehotsError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
         <form action="#" role="form" class="form-horizontal">
           <div class="form-group">
             <label class="control-label col-lg-5" for="closingShots"><strong>Total shots sold</strong></label>
@@ -480,19 +641,75 @@
 </div>
 <!-- /.modal -->
 
+<!-- Modal -->
+<div class="modal fade" id="productAdditionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Product additions</h4>
+      </div>
+      <div class="modal-body">
+        <p id="product-additions-data-header"></p><br/>
+        <p style="text-align: center;" id="product-additions-data"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="voidDebtorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Void debtors</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center;">You are about to delete a record. Are you sure you want to continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="voidDebtor();" type="button" class="btn btn-primary">Yes am sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <script type="text/javascript">
     var selectedProductID;
     var stock_date = "<%= params[:stock_date] %>";
     var total_products = parseInt("<%= @products.length %>");
+    var closedProducts = {};
     var user;
+    var product_data = {};
+    <% @products.each do |product| %>
+    product_data["<%= product.product_id %>"] = {};
+    product_data["<%= product.product_id %>"]["price"] = "<%= product.price %>";
+    product_data["<%= product.product_id %>"]["opening"] = "<%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %>";
+    <% end %>
+
+    var standard_product_ids = JSON.parse("<%= @standard_products.collect{|p|p.product_id} %>");
+    var non_standard_product_ids = JSON.parse("<%= @non_standard_products.collect{|p|p.product_id} %>");
+
 
     function updateStockPopup(productID) {
         selectedProductID = productID;
         getProductDetails(productID);
+        jQuery('#quantity').val("");
         jQuery('#addStockModal').modal('show');
-
     }
+
 
     function showCashierClosurePopup() {
         if (Object.keys(closedProducts).length == 0) {
@@ -513,14 +730,79 @@
         jQuery('#cashierClosureModal').modal('show');
     }
 
+    function newStockCard() {
+        closedProducts = {};
+        var closeStockTds = jQuery(".close-stock");
+        var closeShotsTds = jQuery(".close-shots");
+        var addStockTds = jQuery(".add-stock");
+        var damageStockTds = jQuery(".damage-stock");
+        var complementaryStockTds = jQuery(".complementary-stock");
+
+        for (var i = 0; i <= closeStockTds.length - 1; i++) {
+            var product_id = closeStockTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat close_stock_"' + product_id + '>';
+            html += '<span id="close_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="closeStockPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
+            closeStockTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= closeShotsTds.length - 1; i++) {
+            var product_id = closeShotsTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat shots_sold_stock_"' + product_id + '>';
+            html += '<span id="shots_sold_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="shotsSoldPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
+            closeShotsTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= damageStockTds.length - 1; i++) {
+            var product_id = damageStockTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat damage_stock_"' + product_id + '>';
+            html += '<span id="damage_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="damageStockPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
+            damageStockTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= complementaryStockTds.length - 1; i++) {
+            var product_id = complementaryStockTds[i].getAttribute("product_id");
+            var html = '<button style="color: red;" type="button" class="btn btn-default btn-circle stat complementary_stock_"' + product_id + '>';
+            html += '<span id="complementary_stock_' + product_id + '">?</span>';
+            html += '</button>';
+            html += '<button onclick="complementaryStockPopup(' + product_id + ')" class="btn btn-default pull-right" href="#">Update</button>';
+            complementaryStockTds[i].innerHTML = html;
+        }
+
+        for (var i = 0; i <= addStockTds.length - 1; i++) {
+            var product_id = addStockTds[i].getAttribute("product_id");
+            var html = '<button onclick="updateStockPopup(' + product_id + ')" class="btn btn-default" href="#">Update</button>';
+            //addStockTds[i].innerHTML = html;
+        }
+
+        var stockDifferenceTds = jQuery(".stock-difference");
+        for (var i = 0; i <= stockDifferenceTds.length - 1; i++) {
+            stockDifferenceTds[i].innerHTML = " - "
+        }
+
+        //total-sales
+        var totalSaleTds = jQuery(".total-sales");
+        for (var i = 0; i <= totalSaleTds.length - 1; i++) {
+            totalSaleTds[i].innerHTML = " - "
+        }
+
+        //grand-total
+        jQuery(".grand-total").html("");
+    }
 
     var last_stock_id = "<%= @last_stock_id %>";
 
     function editStockCard() {
-        window.location = "/edit_stock_card?stock_id=" + last_stock_id;
+        window.location = "/edit_stock_card?stock_id=" + last_stock_id + "&stock_date=" + stock_date;
     }
 
     function getProductDetails(productID) {
+        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -561,7 +843,7 @@
                 if (productAdditions.length > 0) {
                     jQuery("#productAdditions").html(table);
                 } else {
-                    jQuery("#productAdditions").html("<p>No items added today</p>");
+                    jQuery("#productAdditions").html("<p>No items added on this date</p>");
                 }
 
             }
@@ -569,8 +851,58 @@
         });
     }
 
+    function getProductAdditions(productID) {
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_product_details",
+            data: "product_id=" + productID + "&date=" + stock_date,
+            beforeSend: function () {
+                jQuery("#product-additions-data").html("Please wait ...");
+            },
+            success: function (result) {
+
+                var productName = result["product_details"]["product_name"];
+                var minimumRequired = result["product_details"]["minimum_required"];
+                var openingStock = result["product_details"]["opening_stock"];
+                var dateOfStock = result["product_details"]["date_of_stock"];
+
+                var productAdditions = result["product_additions"];
+
+
+                var html = "<div>";
+                html += "<p><strong>Product Name: <i>" + productName + "</i></strong></p>";
+                html += "<p><strong>Opening stock: <i>" + minimumRequired + "</i></strong></p>";
+                html += "<p><strong>Minimum required: <i>" + openingStock + "</i></strong></p>";
+                html += "<p><strong>Date of stock:  <i>" + dateOfStock + "</i></strong></p>";
+
+                html += "</div>";
+
+                var table = "<table class='table table-bordered table-striped'><thead><tr><th>Date </th><th>Quantity </th></tr></thead>";
+                table += "<body>";
+                for (var i = 0; i <= productAdditions.length - 1; i++) {
+                    table += "<tr>";
+                    table += "<td>" + productAdditions[i]["date_added"] + "</td>";
+                    table += "<td>" + productAdditions[i]["added_stock"] + "</td>";
+                    table += "</tr>";
+                }
+                table += "</body>";
+                table += "</table>";
+                jQuery("#product-additions-data-header").html(html);
+                if (productAdditions.length > 0) {
+                    jQuery("#product-additions-data").html(table);
+                } else {
+                    jQuery("#product-additions-data").html("<p>No items added on this date</p>");
+                }
+
+            }
+        });
+        jQuery('#productAdditionModal').modal('show');
+    }
+
     function shotsSoldPopup(productID) {
         selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -603,6 +935,7 @@
 
     function closeStockPopup(productID) {
         selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -630,11 +963,16 @@
 
         });
 
+        jQuery('#closingAmount').val('');
         jQuery('#closeStockModal').modal('show');
+        jQuery('#closeStockModal').on('shown.bs.modal', function () {
+            jQuery('#closingAmount').focus();
+        });
     }
 
     function damageStockPopup(productID) {
         selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -661,13 +999,17 @@
             }
 
         });
-
+        //damagedAmount
+        jQuery('#damagedAmount').val('');
         jQuery('#damageStockModal').modal('show');
+        jQuery('#damageStockModal').on('shown.bs.modal', function () {
+            jQuery('#damagedAmount').focus();
+        });
     }
-
 
     function complementaryStockPopup(productID) {
         selectedProductID = productID;
+        var stock_date = document.getElementById("date").value;
         jQuery.ajax({
             type: "GET",
             url: "/get_product_details",
@@ -695,8 +1037,13 @@
 
         });
 
+        jQuery('#complementaryAmount').val('');
         jQuery('#complementaryStockModal').modal('show');
+        jQuery('#complementaryStockModal').on('shown.bs.modal', function () {
+            jQuery('#complementaryAmount').focus();
+        });
     }
+
 
     function authenticate() {
         var username = document.getElementById("username").value;
@@ -721,6 +1068,7 @@
         });
     }
 
+
     function createFormElements() {
         var body = document.getElementsByTagName("body")[0];
 
@@ -741,6 +1089,7 @@
         input.name = "stock_id";
         form.appendChild(input);
 
+
         var input = document.createElement("input");
         input.type = "hidden";
         input.value = user.user_id;
@@ -752,6 +1101,7 @@
             if (!closedStock) {
                 closedStock = "";
             }
+
             var closedShots = closedProducts[productID]["shots"];
             if (!closedShots) {
                 closedShots = "";
@@ -801,25 +1151,55 @@
         $('#add_stock_submit_handle').click();
     }
 
-    var closedProducts = {};
-
     function closeStock(productID) {
-        var closingAmount = document.getElementById("closingAmount").value;
+        var closingAmount = document.getElementById("closingAmount").value.trim();
+        if (closingAmount.length == 0) {
+            jQuery("#closeStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(closingAmount)) {
+            jQuery("#closeStockError").html("Please input a valid number");
+            return false
+        }
+
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingAmount;
         closeAmountTag.style.color = "green";
-        closeAmountTag.style.fontWeight = "bold";
         if (!closedProducts[selectedProductID]) {
             closedProducts[selectedProductID] = {};
         }
         closedProducts[selectedProductID]["stock"] = closingAmount;
+        if (valueInArray(selectedProductID, non_standard_product_ids)) {
+            closedProducts[selectedProductID]["product_type"] = "non_standard";
+        } else {
+            closedProducts[selectedProductID]["product_type"] = "standard";
+        }
         //jQuery(".close_stock_" + selectedProductID).show();
         jQuery('#closeStockModal').modal('hide');
+        updateDifferenceAndTotalSales();
         //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
     }
 
+    function valueInArray(val, options) {
+        for (var i = 0; i < options.length; i++) {
+            if (parseInt(val) == parseInt(options[i])) return true;
+        }
+        return false;
+    }
+
     function updateDamagedStock() {
-        var damagedAmount = document.getElementById("damagedAmount").value;
+        var damagedAmount = document.getElementById("damagedAmount").value.trim();
+        if (damagedAmount.length == 0) {
+            jQuery("#damageStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(damagedAmount)) {
+            jQuery("#damageStockError").html("Please input a valid number");
+            return false
+        }
+
         var damagedAmountTag = document.getElementById("damage_stock_" + selectedProductID);
         damagedAmountTag.innerHTML = damagedAmount;
         damagedAmountTag.style.color = "green";
@@ -828,11 +1208,21 @@
         }
         closedProducts[selectedProductID]["damage"] = damagedAmount;
         jQuery('#damageStockModal').modal('hide');
+        updateDifferenceAndTotalSales();
     }
 
-
     function updateComplementaryStock() {
-        var complementaryAmount = document.getElementById("complementaryAmount").value;
+        var complementaryAmount = document.getElementById("complementaryAmount").value.trim();
+        if (complementaryAmount.length == 0) {
+            jQuery("#complementaryStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(complementaryAmount)) {
+            jQuery("#complementaryStockError").html("Please input a valid number");
+            return false
+        }
+
         var complementaryAmountTag = document.getElementById("complementary_stock_" + selectedProductID);
         complementaryAmountTag.innerHTML = complementaryAmount;
         if (!closedProducts[selectedProductID]) {
@@ -840,6 +1230,7 @@
         }
         closedProducts[selectedProductID]["complementary"] = complementaryAmount;
         jQuery('#complementaryStockModal').modal('hide');
+        updateDifferenceAndTotalSales();
     }
 
     function closeShots() {
@@ -847,7 +1238,6 @@
         var closeAmountTag = document.getElementById("shots_sold_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingShots;
         closeAmountTag.style.color = "green";
-        closeAmountTag.style.fontWeight = "bold";
         if (!closedProducts[selectedProductID]) {
             closedProducts[selectedProductID] = {};
         }
@@ -865,6 +1255,232 @@
         window.location = "/stock_card?stock_date=" + date;
     }
 
+    function updateSummary() {
+        if (Object.keys(closedProducts).length > 0) {
+            jQuery("#cashierClosure").show();
+            var stock_date = document.getElementById("date").value;
+            jQuery.ajax({
+                type: "GET",
+                url: "/get_product_data",
+                data: "stock_date=" + stock_date + "&last_stock_id=" + last_stock_id,
+                beforeSend: function () {
+                    //jQuery("#incomingStocks").show();
+                },
+                success: function (result) {
+                    var total_sales = 0;
+                    var complementary_total = 0;
+                    var damages_total = 0;
+                    var debtors_total = 0;
+
+                    for (var productID in result) {
+                        if (closedProducts[productID]) {
+                            var current_price = result[productID]["current_price"];
+                            var current_stock = result[productID]["current_stock"];
+                            var complementary_stock = closedProducts[productID]["complementary"];
+                            var product_type = closedProducts[productID]["product_type"];
+
+                            debtors_total = result[productID]["debts"];
+
+                            var closing_stock = closedProducts[productID]["stock"];
+                            if (isNumeric(closing_stock)) {
+                                closing_stock = parseInt(closing_stock)
+                            } else {
+                                closing_stock = 0
+                            }
+
+                            var closedShots = closedProducts[productID]["shots"];
+                            if (isNumeric(closedShots)) {
+                                closedShots = parseInt(closedShots)
+                            } else {
+                                closedShots = 0
+                            }
+
+                            var damaged_stock = closedProducts[productID]["damage"];
+                            if (isNumeric(damaged_stock)) {
+                                damaged_stock = parseInt(damaged_stock)
+                            } else {
+                                damaged_stock = 0
+                            }
+
+                            var complementary_stock = closedProducts[productID]["complementary"];
+                            if (isNumeric(complementary_stock)) {
+                                complementary_stock = parseInt(complementary_stock)
+                            } else {
+                                complementary_stock = 0
+                            }
+
+                            if (product_type == "non_standard") {
+                                total_sales += current_price * closing_stock;
+                            } else {
+                                var difference = current_stock - closing_stock;
+                                total_sales += current_price * (difference - damaged_stock - complementary_stock);
+                            }
+                            console.log(complementary_stock)
+                            console.log("current_stock = " + current_stock + " current_price = " + current_price + " damaged_stock = " + damaged_stock + " difference = " + difference)
+                            complementary_total += current_price * complementary_stock;
+                            damages_total += current_price * damaged_stock;
+                        }
+                    }
+
+                    var cash_at_hand = total_sales - debtors_total;
+
+                    jQuery("#complementaryTotal").html("MWK " + formatMoney(complementary_total));
+                    jQuery("#damagesTotal").html("MWK " + formatMoney(damages_total));
+                    jQuery("#salesTotal").html("MWK " + formatMoney(total_sales));
+                    jQuery("#debtorsTotal").html("MWK " + formatMoney(debtors_total));
+                    jQuery("#cashTotal").html("MWK " + formatMoney(cash_at_hand));
+
+                }
+
+            });
+        }
+    }
+
+    var product_sales = {};
+
+    function updateDifferenceAndTotalSales() {
+        if (selectedProductID) {
+            var closing_stock = jQuery("#close_stock_" + selectedProductID).html();
+            if (!isNumeric(closing_stock)) {
+                closing_stock = 0
+            }
+
+            var damaged_stock = jQuery("#damage_stock_" + selectedProductID).html();
+            if (!isNumeric(damaged_stock)) {
+                damaged_stock = 0
+            }
+
+            var complementary_stock = jQuery("#complementary_stock_" + selectedProductID).html();
+            if (!isNumeric(complementary_stock)) {
+                complementary_stock = 0
+            }
+
+            var stock_date = document.getElementById("date").value;
+            jQuery.ajax({
+                type: "GET",
+                url: "/get_product_stock_data",
+                data: "product_id=" + selectedProductID + "&stock_date=" + stock_date,
+                beforeSend: function () {
+                    //jQuery("#incomingStocks").show();
+                },
+                success: function (result) {
+                    var current_price = result["current_price"];
+                    var current_stock = result["current_stock"];
+
+                    if (valueInArray(selectedProductID, non_standard_product_ids)) {
+                        var product_type = "non_standard";
+                    } else {
+                        var product_type = "standard";
+                    }
+
+                    if (product_type == "non_standard") {
+                        var total_sales = current_price * closing_stock;
+                    } else {
+                        var difference = current_stock - closing_stock;
+                        var total_sales = current_price * (difference - damaged_stock - complementary_stock);
+                        jQuery("#stock-difference-" + selectedProductID).html(difference);
+                    }
+
+                    var grand_total_sales = 0;
+                    product_sales[selectedProductID] = total_sales;
+                    for (var productID in product_sales) {
+                        grand_total_sales += product_sales[productID]
+                    }
+
+                    var formatted_total_sales = formatMoney(total_sales);
+                    jQuery("#total-sales-" + selectedProductID).html("MWK " + formatted_total_sales);
+                    jQuery(".grand-total").html("MWK " + formatMoney(grand_total_sales))
+                }
+
+            });
+
+        }
+    }
+
+    function isNumeric(num) {
+        return !isNaN(num)
+    }
+
+    function createDebtor() {
+        var name = document.getElementById("debtorName").value;
+        var amount = document.getElementById("debtorAmount").value;
+        var description = document.getElementById("description").value;
+
+        if (name.length == 0 || amount.length == 0) {
+            $('#debtorSubmit').click();
+            return
+        }
+
+        var stock_date = document.getElementById("date").value;
+        jQuery.ajax({
+            type: "POST",
+            url: "/create_debtors",
+            data: "name=" + name + "&date=" + stock_date + "&amount=" + amount + "&description=" + description,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+
+                jQuery("#debtorName").val("");
+                jQuery("#debtorAmount").val("");
+                jQuery("#description").val("");
+                if (result["status"] == "success") {
+                    var data = JSON.parse(result["data"]);
+                    var debtor_id = data["debtor_id"];
+                    var amount_owed = formatMoney(data["amount_owed"]);
+                    var amount_paid = formatMoney(data["amount_paid"]);
+                    var balance_due = formatMoney(data["balance_due"]);
+
+                    var html = "<tr id='tr_" + debtor_id + "'>";
+                    html += "<td>" + data["name"] + "</td>";
+                    html += "<td> MWK " + amount_owed + "</td>";
+                    html += "<td> MWK " + amount_paid + "</td>";
+                    html += "<td> MWK " + balance_due + "</td>";
+                    html += '<td><a href="#" onclick="showvoidDebtorConfirm(' + debtor_id + ')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a></td>';
+                    html += "</tr>";
+                    jQuery("#debtorsTbody").append(html);
+                    var target = jQuery('html,body');
+                    target.animate({scrollTop: target.height()}, 1000);
+                }
+            }
+
+        });
+    }
+
+    var selectedDebtorID;
+
+    function showvoidDebtorConfirm(debtorID) {
+        selectedDebtorID = debtorID;
+        jQuery('#voidDebtorModal').modal('show');
+    }
+
+    function voidDebtor() {
+        jQuery.ajax({
+            type: "POST",
+            url: "/void_debtors",
+            data: "debtor_id=" + selectedDebtorID,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                jQuery("#tr_" + selectedDebtorID).remove();
+                jQuery('#voidDebtorModal').modal('hide');
+            }
+
+        });
+    }
+
+    function formatMoney(n, c, d, t) {
+        var c = isNaN(c = Math.abs(c)) ? 2 : c,
+            d = d == undefined ? "." : d,
+            t = t == undefined ? "," : t,
+            s = n < 0 ? "-" : "",
+            i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+            j = (j = i.length) > 3 ? j % 3 : 0;
+
+        return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+    };
+
     window.onload = function () {
         $(".datepicker").datepicker({
             uiLibrary: 'bootstrap',
@@ -872,6 +1488,52 @@
             startDate: '-3d',
             todayHighLight: true
         });
+
+        jQuery('#quantity').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#updateStockButton').click();
+                return false;
+            }
+        });
+
+        jQuery('#closingAmount').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#closingAmountButton').click();
+                return false;
+            }
+        });
+
+        //damagedAmountButton
+        jQuery('#damagedAmount').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#damagedAmountButton').click();
+                return false;
+            }
+        });
+
+        jQuery('#complementaryAmount').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#complementaryAmountButton').click();
+                return false;
+            }
+        });
+
+        $('#debtorsForm').on('keyup keypress', function (e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
     };
 </script>
 
@@ -891,7 +1553,7 @@
     padding: 10px 16px;
     border-radius: 25px;
     line-height: 1.33;
-    min-width: 60px;
+    min-width: 80px;
 
   }
 </style>

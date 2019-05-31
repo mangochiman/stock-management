@@ -339,6 +339,9 @@ class HomeController < ApplicationController
     if params[:stock_id]
       @last_stock_id = params[:stock_id]
     end
+    @debtors = Debtor.where(["DATE(date) = ?", @today.to_date])
+    @stock_stats_by_date = Product.stock_stats_by_date(@today, @last_stock_id)
+    @total_debts = Debtor.total_un_paid_debt(@today)
     @stock_cards = []
   end
 
@@ -354,6 +357,11 @@ class HomeController < ApplicationController
       closing_shots = values["shots"]
       damaged_stock = values["damage"]
       product = Product.find(product_id)
+
+      if product.category_name.match(/NON/i)
+        closing_shots = closing_amount
+        closing_amount = opening_stock_by_date - closing_amount.to_i - damaged_stock.to_i - complementary_stock.to_i
+      end
 
       stock_item = StockItem.where(["stock_id =? AND product_id =?", params[:stock_id], product_id]).last
       stock_item = StockItem.new if stock_item.blank?
