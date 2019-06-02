@@ -324,7 +324,7 @@ class HomeController < ApplicationController
     @debtors = Debtor.where(["DATE(date) = ?", @today.to_date])
     @stock_stats_by_date = Product.stock_stats_by_date(@today, @last_stock_id)
     @total_debts = Debtor.total_un_paid_debt(@today)
-
+    @actual_cash = Stock.where(["stock_id =?", @last_stock_id]).last.amount_collected.to_f rescue "0"
     #raise @last_stock_id.inspect
   end
 
@@ -414,13 +414,13 @@ class HomeController < ApplicationController
   end
 
   def create_stock
-
     settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
     recipients = settings["recipients"].split(", ")
     stock_date = params[:stock_date]
     stock = Stock.new
     stock.user_id = params[:user_id]
     stock.stock_time = stock_date
+    stock.amount_collected = params[:actual_cash]
     if stock.save
       params[:products].each do |product_id, values|
         closing_amount = values["stock"]

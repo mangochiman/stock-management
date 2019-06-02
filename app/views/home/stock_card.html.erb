@@ -445,14 +445,14 @@
           <tr>
             <td>Actual Cash</td>
             <td onclick="showActualCashPopup()">
-              <span id="actualCashTotal" class="pull-right" style="font-weight: bold;"></span>
+              <span id="actualCashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@actual_cash, :unit => "MWK ") %></span>
             </td>
           </tr>
 
           <tr>
             <td>Shortages</td>
             <td>
-              <span id="shortage" class="pull-right" style="font-weight: bold;"></span>
+              <span id="shortage" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts) - @actual_cash.to_i ,:unit => "MWK ") %></span>
             </td>
           </tr>
 
@@ -1168,6 +1168,8 @@
         });
     }
 
+    var actualCash;
+
     function updateActualAmount(){
         var actualAmount = document.getElementById("actualAmount").value.trim();
         if (actualAmount.length == 0) {
@@ -1184,6 +1186,16 @@
             jQuery("#actualAmountError").html("Negative numbers are not allowed");
             return false
         }
+
+        actualCash = actualAmount;
+        var actualAmountFormatted = formatMoney(actualAmount);
+        var shortages = expectedCash - actualAmount;
+        var shortagesFormatted = formatMoney(shortages);
+
+        jQuery("#actualCashTotal").html("MWK " + actualAmountFormatted);
+        jQuery("#shortage").html("MWK " + shortagesFormatted);
+        jQuery('#actualAmountModal').modal('hide');
+
     }
 
     function showActualCashPopup(){
@@ -1235,6 +1247,12 @@
         input.type = "hidden";
         input.value = user.user_id;
         input.name = "user_id";
+        form.appendChild(input); //actualCash
+
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.value = actualCash;
+        input.name = "actual_cash";
         form.appendChild(input);
 
         for (var productID in closedProducts) {
@@ -1294,7 +1312,7 @@
 
     function closeStock(productID) {
 
-
+        var closingAmount = document.getElementById("closingAmount").value.trim();
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
         closeAmountTag.innerHTML = closingAmount;
         if (!closedProducts[selectedProductID]) {
@@ -1393,6 +1411,7 @@
         window.location = "/stock_card?stock_date=" + date;
     }
 
+    var expectedCash;
     function updateSummary() {
         if (Object.keys(closedProducts).length > 0) {
             jQuery("#cashierClosure").show();
@@ -1461,6 +1480,7 @@ console.log("current_stock = " + current_stock + " current_price = " + current_p
                     }
 
                     var cash_at_hand = total_sales - debtors_total;
+                    expectedCash = cash_at_hand;
 
                     jQuery("#complementaryTotal").html("MWK " + formatMoney(complementary_total));
                     jQuery("#damagesTotal").html("MWK " + formatMoney(damages_total));
