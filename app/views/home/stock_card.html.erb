@@ -444,7 +444,7 @@
 
           <tr>
             <td>Actual Cash</td>
-            <td onclick="showActualCashPopup()">
+            <td>
               <span id="actualCashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@actual_cash, :unit => "MWK ") %></span>
             </td>
           </tr>
@@ -452,7 +452,7 @@
           <tr>
             <td>Shortages</td>
             <td>
-              <span id="shortage" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts) - @actual_cash.to_i ,:unit => "MWK ") %></span>
+              <span id="shortage" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts) - @actual_cash.to_i, :unit => "MWK ") %></span>
             </td>
           </tr>
 
@@ -461,6 +461,10 @@
 
         <button id="cashierClosure" style="width: 250px; display: none;" onclick="showCashierClosurePopup();" class="btn btn-warning" href="#">
           <i class="fa fa-lock"> Cashier closure</i></button>
+        <span style="padding-left: 50px">&nbsp;</span>
+
+        <button id="actualCashCollectedButton" style="width: 250px; display: none;" onclick="showActualCashPopup();" class="btn btn-primary" href="#">
+          <i class="fa fa-money"> Update actual cash collected</i></button>
         <span style="padding-left: 50px">&nbsp;</span>
 
       </div>
@@ -1170,7 +1174,7 @@
 
     var actualCash;
 
-    function updateActualAmount(){
+    function updateActualAmount() {
         var actualAmount = document.getElementById("actualAmount").value.trim();
         if (actualAmount.length == 0) {
             jQuery("#actualAmountError").html("Please input a number");
@@ -1179,6 +1183,11 @@
 
         if (!isNumeric(actualAmount)) {
             jQuery("#actualAmountError").html("Please input a valid number");
+            return false
+        }
+
+        if (parseInt(actualAmount) > expectedCash){
+            jQuery("#actualAmountError").html("Actual amount exceeds expected amount");
             return false
         }
 
@@ -1198,7 +1207,7 @@
 
     }
 
-    function showActualCashPopup(){
+    function showActualCashPopup() {
         jQuery('#actualAmount').val('');
         jQuery('#actualAmountModal').modal('show');
         jQuery('#actualAmountModal').on('shown.bs.modal', function () {
@@ -1321,7 +1330,8 @@
         closedProducts[selectedProductID]["stock"] = closingAmount;
         if (valueInArray(selectedProductID, non_standard_product_ids)) {
             closedProducts[selectedProductID]["product_type"] = "non_standard";
-        } else {var closingAmount = document.getElementById("closingAmount").value.trim();
+        } else {
+            var closingAmount = document.getElementById("closingAmount").value.trim();
             if (closingAmount.length == 0) {
                 jQuery("#closeStockError").html("Please input a number");
                 return false
@@ -1412,9 +1422,12 @@
     }
 
     var expectedCash;
+
     function updateSummary() {
         if (Object.keys(closedProducts).length > 0) {
             jQuery("#cashierClosure").show();
+            jQuery("#actualCashCollectedButton").show();
+
             var stock_date = document.getElementById("date").value;
             jQuery.ajax({
                 type: "GET",
@@ -1473,7 +1486,7 @@
                                 total_sales += current_price * (difference - damaged_stock - complementary_stock);
                             }
                             console.log(complementary_stock)
-console.log("current_stock = " + current_stock + " current_price = " + current_price + " damaged_stock = " + damaged_stock + " difference = " + difference)
+                            console.log("current_stock = " + current_stock + " current_price = " + current_price + " damaged_stock = " + damaged_stock + " difference = " + difference)
                             complementary_total += current_price * complementary_stock;
                             damages_total += current_price * damaged_stock;
                         }
@@ -1495,6 +1508,7 @@ console.log("current_stock = " + current_stock + " current_price = " + current_p
     }
 
     var product_sales = {};
+
     function updateDifferenceAndTotalSales() {
         if (selectedProductID) {
             var closing_stock = jQuery("#close_stock_" + selectedProductID).html();
@@ -1540,7 +1554,7 @@ console.log("current_stock = " + current_stock + " current_price = " + current_p
 
                     var grand_total_sales = 0;
                     product_sales[selectedProductID] = total_sales;
-                    for (var productID in product_sales){
+                    for (var productID in product_sales) {
                         grand_total_sales += product_sales[productID]
                     }
 
