@@ -152,9 +152,23 @@
 
 
       <tr>
-        <td>Cash at hand</td>
+        <td>Expected cash</td>
         <td>
           <span id="cashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts), :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Collected Cash</td>
+        <td>
+          <span id="collectedCashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@actual_cash, :unit => "MWK ") %></span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Shortages</td>
+        <td>
+          <span id="shortage" class="pull-right" style="font-weight: bold;"><%= number_to_currency((@stock_stats_by_date["total_sales"] - @total_debts) - @actual_cash.to_i, :unit => "MWK ") %></span>
         </td>
       </tr>
 

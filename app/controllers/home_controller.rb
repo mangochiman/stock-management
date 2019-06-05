@@ -343,8 +343,7 @@ class HomeController < ApplicationController
     @debtors = Debtor.where(["DATE(date) = ?", @today.to_date])
     @stock_stats_by_date = Product.stock_stats_by_date(@today, @last_stock_id)
     @total_debts = Debtor.total_un_paid_debt(@today)
-    @actual_cash = Stock.where(["stock_id =?", @last_stock_id]).last.amount_collected.to_f rescue "0"
-    #raise @last_stock_id.inspect
+    @actual_cash = Stock.find(@last_stock_id).amount_collected.to_f rescue "0"
   end
 
   def edit_stock_card

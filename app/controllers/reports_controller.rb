@@ -100,7 +100,9 @@ class ReportsController < ApplicationController
         debts[debtor_id]["name"] = debtor_name
       end
 
-      response = {"stock_card" => data, "debtors" => debts, "total_debts" => total_debts, "stats" => stock_stats_by_date}
+      actual_cash = Stock.find(stock_id).amount_collected.to_f rescue 0
+
+      response = {"stock_card" => data, "debtors" => debts, "total_debts" => total_debts, "stats" => stock_stats_by_date, "actual_cash" => actual_cash}
 
       render json: response.to_json
     end
@@ -118,6 +120,7 @@ class ReportsController < ApplicationController
     end
     stock = Stock.where(["DATE(stock_time) = ? ", date.to_date]).last
     stock_id = stock.stock_id rescue nil
+
     @authorizer = ""
     unless stock.blank?
       user = User.find(stock.user_id) rescue ""
@@ -155,7 +158,7 @@ class ReportsController < ApplicationController
     @stock_stats_by_date = Product.stock_stats_by_date(date, stock_id)
     @total_debts = Debtor.total_un_paid_debt(date)
     @debtors = Debtor.where(["DATE(date) = ?", date.to_date])
-
+    @actual_cash = Stock.find(stock_id).amount_collected.to_f rescue 0
     @data = data
 
     render layout: false

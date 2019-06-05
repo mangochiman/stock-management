@@ -91,7 +91,7 @@
                 var debtors = result["debtors"];
                 var total_debts = result["total_debts"];
                 var stats = result["stats"];
-
+                var actual_cash = result["actual_cash"];
 
                 var html = "<table class='table table-bordered table-striped'>";
                 html += "<thead><tr>";
@@ -210,8 +210,18 @@
                 summary_html += "</tr>";
 
                 summary_html += "<tr>";
-                summary_html += "<td> Cash at hand </td>";
+                summary_html += "<td> Expected cash </td>";
                 summary_html += "<td><span class='pull-right'> MWK " + formatMoney((total_sales - total_debts)) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "<tr>";
+                summary_html += "<td> Collected cash </td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney(actual_cash) + "</span></td>";
+                summary_html += "</tr>";
+
+                summary_html += "<tr>";
+                summary_html += "<td> Shortages </td>";
+                summary_html += "<td><span class='pull-right'> MWK " + formatMoney((total_sales - total_debts) - actual_cash) + "</span></td>";
                 summary_html += "</tr>";
 
                 summary_html += "</tbody>";
