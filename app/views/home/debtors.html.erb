@@ -177,11 +177,19 @@
                 //jQuery("#incomingStocks").show();
             },
             success: function (result) {
-                var html
+                var table = "<table class='table table-bordered table-striped'><thead><tr><th>Date </th><th>Amount paid </th></tr></thead>";
+                table += "<body>";
                 for (var i=0; i<=result.length -1; i++){
                     var amount_paid = result[i]["amount_paid"];
                     var date_paid = result[i]["date_paid"];
+                    table += "<tr>";
+                    table += "<td>" + date_paid + "</td>";
+                    table += "<td> MWK " + formatMoney(amount_paid) + "</td>";
+                    table += "</tr>";
                 }
+                table += "</body>";
+                table += "</table>";
+                jQuery("#previousPaymentsData").html(table);
                 jQuery('#previousPaymentModal').modal('show');
             }
 
