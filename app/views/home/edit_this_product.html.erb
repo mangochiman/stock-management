@@ -22,28 +22,28 @@
   <div class="form-group">
     <label class="control-label col-lg-3" for="partNumber">Part Number</label>
     <div class="col-lg-7">
-      <input type="text" name="product[part_number]" class="form-control" placeholder="Part Number" id="partNumber" value="<%= @product.part_number %>" required/>
+      <input type="text" name="product[part_number]" class="form-control" placeholder="Part Number" id="partNumber" value="<%= @product.part_number %>"/>
     </div>
   </div>
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="productLabel">Product Label</label>
     <div class="col-lg-7">
-      <input type="text" name="product[product_label]" class="form-control" placeholder="Product label" id="productLabel" value="<%= @product.label %>" required/>
+      <input type="text" name="product[product_label]" class="form-control" placeholder="Product label" id="productLabel" value="<%= @product.label %>"/>
     </div>
   </div>
 
   <div class="form-group">
-    <label class="control-label col-lg-3" for="startingInventory">Starting inventory</label>
+    <label class="control-label col-lg-3" for="startingInventory">Starting Stock</label>
     <div class="col-lg-7">
-      <input type="text" name="product[starting_inventory]" class="form-control" placeholder="Starting inventory" value="<%= @product.starting_inventory %>"id="startingInventory"/>
+      <input type="text" name="product[starting_inventory]" class="form-control" placeholder="Starting stock" value="<%= @product.starting_inventory %>" id="startingInventory" required/>
     </div>
   </div>
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="minimumRequired">Minimum Required</label>
     <div class="col-lg-7">
-      <input type="text" name="product[minimum_required]" class="form-control" placeholder="Minimum required" value="<%= @product.minimum_required %>" id="minimumRequired"/>
+      <input type="text" name="product[minimum_required]" class="form-control" placeholder="Minimum required" value="<%= @product.minimum_required %>" id="minimumRequired" required/>
     </div>
   </div>
 

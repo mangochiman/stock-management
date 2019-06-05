@@ -60,8 +60,14 @@
                 <p>Debtors:
                   <span style="font-weight: bold; float: right;"><%= number_to_currency(@total_debts, :unit => "MWK ") %></span>
                 </p>
-                <p>Cash at hand:
+                <p>Expected cash:
                   <span style="font-weight: bold; float: right;"><%= number_to_currency((@sales_summary["total_sales"] - @total_debts), :unit => "MWK ") %></span>
+                </p>
+                <p>Collected cash:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency(@actual_cash, :unit => "MWK ") %></span>
+                </p>
+                <p>Shortages:
+                  <span style="font-weight: bold; float: right;"><%= number_to_currency((@sales_summary["total_sales"] - @total_debts) - @actual_cash.to_i, :unit => "MWK ") %></span>
                 </p>
                 <p>Thank you</p>
                 <br>

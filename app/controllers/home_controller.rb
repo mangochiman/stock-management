@@ -476,16 +476,17 @@ class HomeController < ApplicationController
         stock_item.save
       end
 
+      products_running_out_of_stock = Product.running_out_of_stock
+      products_not_in_stock = Product.products_not_in_stock
+
       recipients.each do |recipient|
         recipient_split = recipient.split(":")
         name = recipient_split[0]
         email = recipient_split[1]
-        #SendEmailJob.set(wait: 10.seconds).perform_later(stock_date, email, name)
-        #NotificationMailer.sales_summary(stock_date, email, name).deliver_later
 
         NotificationMailer.sales_summary(stock_date, email, name).deliver_later
-        NotificationMailer.products_running_low(email, name).deliver_later
-        NotificationMailer.products_out_of_stock(email, name).deliver_later
+        NotificationMailer.products_running_low(email, name).deliver_later unless products_running_out_of_stock.blank?
+        NotificationMailer.products_out_of_stock(email, name).deliver_later unless products_not_in_stock.blank?
       end
 
       flash[:notice] = "You have successfully closed the stock card"

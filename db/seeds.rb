@@ -83,3 +83,8 @@ user.password = User.encrypt("test", salt)
 user.salt = salt
 user.username = "admin"
 user.save
+
+user_role = UserRole.new
+user_role.user_id = user.user_id
+user_role.role = "Admin"
+user_role.save

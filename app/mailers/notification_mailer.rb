@@ -6,6 +6,9 @@ class NotificationMailer < ApplicationMailer
     @name = name
     @total_debts = Debtor.total_un_paid_debt(date)
     @sales_summary = Product.stock_stats_by_date(date)
+    stock_id = Stock.where(["DATE(stock_time) = ? ", date.to_date]).last.stock_id rescue nil
+    @actual_cash = Stock.find(stock_id).amount_collected.to_f rescue 0
+
     mail(
         to: email,
         subject: "SALES SUMMARY"

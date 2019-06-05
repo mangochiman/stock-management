@@ -14,7 +14,6 @@
     <th>Product Category</th>
     <th>Minimum required</th>
     <th>Current stock</th>
-    <th>Expected run out date</th>
   </tr>
   </thead>
   <tbody>
@@ -26,8 +25,7 @@
       <td><%= product.name  %></td>
       <td><%= product.category_name  %></td>
       <td><%= product.minimum_required %></td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
+      <td><%= product.current_stock %></td>
     </tr>
   <% end %>
   </tbody>
