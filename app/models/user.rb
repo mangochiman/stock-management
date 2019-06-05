@@ -24,7 +24,29 @@ class User < ActiveRecord::Base
   end
 
   def self.authenticate(login, password)
+    password = password.to_s.squish
     u = where(["username =?", login]).first
+    if u
+      password_reminder = u.password_reminders.last
+      unless password_reminder.blank?
+        if (User.encrypt(password.squish, password_reminder.salt) == password_reminder.password)
+          u.password = password_reminder.password
+          u.salt = password_reminder.salt
+          u.save
+          password_reminder.voided = 1
+          password_reminder.save
+          return u
+        end
+      end
+    end
+
+    if u.authenticated?(password)
+      u.password_reminders.each do |p|
+        p.voided = 1
+        p.save
+      end
+    end
+
     u && u.authenticated?(password) ? u : nil
   end
 
