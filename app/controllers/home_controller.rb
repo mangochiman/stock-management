@@ -501,9 +501,9 @@ class HomeController < ApplicationController
     @product = Product.find(params[:product_id])
     data = {
         :product_name => @product.name,
-        :opening_stock => "",
-        :minimum_required => "",
-        :date_of_stock => "",
+        :opening_stock => @product.opening_stock_by_date(params[:date].to_date),
+        :minimum_required => @product.minimum_required,
+        :date_of_stock => params[:date].to_date.strftime("%d/%b/%Y"),
     }
     product_additions = @product.product_additions.where(["DATE(date_added) =?", params[:date].to_date])
     data = {:product_details => data, :product_additions => product_additions}
