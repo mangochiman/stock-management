@@ -26,7 +26,7 @@ class HomeController < ApplicationController
     @xaxis = []
 
     (start_month_date..end_month_date).to_a.each do |date|
-      @xaxis << date.strftime('%d/%b/%Y')
+      @xaxis << date.strftime("%Y-%m-%d")
     end
 
     @total_sales = []
