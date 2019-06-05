@@ -34,14 +34,14 @@ class Product < ActiveRecord::Base
     return non_standard_products
   end
 
-  def price
-    price_histories = self.price_histories
-    today = Date.today
+  def price(today = Date.today)
+    today = today.to_date
+    price_histories = self.price_histories.order("DATE(start_date) DESC")
     current_price = ""
     price_histories.each do |price_history|
       price = price_history.price
       start_date = price_history.start_date.to_date
-      end_date = price_history.end_date.to_date
+      end_date = price_history.end_date.to_date rescue nil
 
       if end_date.blank?
         if today >= start_date
@@ -51,7 +51,7 @@ class Product < ActiveRecord::Base
       end
 
       unless end_date.blank?
-        if (today >= start_date && today <= end_date)
+        if (today.to_date >= start_date && today <= end_date)
           current_price = price
           break
         end

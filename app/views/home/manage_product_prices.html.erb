@@ -13,14 +13,6 @@
     </div>
   </div>
 
-  <div class="form-group">
-    <label class="control-label col-lg-3" for="last_name">End date</label>
-    <div class="col-lg-7">
-      <input type="text" name="product[end_date]" class="form-control datepicker" placeholder="End date" id="end_date"/>
-    </div>
-  </div>
-
-
   <input type="hidden" name="product_id" value="<%=@product.product_id %>"/>
   <div class="form-group modal-footer">
     <label class="control-label col-lg-3" for="">&nbsp;</label>
@@ -43,7 +35,7 @@
   </tr>
   </thead>
   <tbody>
-  <% @product.price_histories.each do |price_history| %>
+  <% @price_histories.each do |price_history| %>
     <tr>
       <td><%= number_to_currency(price_history.price, :unit => "MWK ") %></td>
       <td><%= price_history.start_date.to_date.strftime("%d-%b-%Y") rescue price_history.start_date %></td>

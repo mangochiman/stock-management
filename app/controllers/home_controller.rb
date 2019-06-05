@@ -168,19 +168,38 @@ class HomeController < ApplicationController
   def manage_product_prices
     @product = Product.find(params[:product_id])
     @page_header = "Managing prices of #{@product.name}"
+    @price_histories = @product.price_histories.order("price_history_id DESC")
     if request.post?
       price_history = PriceHistory.new
       price_history.product_id = @product.product_id
       price_history.price = params[:product][:price]
       price_history.start_date = params[:product][:start_date]
-      price_history.end_date = params[:product][:end_date]
+      product_price_histories = @product.price_histories.order("DATE(start_date) DESC")
+      start_date_collides = false
+      new_start_date = params[:product][:start_date].to_date
+      product_price_histories.each do |old_price_history|
+        start_date = old_price_history.start_date.to_date
+        end_date = old_price_history.end_date.to_date rescue start_date
+        if end_date >= new_start_date
+          start_date_collides = true
+          break
+        end
+      end
 
-      if price_history.save
-        flash[:notice] = "Price for #{@product.name} was set"
-        redirect_to("/manage_product_prices?product_id=#{@product.product_id}") and return
-      else
-        flash[:error] = price_history.errors.full_messages.join('<br />')
-        redirect_to("/manage_product_prices?product_id=#{@product.product_id}") and return
+      if start_date_collides
+        flash[:error] = "The new start date is colliding with previous dates of another price of the same product"
+        redirect_to("/manage_product_prices?product_id=#{params[:product_id]}") and return
+      end
+
+      ActiveRecord::Base.transaction do
+        PriceHistory.set_price_end_dates(params[:product_id], (params[:product][:start_date].to_date - 1.day))
+        if price_history.save
+          flash[:notice] = "Price for #{@product.name} was set"
+          redirect_to("/manage_product_prices?product_id=#{@product.product_id}") and return
+        else
+          flash[:error] = price_history.errors.full_messages.join('<br />')
+          redirect_to("/manage_product_prices?product_id=#{@product.product_id}") and return
+        end
       end
     end
   end
@@ -413,6 +432,18 @@ class HomeController < ApplicationController
     end
   end
 
+  def modify_stock
+    product_addition = ProductAddition.new
+    product_addition.added_stock = params[:quantity]
+    product_addition.product_id = params[:product_id]
+    product_addition.date_added = params[:stock_date]
+    product_addition.save
+    data = {}
+    product = Product.find(params[:product_id])
+    data["current_stock"] = product.current_stock(params[:stock_date], params[:stock_id])
+    render json: data.to_json
+  end
+
   def create_stock
     settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
     recipients = settings["recipients"].split(", ")
@@ -546,7 +577,7 @@ class HomeController < ApplicationController
       product_id = product.product_id
       data[product_id] = {}
       data[product_id]["current_stock"] = product.current_stock(params[:stock_date], @last_stock_id)
-      data[product_id]["current_price"] = product.price
+      data[product_id]["current_price"] = product.price(params[:stock_date])
       data[product_id]["debts"] = debts
     end
     render json: data.to_json
@@ -556,7 +587,7 @@ class HomeController < ApplicationController
     data = {}
     product = Product.find(params[:product_id])
     data["current_stock"] = product.current_stock(params[:stock_date], params[:stock_id])
-    data["current_price"] = product.price
+    data["current_price"] = product.price(params[:stock_date])
     render json: data.to_json
   end
 

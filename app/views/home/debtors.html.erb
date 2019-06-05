@@ -116,6 +116,9 @@
         selected_debtor_id = debtorID;
         jQuery("#amountPaid").val('');
         jQuery('#addPaymentModal').modal('show');
+        jQuery('#addPaymentModal').on('shown.bs.modal', function () {
+            jQuery('#amountPaid').focus();
+        });
     }
 
     var selected_debtor_id;
@@ -129,6 +132,11 @@
 
         if (!isNumeric(amountPaid)) {
             jQuery("#paymentError").html("Please input a valid number");
+            return false
+        }
+
+        if (parseInt(amountPaid) < 0) {
+            jQuery("#paymentError").html("Negative numbers are not allowed");
             return false
         }
 

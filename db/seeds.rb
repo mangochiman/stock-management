@@ -69,7 +69,6 @@ products.each do |product|
   price_history.product_id = new_product.product_id
   price_history.price = product[:price]
   price_history.start_date = "2000-01-01"
-  price_history.end_date = "2019-12-31"
   price_history.save
 
 end

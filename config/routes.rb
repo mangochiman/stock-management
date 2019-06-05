@@ -67,7 +67,8 @@ Rails.application.routes.draw do
   get '/stock_card' => 'home#stock_card'
   get '/edit_stock_card' => 'home#edit_stock_card'
 
-  post '/update_stock' => 'home#update_stock' #creator_debtors
+  post '/update_stock' => 'home#update_stock'
+  post '/modify_stock' => 'home#modify_stock'
   post '/create_debtors' => 'home#create_debtors'
   post '/void_debtors' => 'home#void_debtors'
   get '/get_product_data' => 'home#get_product_data'

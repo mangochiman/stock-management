@@ -80,7 +80,7 @@
               <td><%= product.name %></td>
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
-                current_price = product.price
+                current_price = product.price(params[:stock_date])
                 added_stock = product.stock_card_by_date(params[:stock_date]).added_stock rescue "Update"
                 closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 difference = (current_stock.to_i + added_stock.to_i) - closing_stock.to_i
@@ -123,7 +123,7 @@
 
                 <% end %>
               </td>
-              <td><%= current_stock %></td>
+              <td id="current-stock-<%= product.product_id %>"><%= current_stock %></td>
 
               <td class="close-stock" product_id="<%= product.product_id %>">
                 <% if @stock_cards.blank? %>
@@ -229,7 +229,7 @@
               <td><%= product.name %></td>
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
-                current_price = product.price
+                current_price = product.price(params[:stock_date])
                 #closing_stock = product.closed_stock_by_date(params[:stock_date], @last_stock_id)
                 damaged_stock = product.damaged_stock(@last_stock_id)
                 complementary_stock = product.complementary_stock(@last_stock_id)
@@ -270,7 +270,7 @@
 
                 <% end %>
               </td>
-              <td><%= current_stock %></td>
+              <td id="current-stock-<%= product.product_id %>"><%= current_stock %></td>
 
               <td class="close-stock" product_id="<%= product.product_id %>">
                 <% if @stock_cards.blank? %>
@@ -488,16 +488,16 @@
 
         </div>
         <br/>
-        <form action="/add_products" role="form" class="form-horizontal" method="POST">
+        <div id="updateStockError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
+        <form action="/add_products" role="form" class="form-horizontal" id="add-stock-form">
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Amount added</strong></label>
             <div class="col-lg-7">
-              <input type="text" name="stock[quantity]" class="form-control" placeholder="Quantity" id="quantity" required/>
+              <input type="text" name="stock[quantity]" class="form-control" placeholder="Quantity" id="stockQuantity" required/>
             </div>
           </div>
           <input type="hidden" name="stock[product_id]" id="product_id"/>
           <input type="hidden" name="stock[stock_date]" id="stock_date"/>
-          <input id="add_stock_submit_handle" type="submit" style="display: none">
         </form>
 
         <div id="productAdditions">
@@ -746,7 +746,8 @@
         <h4 class="modal-title" id="myModalLabel">Incomplete task</h4>
       </div>
       <div class="modal-body">
-        <p style="text-align: center;">Input actual cash (<b>Total amount of cash collected from the cashier</b>) to continue.</p>
+        <p style="text-align: center;">Input actual cash (<b>Total amount of cash collected from the cashier</b>) to
+          continue.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
@@ -842,7 +843,7 @@
     var product_data = {};
     <% @products.each do |product| %>
     product_data["<%= product.product_id %>"] = {};
-    product_data["<%= product.product_id %>"]["price"] = "<%= product.price %>";
+    product_data["<%= product.product_id %>"]["price"] = "<%= product.price(params[:stock_date]) %>";
     product_data["<%= product.product_id %>"]["opening"] = "<%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %>";
     <% end %>
 
@@ -853,8 +854,11 @@
     function updateStockPopup(productID) {
         selectedProductID = productID;
         getProductDetails(productID);
-        jQuery('#quantity').val("");
+        jQuery('#stockQuantity').val("");
         jQuery('#addStockModal').modal('show');
+        jQuery('#addStockModal').on('shown.bs.modal', function () {
+            jQuery('#stockQuantity').focus();
+        });
     }
 
 
@@ -864,7 +868,7 @@
             return
         }
 
-        if (!actualCash){
+        if (!actualCash) {
             jQuery('#missingActualCashModal').modal('show');
             return
         }
@@ -1210,7 +1214,7 @@
             return false
         }
 
-        if (parseInt(actualAmount) > expectedCash){
+        if (parseInt(actualAmount) > expectedCash) {
             jQuery("#actualAmountError").html("Actual amount exceeds expected amount");
             return false
         }
@@ -1338,9 +1342,31 @@
     }
 
     function updateStock() {
-        document.getElementById("product_id").value = selectedProductID;
-        document.getElementById("stock_date").value = stock_date;
-        $('#add_stock_submit_handle').click();
+        var addedStockQuantity = document.getElementById("stockQuantity").value.trim();
+        if (addedStockQuantity.length == 0) {
+            jQuery("#updateStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(addedStockQuantity)) {
+            jQuery("#updateStockError").html("Please input a valid number");
+            return false
+        }
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/modify_stock",
+            data: "product_id=" + selectedProductID + "&stock_date=" + stock_date + "&quantity=" + addedStockQuantity,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                var current_stock = result["current_stock"];
+                jQuery("#current-stock-" + selectedProductID).html(current_stock);
+                jQuery('#addStockModal').modal('hide');
+            }
+
+        });
     }
 
     function closeStock(productID) {
@@ -1726,6 +1752,15 @@
             if (key == 13)  // the enter key code
             {
                 jQuery('#updateActualAmountButton').click();
+                return false;
+            }
+        });
+
+        jQuery('#add-stock-form').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)  // the enter key code
+            {
+                jQuery('#updateStockButton').click();
                 return false;
             }
         });

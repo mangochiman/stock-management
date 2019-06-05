@@ -67,7 +67,7 @@ class ReportsController < ApplicationController
         damaged_stock = product.damaged_stock(stock_id).to_i
         complementary_stock = product.complementary_stock(stock_id).to_i
         difference = current_stock - closing_stock
-        current_price = product.price
+        current_price = product.price(date)
         stock_stats_by_date_and_product = Product.stock_stats_by_date_and_product(date, product)
         total_sales = stock_stats_by_date_and_product["total_sales"]
 
@@ -136,7 +136,7 @@ class ReportsController < ApplicationController
       damaged_stock = product.damaged_stock(stock_id).to_i
       complementary_stock = product.complementary_stock(stock_id).to_i
       difference = current_stock - closing_stock
-      current_price = product.price
+      current_price = product.price(date)
       stock_stats_by_date_and_product = Product.stock_stats_by_date_and_product(date, product)
       total_sales = stock_stats_by_date_and_product["total_sales"]
 
