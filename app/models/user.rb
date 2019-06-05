@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
   self.primary_key = "user_id"
 
   has_many :user_roles, :dependent => :destroy
+  has_many :password_reminders, :dependent => :destroy
 
   validates_presence_of :first_name, :message => ' can not be blank'
   validates_presence_of :last_name, :message => ' can not be blank'
@@ -19,7 +20,7 @@ class User < ActiveRecord::Base
   default_scope {where ("voided = 0")}
 
   def try_to_login
-    User.authenticate(self.username,self.password)
+    User.authenticate(self.username, self.password)
   end
 
   def self.authenticate(login, password)
@@ -31,26 +32,44 @@ class User < ActiveRecord::Base
     User.encrypt(plain, salt) == password
   end
 
-  def self.encrypt(password,salt)
-    Digest::SHA1.hexdigest(password+salt)
+  def self.encrypt(password, salt)
+    Digest::SHA1.hexdigest(password + salt)
   end
 
   def set_password
     self.salt = User.random_string(10) if !self.salt?
-    self.password = User.encrypt(self.password,self.salt)
+    self.password = User.encrypt(self.password, self.salt)
   end
 
   def self.random_string(len)
     chars = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
     newpass = ""
-    1.upto(len) { |i| newpass << chars[rand(chars.size-1)] }
+    1.upto(len) {|i| newpass << chars[rand(chars.size - 1)]}
     return newpass
   end
 
-  def self.encrypt(password,salt)
-    Digest::SHA1.hexdigest(password+salt)
+  def self.encrypt(password, salt)
+    Digest::SHA1.hexdigest(password + salt)
   end
 
+  def reset_password
+    new_password = ""
+    ActiveRecord::Base.transaction do
+      self.password_reminders.each do |password_reminder|
+        password_reminder.voided = 1
+        password_reminder.save
+      end
+
+      new_password = User.random_string(6)
+      password_reminder = PasswordReminder.new
+      password_reminder.user_id = self.user_id
+      password_reminder.salt = self.salt
+      password_reminder.password = User.encrypt(new_password, self.salt)
+      password_reminder.save
+    end
+
+    return new_password
+  end
 
   def self.new_user(params)
     salt = self.random_string(10)

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_filter :authorize, :except => [:login]
+  before_filter :authorize, :except => [:login, :check_if_email_exists, :reset_password]
 
   def login
     if request.post?
@@ -17,8 +17,8 @@ class UsersController < ApplicationController
   end
 
   def authenticate
-      data = User.authenticate(params[:username], params[:password])
-      render json: data.to_json
+    data = User.authenticate(params[:username], params[:password])
+    render json: data.to_json
   end
 
   def my_profile
@@ -114,6 +114,17 @@ class UsersController < ApplicationController
     end
   end
 
+  def check_if_email_exists
+    user = User.find_by_email(params[:email])
+    render json: user.to_json
+  end
+
+  def reset_password
+    user = User.find_by_email(params[:email])
+    new_password = user.reset_password
+    NotificationMailer.reset_password(user, new_password).deliver_later
+    render json: {suceess: true}.to_json
+  end
 
   def logout
     reset_session #Destroy all sessions

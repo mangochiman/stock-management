@@ -84,6 +84,8 @@ Rails.application.routes.draw do
   post '/view_users' => 'users#view_users'
   get '/void_users' => 'users#void_users'
   post '/void_users' => 'users#void_users'
+  get '/check_if_email_exists' => 'users#check_if_email_exists'
+  get '/reset_password' => 'users#reset_password'
 
   get '/reports' => 'home#reports'
 

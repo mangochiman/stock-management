@@ -33,4 +33,13 @@ class NotificationMailer < ApplicationMailer
     )
   end
 
+  def reset_password(user, new_password)
+    @name = user.first_name
+    @new_password = new_password
+    mail(
+        to: user.email,
+        subject: "PASSWORD RESET"
+    )
+  end
+
 end
