@@ -10,6 +10,8 @@ class Product < ActiveRecord::Base
   has_many :stock_items, :foreign_key => :product_id
   has_one :product_category, :foreign_key => :product_id
 
+  validates_uniqueness_of :name
+  validates_presence_of :name, :starting_inventory
   default_scope {where ("voided = 0")}
 
   def self.search_products(q)

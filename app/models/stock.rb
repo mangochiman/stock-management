@@ -3,6 +3,8 @@ class Stock < ActiveRecord::Base
   self.primary_key = "stock_id"
 
   has_many :stock_items, :foreign_key => :stock_id
+  validates_presence_of :amount_collected
+  validates_numericality_of :amount_collected
 
   def self.debtors(date = Date.today, stock_id = nil)
     debtors = Debtor.where(["DATE(date) =?", date.to_date])

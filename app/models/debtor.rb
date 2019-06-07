@@ -3,6 +3,9 @@ class Debtor < ActiveRecord::Base
   self.primary_key = "debtor_id"
 
   has_many :debtor_payments, :foreign_key => :debtor_id
+  validates_presence_of :name
+  validates_presence_of :amount_owed
+  validates_numericality_of :amount_owed
 
   def amount_paid
     debtor_payments = self.debtor_payments
