@@ -159,16 +159,16 @@
         <% end %>
         <div class="form-group">
           <label>Username</label>
-          <input type="text" name="username" class="form-control span12" required>
+          <input type="text" name="username" id="username" class="form-control span12" required>
         </div>
 
         <div class="form-group">
           <label>Password</label>
-          <input type="password" name="password" class="form-control span12 form-control" required>
+          <input type="password" name="password" id="pass" class="form-control span12 form-control" required>
         </div>
 
         <button type="submit" class="btn btn-primary pull-right">Sign In</button>
-        <label class="remember-me"><input type="checkbox"> Remember me</label>
+        <label class="remember-me"><input type="checkbox" id="remember_me" /> Remember me</label>
         <div class="clearfix"></div>
       </form>
     </div>
@@ -264,6 +264,30 @@
             {
                 jQuery('#sendEmailButton').click();
                 return false;
+            }
+        });
+
+        if (localStorage.chkbx && localStorage.chkbx != '') {
+            $('#remember_me').attr('checked', 'checked');
+            $('#username').val(localStorage.usrname);
+            $('#pass').val(localStorage.pass);
+        } else {
+            $('#remember_me').removeAttr('checked');
+            $('#username').val('');
+            $('#pass').val('');
+        }
+
+        $('#remember_me').click(function() {
+
+            if ($('#remember_me').is(':checked')) {
+                // save username and password
+                localStorage.usrname = $('#username').val();
+                localStorage.pass = $('#pass').val();
+                localStorage.chkbx = $('#remember_me').val();
+            } else {
+                localStorage.usrname = '';
+                localStorage.pass = '';
+                localStorage.chkbx = '';
             }
         });
 

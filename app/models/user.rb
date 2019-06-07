@@ -38,12 +38,12 @@ class User < ActiveRecord::Base
           return u
         end
       end
-    end
 
-    if u.authenticated?(password)
-      u.password_reminders.each do |p|
-        p.voided = 1
-        p.save
+      if u.authenticated?(password)
+        u.password_reminders.each do |p|
+          p.voided = 1
+          p.save
+        end
       end
     end
 

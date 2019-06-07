@@ -680,10 +680,11 @@
         </form>
 
         <p id="wrong" style="color: red; text-align: center; display: none">Wrong username or password</p>
+        <p id="serverErrorsAuthenticate" style="color: red; text-align: center; display: none"></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button onclick="authenticate();" type="button" class="btn btn-primary">Authenticate</button>
+        <button id="authenticateButton" onclick="authenticate();" type="button" class="btn btn-primary">Authenticate</button>
       </div>
     </div>
     <!-- /.modal-content -->
@@ -882,7 +883,8 @@
 
     function showCashierClosurePopupMain() {
         jQuery('#incompleteItemsModal').modal('hide');
-        jQuery('#cashierClosureModal').modal('show');
+        //jQuery('#cashierClosureModal').modal('show');
+        jQuery('#cashierClosureModal').modal({backdrop: 'static', keyboard: false})
     }
 
     function newStockCard() {
@@ -1252,6 +1254,16 @@
             data: "username=" + username + "&password=" + password,
             beforeSend: function () {
                 jQuery("#wrong").hide();
+                jQuery("#serverErrorsAuthenticate").hide();
+                jQuery("#authenticateButton").attr("disabled", true);
+                jQuery("#authenticateButton").html("Please wait..")
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+                jQuery("#authenticateButton").removeAttr("disabled");
+                jQuery("#authenticateButton").html("Authenticate");
+                jQuery("#serverErrorsAuthenticate").show();
+                jQuery("#serverErrorsAuthenticate").html("There was a server error. Please try again");
+                console.log(thrownError)
             },
             success: function (result) {
                 if (result) {
@@ -1259,6 +1271,8 @@
                     createFormElements();
                 } else {
                     jQuery("#wrong").show();
+                    jQuery("#authenticateButton").removeAttr("disabled");
+                    jQuery("#authenticateButton").html("Authenticate");
                 }
             }
 
