@@ -814,9 +814,9 @@
         <form action="#" role="form" class="form-horizontal">
           <div id="actualAmountError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
           <div class="form-group">
-            <label class="control-label col-lg-5" for="username"><strong>ACtual amount collected</strong></label>
+            <label class="control-label col-lg-5" for="username"><strong>Cash collected</strong></label>
             <div class="col-lg-7">
-              <input type="text" name="actual_amount" class="form-control" placeholder="Actual amount collected" id="actualAmount" required/>
+              <input type="text" name="actual_amount" class="form-control" placeholder="Cash collected" id="actualAmount" required/>
             </div>
           </div>
 
@@ -878,7 +878,7 @@
         selectedProductID = productID;
         getProductDetails(productID);
         jQuery('#stockQuantity').val("");
-        jQuery('#addStockModal').modal('show');
+        jQuery('#addStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#addStockModal').on('shown.bs.modal', function () {
             jQuery('#stockQuantity').focus();
         });
@@ -887,21 +887,21 @@
 
     function showCashierClosurePopup() {
         if (Object.keys(closedProducts).length == 0) {
-            jQuery('#noItemsModal').modal('show');
+            jQuery('#noItemsModal').modal({backdrop: 'static', keyboard: false});
             return
         }
 
         if (!actualCash) {
-            jQuery('#missingActualCashModal').modal('show');
+            jQuery('#missingActualCashModal').modal({backdrop: 'static', keyboard: false});
             return
         }
 
         if (Object.keys(closedProducts).length < total_products) {
-            jQuery('#incompleteItemsModal').modal('show');
+            jQuery('#incompleteItemsModal').modal({backdrop: 'static', keyboard: false});
             return
         }
 
-        jQuery('#cashierClosureModal').modal('show');
+        jQuery('#cashierClosureModal').modal({backdrop: 'static', keyboard: false});
     }
 
     function showCashierClosurePopupMain() {
@@ -1079,7 +1079,7 @@
 
             }
         });
-        jQuery('#productAdditionModal').modal('show');
+        jQuery('#productAdditionModal').modal({backdrop: 'static', keyboard: false});
     }
 
     function shotsSoldPopup(productID) {
@@ -1112,7 +1112,7 @@
 
         });
 
-        jQuery('#closeShotsModal').modal('show');
+        jQuery('#closeShotsModal').modal({backdrop: 'static', keyboard: false});
     }
 
     function closeStockPopup(productID) {
@@ -1146,7 +1146,7 @@
         });
 
         jQuery('#closingAmount').val('');
-        jQuery('#closeStockModal').modal('show');
+        jQuery('#closeStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#closeStockModal').on('shown.bs.modal', function () {
             jQuery('#closingAmount').focus();
         });
@@ -1183,7 +1183,7 @@
         });
         //damagedAmount
         jQuery('#damagedAmount').val('');
-        jQuery('#damageStockModal').modal('show');
+        jQuery('#damageStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#damageStockModal').on('shown.bs.modal', function () {
             jQuery('#damagedAmount').focus();
         });
@@ -1220,7 +1220,7 @@
         });
 
         jQuery('#complementaryAmount').val('');
-        jQuery('#complementaryStockModal').modal('show');
+        jQuery('#complementaryStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#complementaryStockModal').on('shown.bs.modal', function () {
             jQuery('#complementaryAmount').focus();
         });
@@ -1263,7 +1263,7 @@
 
     function showActualCashPopup() {
         jQuery('#actualAmount').val('');
-        jQuery('#actualAmountModal').modal('show');
+        jQuery('#actualAmountModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#actualAmountModal').on('shown.bs.modal', function () {
             jQuery('#actualAmount').focus();
         });
@@ -1730,7 +1730,7 @@
 
     function showvoidDebtorConfirm(debtorID) {
         selectedDebtorID = debtorID;
-        jQuery('#voidDebtorModal').modal('show');
+        jQuery('#voidDebtorModal').modal({backdrop: 'static', keyboard: false});
     }
 
     function voidDebtor() {
