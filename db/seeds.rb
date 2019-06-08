@@ -56,7 +56,7 @@ products.each do |product|
   new_product = Product.new
   new_product.name = product[:name]
   new_product.minimum_required = 0
-  new_product.starting_inventory = (50..500).to_a.shuffle[6]
+  new_product.starting_inventory = 0
   new_product.save
 
   category = Category.find_by_name(product[:category])
