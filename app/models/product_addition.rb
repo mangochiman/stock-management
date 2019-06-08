@@ -5,4 +5,6 @@ class ProductAddition < ActiveRecord::Base
   validates_presence_of :added_stock
   validates_numericality_of :added_stock
   belongs_to :product, :foreign_key => :product_id
+
+  default_scope {where ("voided = 0")}
 end

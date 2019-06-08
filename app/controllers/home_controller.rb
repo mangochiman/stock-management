@@ -510,6 +510,18 @@ class HomeController < ApplicationController
     render json: data.to_json
   end
 
+  def void_product_additions
+    product_addition = ProductAddition.find(params[:product_addition_id])
+    product_addition.voided = 1
+    product_addition.date_voided = Date.today
+    product_addition.voided_by = session[:user]["user_id"]
+    if product_addition.save
+      render json: {success: true}.to_json
+    else
+      render json: {success: false}.to_json
+    end
+  end
+
   def close_stock
     @page_header = "Close stock"
     @product = Product.find(params[:product_id])

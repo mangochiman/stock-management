@@ -72,6 +72,7 @@ Rails.application.routes.draw do
   post '/create_debtors' => 'home#create_debtors'
   post '/void_debtors' => 'home#void_debtors'
   get '/get_product_data' => 'home#get_product_data'
+  post '/void_product_additions' => 'home#void_product_additions'
 
   get '/new_user' => 'users#new_user'
   get '/my_profile' => 'users#my_profile'

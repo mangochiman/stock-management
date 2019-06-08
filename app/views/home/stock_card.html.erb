@@ -738,6 +738,28 @@
 </div>
 <!-- /.modal -->
 
+<!-- Modal -->
+<div class="modal fade" id="productAdditionsDeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Confirm Delete Action</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center;">You are about to delete the selected item. Are you sure you want to continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button onclick="deleteProductAdditions();" type="button" class="btn btn-primary">Yes am sure</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <div class="modal fade" id="missingActualCashModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -989,10 +1011,12 @@
                 var table = "<table class='table table-bordered table-striped'><thead><tr><th>Date </th><th>Quantity </th><th>&nbsp; </th></tr></thead>";
                 table += "<body>";
                 for (var i = 0; i <= productAdditions.length - 1; i++) {
-                    table += "<tr>";
+                    var productionAdditionID = productAdditions[i]["product_addition_id"];
+                    var trID = 'product-addition-' + productionAdditionID;
+                    table += "<tr id='" + trID + "'>";
                     table += "<td>" + productAdditions[i]["date_added"] + "</td>";
                     table += "<td>" + productAdditions[i]["added_stock"] + "</td>";
-                    table += "<td style='text-align: center;'><a href='#' role='button'><i class='fa fa-trash-o'></i></a></td>";
+                    table += "<td style='text-align: center;'><a href='#' onclick='showDeleteProductAdditionPopup(" + productionAdditionID+ ")' role='button'><i class='fa fa-trash-o'></i></a></td>";
                     table += "</tr>";
                 }
                 table += "</body>";
@@ -1709,6 +1733,27 @@
                 jQuery('#voidDebtorModal').modal('hide');
             }
 
+        });
+    }
+
+    var selectedProductAdditionID;
+    function showDeleteProductAdditionPopup(product_addition_id) {
+        selectedProductAdditionID = product_addition_id;
+        jQuery('#productAdditionsDeleteModal').modal({backdrop: 'static', keyboard: false});
+    }
+
+    function deleteProductAdditions(){
+        jQuery.ajax({
+            type: "POST",
+            url: "/void_product_additions",
+            data: "product_addition_id=" + selectedProductAdditionID,
+            beforeSend: function () {
+                //jQuery("#incomingStocks").show();
+            },
+            success: function (result) {
+                jQuery("#product-addition-" + selectedProductAdditionID).remove();
+                jQuery('#productAdditionsDeleteModal').modal('hide');
+            }
         });
     }
 
