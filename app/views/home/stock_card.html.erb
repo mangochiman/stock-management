@@ -442,7 +442,7 @@
           </tr>
 
           <tr>
-            <td>Actual Cash</td>
+            <td>Cash collected</td>
             <td>
               <span id="actualCashTotal" class="pull-right" style="font-weight: bold;"><%= number_to_currency(@actual_cash, :unit => "MWK ") %></span>
             </td>
@@ -476,7 +476,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="addStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -844,6 +844,7 @@
     <% @products.each do |product| %>
     product_data["<%= product.product_id %>"] = {};
     product_data["<%= product.product_id %>"]["price"] = "<%= product.price(params[:stock_date]) %>";
+    product_data["<%= product.product_id %>"]["current_stock"] = "<%= product.current_stock(params[:stock_date]) %>";
     product_data["<%= product.product_id %>"]["opening"] = "<%= product.opening_stock_by_date(params[:stock_date], @last_stock_id) %>";
     <% end %>
 
@@ -1258,7 +1259,7 @@
                 jQuery("#authenticateButton").attr("disabled", true);
                 jQuery("#authenticateButton").html("Please wait..")
             },
-            error: function(xhr, ajaxOptions, thrownError){
+            error: function (xhr, ajaxOptions, thrownError) {
                 jQuery("#authenticateButton").removeAttr("disabled");
                 jQuery("#authenticateButton").html("Authenticate");
                 jQuery("#serverErrorsAuthenticate").show();
@@ -1376,6 +1377,7 @@
             success: function (result) {
                 var current_stock = result["current_stock"];
                 jQuery("#current-stock-" + selectedProductID).html(current_stock);
+                product_data[selectedProductID]["current_stock"] = current_stock;
                 jQuery('#addStockModal').modal('hide');
             }
 
@@ -1383,33 +1385,39 @@
     }
 
     function closeStock(productID) {
-
         var closingAmount = document.getElementById("closingAmount").value.trim();
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
-        closeAmountTag.innerHTML = closingAmount;
+        var closingAmount = document.getElementById("closingAmount").value.trim();
+        var availableStock = product_data[selectedProductID]["current_stock"];
+        if (closingAmount.length == 0) {
+            jQuery("#closeStockError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(closingAmount)) {
+            jQuery("#closeStockError").html("Please input a valid number");
+            return false
+        }
+
+        if (parseInt(closingAmount) > parseInt(availableStock)) {
+            jQuery("#closeStockError").html("Closing amount exceeds current stock");
+            return false
+        }
+
         if (!closedProducts[selectedProductID]) {
             closedProducts[selectedProductID] = {};
         }
+
         closedProducts[selectedProductID]["stock"] = closingAmount;
         if (valueInArray(selectedProductID, non_standard_product_ids)) {
             closedProducts[selectedProductID]["product_type"] = "non_standard";
         } else {
-            var closingAmount = document.getElementById("closingAmount").value.trim();
-            if (closingAmount.length == 0) {
-                jQuery("#closeStockError").html("Please input a number");
-                return false
-            }
-
-            if (!isNumeric(closingAmount)) {
-                jQuery("#closeStockError").html("Please input a valid number");
-                return false
-            }
             closedProducts[selectedProductID]["product_type"] = "standard";
         }
-        //jQuery(".close_stock_" + selectedProductID).show();
+
+        closeAmountTag.innerHTML = closingAmount;
         jQuery('#closeStockModal').modal('hide');
         updateDifferenceAndTotalSales();
-        //window.location = "/close_stock?product_id=" + productID + "&stock_date=" + stock_date
     }
 
     function valueInArray(val, options) {
