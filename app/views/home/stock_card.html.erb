@@ -988,7 +988,8 @@
             url: "/get_product_details",
             data: "product_id=" + productID + "&date=" + stock_date,
             beforeSend: function () {
-                //jQuery("#incomingStocks").show();
+                jQuery("#productDetails").html("<p>Fetching data. Please wait...</p>");
+                jQuery("#productAdditions").html("<p>Fetching data. Please wait...</p>");
             },
             success: function (result) {
 
