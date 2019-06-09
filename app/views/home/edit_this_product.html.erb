@@ -1,4 +1,4 @@
-<form action="/edit_this_product" role="form" class="form-horizontal" method="POST">
+<form action="/edit_this_product" id="editThisProductForm" role="form" class="form-horizontal" method="POST">
 
   <div class="form-group">
     <label class="control-label col-lg-3" for="productName">Name</label>
@@ -56,7 +56,7 @@
   <div class="form-group modal-footer">
     <label class="control-label col-lg-3" for="">&nbsp;</label>
     <div class="col-lg-7">
-      <input class="btn btn-primary " type="submit" value="Update Product"></input>
+      <button id="updateProductButton" class="btn btn-primary " type="submit">Update Product</button>
     </div>
   </div>
 
@@ -69,5 +69,11 @@
         jQuery('.products-menu-nav-header').removeClass('collapsed');
         jQuery('.products-menu').addClass('in');
         jQuery('.edit_products').addClass('active');
+
+        $("#editThisProductForm").submit(function (e) {
+            $("#updateProductButton").attr("disabled", true);
+            $("#updateProductButton").html("Please wait......");
+            return true;
+        });
     }
 </script>
