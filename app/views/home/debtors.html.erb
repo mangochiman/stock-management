@@ -115,7 +115,7 @@
     function showPaymentPopup(debtorID) {
         selected_debtor_id = debtorID;
         jQuery("#amountPaid").val('');
-        jQuery('#addPaymentModal').modal('show');
+        jQuery('#addPaymentModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#addPaymentModal').on('shown.bs.modal', function () {
             jQuery('#amountPaid').focus();
         });
@@ -157,7 +157,7 @@
                 } else {
                     var errors = result["errors"];
                     jQuery("#serverErrors").html(errors);
-                    jQuery('#errorPaymentModal').modal('show');
+                    jQuery('#errorPaymentModal').modal({backdrop: 'static', keyboard: false});
                 }
             }
 
@@ -190,7 +190,7 @@
                 table += "</body>";
                 table += "</table>";
                 jQuery("#previousPaymentsData").html(table);
-                jQuery('#previousPaymentModal').modal('show');
+                jQuery('#previousPaymentModal').modal({backdrop: 'static', keyboard: false});
             }
 
         });
