@@ -1,4 +1,4 @@
-<form action="/new_user" role="form" class="form-horizontal" id="new-user" method="POST">
+<form action="/new_user" role="form" class="form-horizontal" id="newUserForm" method="POST">
   <div class="form-group">
     <label class="control-label col-lg-3" for="username">Username</label>
     <div class="col-lg-7">
@@ -64,7 +64,7 @@
   <div class="form-group modal-footer">
     <label class="control-label col-lg-3" for="">&nbsp;</label>
     <div class="col-lg-7">
-      <input class="btn btn-primary " type="submit" value="Create User"></input>
+      <button id="newUserButton" class="btn btn-primary" type="submit">Create User</button>
     </div>
   </div>
 
@@ -77,4 +77,11 @@
     jQuery('.user-accounts-menu-nav-header').removeClass('collapsed');
     jQuery('.user-accounts-menu').addClass('in');
     jQuery('.new_user').addClass('active');
+
+    $("#newUserForm").submit(function (e) {
+        $("#newUserButton").attr("disabled", true);
+        $("#newUserButton").html("Please wait...");
+        return true;
+    });
+
 </script>
