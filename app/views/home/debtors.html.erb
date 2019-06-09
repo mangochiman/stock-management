@@ -115,6 +115,7 @@
     function showPaymentPopup(debtorID) {
         selected_debtor_id = debtorID;
         jQuery("#amountPaid").val('');
+        jQuery("#updatePaymentButton").removeAttr("disabled");
         jQuery('#addPaymentModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#addPaymentModal').on('shown.bs.modal', function () {
             jQuery('#amountPaid').focus();
@@ -145,7 +146,7 @@
             url: "/create_debtor_payment",
             data: "amount_paid=" + amountPaid + "&debtor_id=" + selected_debtor_id,
             beforeSend: function () {
-                //jQuery("#incomingStocks").show();
+                jQuery("#updatePaymentButton").attr("disabled", true);
             },
             success: function (result) {
                 jQuery('#addPaymentModal').modal('hide');
@@ -179,7 +180,7 @@
             success: function (result) {
                 var table = "<table class='table table-bordered table-striped'><thead><tr><th>Date </th><th>Amount paid </th></tr></thead>";
                 table += "<body>";
-                for (var i=0; i<=result.length -1; i++){
+                for (var i = 0; i <= result.length - 1; i++) {
                     var amount_paid = result[i]["amount_paid"];
                     var date_paid = result[i]["date_paid"];
                     table += "<tr>";
