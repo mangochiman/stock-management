@@ -1544,7 +1544,11 @@
                 url: "/get_product_data",
                 data: "stock_date=" + stock_date + "&last_stock_id=" + last_stock_id,
                 beforeSend: function () {
-                    //jQuery("#incomingStocks").show();
+                    jQuery("#complementaryTotal").html("Please wait...");
+                    jQuery("#damagesTotal").html("Please wait...");
+                    jQuery("#salesTotal").html("Please wait...");
+                    jQuery("#debtorsTotal").html("Please wait...");
+                    jQuery("#cashTotal").html("Please wait...");
                 },
                 success: function (result) {
                     var total_sales = 0;
@@ -1595,8 +1599,7 @@
                                 var difference = current_stock - closing_stock;
                                 total_sales += current_price * (difference - damaged_stock - complementary_stock);
                             }
-                            console.log(complementary_stock)
-                            console.log("current_stock = " + current_stock + " current_price = " + current_price + " damaged_stock = " + damaged_stock + " difference = " + difference)
+                            
                             complementary_total += current_price * complementary_stock;
                             damages_total += current_price * damaged_stock;
                         }
