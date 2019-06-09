@@ -3,7 +3,7 @@
   <div class="form-group">
     <label class="control-label col-lg-3" for="productName">Name</label>
     <div class="col-lg-7">
-      <input type="text" name="product[name]" class="form-control" placeholder="Product name" id="productName"  value="<%= @product.name %>" required/>
+      <input type="text" name="product[name]" class="form-control" placeholder="Product name" id="productName" value="<%= @product.name %>" required/>
     </div>
   </div>
 
@@ -13,7 +13,12 @@
       <select name="product[category_id]" class="form-control" tabindex="8" required>
         <option value="">Select product category</option>
         <% @categories.each do |category| %>
-          <option value="<%= category.category_id %>"><%= category.name %></option>
+          <% category_id = @product.product_category.category_id rescue "" %>
+          <% if category_id.to_i == category.category_id %>
+            <option selected="true" value="<%= category.category_id %>"><%= category.name %></option>
+          <% else %>
+            <option value="<%= category.category_id %>"><%= category.name %></option>
+          <% end %>
         <% end %>
       </select>
     </div>
@@ -60,7 +65,7 @@
 
 
 <script type="text/javascript">
-    window.onload = function(){
+    window.onload = function () {
         jQuery('.products-menu-nav-header').removeClass('collapsed');
         jQuery('.products-menu').addClass('in');
         jQuery('.edit_products').addClass('active');
