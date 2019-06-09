@@ -53,6 +53,18 @@ class Debtor < ActiveRecord::Base
     return amount_remaining
   end
 
+  def self.total_debts_by_date(date)
+    debtors = Debtor.where(["DATE(date) = ?", date.to_date])
+    total_amount_owed = 0
+
+    debtors.each do |debtor|
+      amount_owed = debtor.amount_owed.to_f
+      total_amount_owed += amount_owed
+    end
+
+    return total_amount_owed
+  end
+
   def self.total_ever_un_paid_debt
     total_unpaid = 0
     debtors = Debtor.all

@@ -84,7 +84,7 @@ class ReportsController < ApplicationController
       end
 
       stock_stats_by_date = Product.stock_stats_by_date(date, stock_id)
-      total_debts = Debtor.total_un_paid_debt(date)
+      total_debts = Debtor.total_debts_by_date(date)
       debtors = Debtor.where(["DATE(date) = ?", date.to_date])
       debts = {}
       debtors.each do |debtor|
