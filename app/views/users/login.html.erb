@@ -56,7 +56,7 @@
                             data: "email=" + emailAddress,
                             beforeSend: function () {
                                 jQuery('#emailModal').modal('hide');
-                                jQuery('#notificationModal').modal('show');
+                                jQuery('#notificationModal').modal({backdrop: 'static', keyboard: false});
                             },
                             success: function (result) {
                                 jQuery("#tr_" + selectedDebtorID).remove();
@@ -67,7 +67,7 @@
 
                     } else{
                         jQuery('#emailModal').modal('hide');
-                        jQuery('#userNotFoundModal').modal('show');
+                        jQuery('#userNotFoundModal').modal({backdrop: 'static', keyboard: false});
                     }
                 }
 
@@ -81,7 +81,7 @@
     function showEmailAddressPopup() {
         jQuery("#sendEmailButton").removeAttr("disabled");
         jQuery('#email').val('');
-        jQuery('#emailModal').modal('show');
+        jQuery('#emailModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#emailModal').on('shown.bs.modal', function () {
             jQuery('#email').focus();
         });
