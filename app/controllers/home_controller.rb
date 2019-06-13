@@ -461,10 +461,11 @@ class HomeController < ApplicationController
 
         product = Product.find(product_id)
         opening_stock_by_date = product.opening_stock_by_date(params[:stock_date])
+        added_stock_by_date = product.added_stock_by_date(params[:stock_date])
         stock_item = StockItem.new
         if product.category_name.match(/NON/i)
           closing_shots = closing_amount
-          closing_amount = opening_stock_by_date - closing_amount.to_i - damaged_stock.to_i - complementary_stock.to_i
+          closing_amount = (opening_stock_by_date + added_stock_by_date) - closing_amount.to_i - damaged_stock.to_i - complementary_stock.to_i
         end
         stock_item.stock_id = stock.stock_id
         stock_item.product_id = product_id
