@@ -33,6 +33,16 @@ class NotificationMailer < ApplicationMailer
     )
   end
 
+  def debtors(date, email, name, debtors)
+    @name = name
+    @date = date
+    @debtors = debtors
+    mail(
+        to: email,
+        subject: "DEBTORS"
+    )
+  end
+
   def reset_password(user, new_password)
     @name = user.first_name
     @new_password = new_password

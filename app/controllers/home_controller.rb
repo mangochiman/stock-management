@@ -479,7 +479,7 @@ class HomeController < ApplicationController
 
       products_running_out_of_stock = Product.running_out_of_stock
       products_not_in_stock = Product.products_not_in_stock
-
+      debtors = Debtor.where(["DATE(date) = ?", stock_date.to_date])
       recipients.each do |recipient|
         recipient_split = recipient.split(":")
         name = recipient_split[0]
@@ -488,6 +488,7 @@ class HomeController < ApplicationController
         NotificationMailer.sales_summary(stock_date, email, name).deliver_later
         NotificationMailer.products_running_low(email, name).deliver_later unless products_running_out_of_stock.blank?
         NotificationMailer.products_out_of_stock(email, name).deliver_later unless products_not_in_stock.blank?
+        NotificationMailer.debtors(stock_date, email, name, debtors).deliver_later unless debtors.blank?
       end
 
       flash[:notice] = "You have successfully closed the stock card"
