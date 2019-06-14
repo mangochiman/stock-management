@@ -49,12 +49,21 @@
                 <p>Hi <%= @name %>,</p>
                 <p><br/> Please refer below for debtors dated
                   <i style="font-weight: bold;"><%= @date.to_date.strftime("%d-%b-%Y") %></i></p>
-
+                <p>Name:
+                  <span style="font-weight: bold; float: right;">Amount</span>
+                </p>
+                <% total_debts_owed = 0 %>
                 <% @debtors.each do |debtor| %>
+                  <% total_debts_owed +=  debtor.amount_owed.to_f %>
                   <p><%= debtor.name.titleize %>:
                     <span style="font-weight: bold; float: right;"><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></span>
                   </p>
                 <% end %>
+                <br />
+                <br />
+                <p>TOTAL:
+                  <span style="font-weight: bold; float: right; color: green;"><%= number_to_currency(total_debts_owed, :unit => "MWK ") %></span>
+                </p>
                 <p>Thank you</p>
                 <br>
               </td>

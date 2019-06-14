@@ -488,7 +488,7 @@ class HomeController < ApplicationController
         NotificationMailer.sales_summary(stock_date, email, name).deliver_later
         NotificationMailer.products_running_low(email, name).deliver_later unless products_running_out_of_stock.blank?
         NotificationMailer.products_out_of_stock(email, name).deliver_later unless products_not_in_stock.blank?
-        NotificationMailer.debtors(stock_date, email, name, debtors).deliver_later unless debtors.blank?
+        NotificationMailer.debtors(stock_date, email, name).deliver_later unless debtors.blank?
       end
 
       flash[:notice] = "You have successfully closed the stock card"

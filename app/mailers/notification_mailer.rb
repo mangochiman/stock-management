@@ -33,10 +33,10 @@ class NotificationMailer < ApplicationMailer
     )
   end
 
-  def debtors(date, email, name, debtors)
+  def debtors(date, email, name)
     @name = name
     @date = date
-    @debtors = debtors
+    @debtors = Debtor.where(["DATE(date) = ?", date.to_date])
     mail(
         to: email,
         subject: "DEBTORS"
