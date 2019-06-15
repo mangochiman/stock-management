@@ -1764,12 +1764,15 @@
         jQuery.ajax({
             type: "POST",
             url: "/void_product_additions",
-            data: "product_addition_id=" + selectedProductAdditionID,
+            data: "product_addition_id=" + selectedProductAdditionID + "&stock_date=" + stock_date,
             beforeSend: function () {
                 //jQuery("#incomingStocks").show();
             },
             success: function (result) {
                 jQuery("#product-addition-" + selectedProductAdditionID).remove();
+                var current_stock = result["current_stock"];
+                jQuery("#current-stock-" + selectedProductID).html(current_stock);
+                product_data[selectedProductID]["current_stock"] = current_stock;
                 jQuery('#productAdditionsDeleteModal').modal('hide');
             }
         });

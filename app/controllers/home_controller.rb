@@ -514,13 +514,17 @@ class HomeController < ApplicationController
 
   def void_product_additions
     product_addition = ProductAddition.find(params[:product_addition_id])
+    product = product_addition.product
     product_addition.voided = 1
     product_addition.date_voided = Date.today
     product_addition.voided_by = session[:user]["user_id"]
+
     if product_addition.save
-      render json: {success: true}.to_json
+      current_stock = product.current_stock(params[:stock_date], params[:stock_id])
+      render json: {success: true, current_stock: current_stock}.to_json
     else
-      render json: {success: false}.to_json
+      current_stock = product.current_stock(params[:stock_date], params[:stock_id])
+      render json: {success: false, current_stock: current_stock}.to_json
     end
   end
 
