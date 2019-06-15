@@ -77,7 +77,7 @@
           <% grand_total = 0 %>
           <% @standard_products.each do |product| %>
             <tr>
-              <td><%= product.name %></td>
+              <td id="product-name-<%= product.product_id %>"><%= product.name %></td>
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price(params[:stock_date])
@@ -226,7 +226,7 @@
           %>
           <% @non_standard_products.each do |product| %>
             <tr>
-              <td><%= product.name %></td>
+              <td id="product-name-<%= product.product_id %>"><%= product.name %></td>
               <%
                 current_stock = product.current_stock(params[:stock_date], @last_stock_id)
                 current_price = product.price(params[:stock_date])
@@ -882,6 +882,7 @@
         jQuery('#addStockModal').on('shown.bs.modal', function () {
             jQuery('#stockQuantity').focus();
         });
+        highlightSelectedProduct();
     }
 
 
@@ -1017,7 +1018,7 @@
                     table += "<tr id='" + trID + "'>";
                     table += "<td>" + productAdditions[i]["date_added"] + "</td>";
                     table += "<td>" + productAdditions[i]["added_stock"] + "</td>";
-                    table += "<td style='text-align: center;'><a href='#' onclick='showDeleteProductAdditionPopup(" + productionAdditionID+ ")' role='button'><i class='fa fa-trash-o'></i></a></td>";
+                    table += "<td style='text-align: center;'><a href='#' onclick='showDeleteProductAdditionPopup(" + productionAdditionID + ")' role='button'><i class='fa fa-trash-o'></i></a></td>";
                     table += "</tr>";
                 }
                 table += "</body>";
@@ -1147,11 +1148,17 @@
 
         });
 
+        highlightSelectedProduct();
         jQuery('#closingAmount').val('');
         jQuery('#closeStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#closeStockModal').on('shown.bs.modal', function () {
             jQuery('#closingAmount').focus();
         });
+    }
+
+    function highlightSelectedProduct() {
+        jQuery("td").removeClass("active-product");
+        jQuery('#product-name-' + selectedProductID).addClass("active-product");
     }
 
     function damageStockPopup(productID) {
@@ -1184,6 +1191,7 @@
 
         });
         //damagedAmount
+        highlightSelectedProduct();
         jQuery('#damagedAmount').val('');
         jQuery('#damageStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#damageStockModal').on('shown.bs.modal', function () {
@@ -1221,6 +1229,7 @@
 
         });
 
+        highlightSelectedProduct();
         jQuery('#complementaryAmount').val('');
         jQuery('#complementaryStockModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#complementaryStockModal').on('shown.bs.modal', function () {
@@ -1755,12 +1764,13 @@
     }
 
     var selectedProductAdditionID;
+
     function showDeleteProductAdditionPopup(product_addition_id) {
         selectedProductAdditionID = product_addition_id;
         jQuery('#productAdditionsDeleteModal').modal({backdrop: 'static', keyboard: false});
     }
 
-    function deleteProductAdditions(){
+    function deleteProductAdditions() {
         jQuery.ajax({
             type: "POST",
             url: "/void_product_additions",
@@ -1881,5 +1891,11 @@
     line-height: 1.33;
     min-width: 80px;
 
+  }
+
+  .active-product {
+    font-weight: bold;
+    color: green;
+    font-style: italic;
   }
 </style>
