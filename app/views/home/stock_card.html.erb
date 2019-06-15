@@ -1439,6 +1439,11 @@
             return false
         }
 
+        if (parseInt(closingAmount) < 0) {
+            jQuery("#closeStockError").html("Negative numbers are not allowed");
+            return false
+        }
+
         if (!closedProducts[selectedProductID]) {
             closedProducts[selectedProductID] = {};
         }
