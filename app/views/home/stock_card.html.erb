@@ -760,6 +760,28 @@
 </div>
 <!-- /.modal -->
 
+<!-- Modal -->
+<div class="modal fade" id="inputsExceedCurrentStockModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Inputs exceed current stock</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center;">Closing stock + Damages + Complementary is exceeding current stock. Edit the
+          input and try again</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <div class="modal fade" id="missingActualCashModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -1419,6 +1441,7 @@
         });
     }
 
+
     function closeStock(productID) {
         var closingAmount = document.getElementById("closingAmount").value.trim();
         var closeAmountTag = document.getElementById("close_stock_" + selectedProductID);
@@ -1441,6 +1464,15 @@
 
         if (parseInt(closingAmount) < 0) {
             jQuery("#closeStockError").html("Negative numbers are not allowed");
+            return false
+        }
+
+        var damagedStock = jQuery("#damage_stock_" + selectedProductID).html();
+        var complementaryStock = jQuery("#complementary_stock_" + selectedProductID).html();
+
+        var inputsExceedCurrentStock = checkIfinputsExceedCurrentStock(closingAmount, damagedStock, complementaryStock);
+        if (inputsExceedCurrentStock) {
+            jQuery('#inputsExceedCurrentStockModal').modal({backdrop: 'static', keyboard: false});
             return false
         }
 
@@ -1791,6 +1823,32 @@
                 jQuery('#productAdditionsDeleteModal').modal('hide');
             }
         });
+    }
+
+    function checkIfinputsExceedCurrentStock(closingStock, damagedStock, complementaryStock) {
+        var currentClosingStock = 0;
+        var currentDamagedStock = 0;
+        var currentComplementaryStock = 0;
+
+        if (isNumeric(closingStock)) {
+            currentClosingStock = parseInt(closingStock);
+        }
+
+        if (isNumeric(damagedStock)) {
+            currentDamagedStock = parseInt(damagedStock);
+        }
+
+        if (isNumeric(complementaryStock)) {
+            currentComplementaryStock = parseInt(complementaryStock);
+        }
+
+        var currentProductStock = product_data[selectedProductID]["current_stock"];
+        var totalInputValue = currentClosingStock + currentDamagedStock + currentComplementaryStock;
+        if (totalInputValue > currentProductStock) {
+            return true;
+        } else {
+            return false
+        }
     }
 
     function formatMoney(n, c, d, t) {
