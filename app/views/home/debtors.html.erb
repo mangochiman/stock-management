@@ -10,7 +10,9 @@
   </tr>
   </thead>
   <tbody id="debtorsTbody">
+  <% total_debts = 0 %>
   <% @debtors.each do |debtor| %>
+  <% total_debts += debtor.amount_owed.to_f %>
     <tr id="tr_<%= debtor.debtor_id %>">
       <td><%= debtor.name %></td>
       <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
@@ -27,6 +29,13 @@
     </tr>
   <% end %>
   </tbody>
+</table>
+
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>Total amount</th>
+    <th><span class="pull-right" style="color: red;"><%= number_to_currency(total_debts, :unit => "MWK ") %></span></th>
+  </tr>
 </table>
 
 <!-- Modal -->
