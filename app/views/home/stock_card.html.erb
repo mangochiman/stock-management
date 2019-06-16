@@ -1518,6 +1518,15 @@
             return false
         }
 
+        var closingAmount = jQuery("#close_stock_" + selectedProductID).html();
+        var complementaryStock = jQuery("#complementary_stock_" + selectedProductID).html();
+
+        var inputsExceedCurrentStock = checkIfinputsExceedCurrentStock(closingAmount, damagedAmount, complementaryStock);
+        if (inputsExceedCurrentStock) {
+            jQuery('#inputsExceedCurrentStockModal').modal({backdrop: 'static', keyboard: false});
+            return false
+        }
+
         var damagedAmountTag = document.getElementById("damage_stock_" + selectedProductID);
         damagedAmountTag.innerHTML = damagedAmount;
         if (!closedProducts[selectedProductID]) {
@@ -1543,6 +1552,15 @@
 
         if (parseInt(complementaryAmount) > parseInt(availableStock)) {
             jQuery("#complementaryStockError").html("Complementary exceeds current stock");
+            return false
+        }
+
+        var closingAmount = jQuery("#close_stock_" + selectedProductID).html();
+        var damagedAmount = jQuery("#damage_stock_" + selectedProductID).html();
+
+        var inputsExceedCurrentStock = checkIfinputsExceedCurrentStock(closingAmount, damagedAmount, complementaryAmount);
+        if (inputsExceedCurrentStock) {
+            jQuery('#inputsExceedCurrentStockModal').modal({backdrop: 'static', keyboard: false});
             return false
         }
 
