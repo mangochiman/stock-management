@@ -76,4 +76,17 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+  config.active_job.queue_adapter = :delayed_job
+
+  config.action_mailer.delivery_method = :smtp
+  # SMTP settings for gmail
+  settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
+  config.action_mailer.smtp_settings = {
+      :address              => "smtp.gmail.com",
+      :port                 => 587,
+      :user_name            => settings["email"],
+      :password             => settings["password"],
+      :authentication       => "plain",
+      :enable_starttls_auto => true
+  }
 end
