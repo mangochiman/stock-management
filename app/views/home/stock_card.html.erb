@@ -1861,7 +1861,23 @@
         }
 
         var currentProductStock = product_data[selectedProductID]["current_stock"];
-        var totalInputValue = currentClosingStock + currentDamagedStock + currentComplementaryStock;
+
+        var product_type;
+        if (valueInArray(selectedProductID, non_standard_product_ids)) {
+            product_type = "non_standard";
+        } else {
+            product_type = "standard";
+        }
+
+        var total_sales;
+        if (product_type == "non_standard") {
+            total_sales = currentClosingStock;
+        } else {
+            var currentDifference = currentProductStock - currentClosingStock;
+            total_sales = currentDifference - currentDamagedStock - currentComplementaryStock;
+        }
+
+        var totalInputValue = total_sales + currentDamagedStock + currentComplementaryStock;
         if (totalInputValue > currentProductStock) {
             return true;
         } else {
