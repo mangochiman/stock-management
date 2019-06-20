@@ -1877,6 +1877,10 @@
             total_sales = currentDifference - currentDamagedStock - currentComplementaryStock;
         }
 
+        if (total_sales < 0) {
+            return true;
+        }
+
         var totalInputValue = total_sales + currentDamagedStock + currentComplementaryStock;
         if (totalInputValue > currentProductStock) {
             return true;

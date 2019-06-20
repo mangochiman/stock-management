@@ -31,7 +31,7 @@
     <th>Start date</th>
     <th>End date</th>
     <th>Date created</th>
-    <th style="width: 3.5em;"></th>
+    <!--<th style="width: 3.5em;"></th>-->
   </tr>
   </thead>
   <tbody>
@@ -42,7 +42,7 @@
       <td><%= price_history.end_date.to_date.strftime("%d-%b-%Y") rescue price_history.end_date  %></td>
       <td><%= price_history.created_at.to_date.strftime("%d-%b-%Y") rescue price_history.created_at %></td>
       <td>
-        <a href="#" onclick="voidPriceConfirm('<%= price_history.price_history_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>
+        <!--<a href="#" onclick="voidPriceConfirm('<%= price_history.price_history_id %>')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a>-->
       </td>
     </tr>
   <% end %>
