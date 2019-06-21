@@ -126,6 +126,10 @@ Rails.application.routes.draw do
   get '/sales_report' => 'reports#sales_report'
   post '/sales_report' => 'reports#sales_report'
 
+
+  get '/damaged_stock' => 'home#damaged_stock'
+  get '/complementary_stock' => 'home#complementary_stock'
+
   get '404', to: 'errors#page_not_found'
   get '422', to: 'errors#server_error'
   get '500', to:  'errors#server_error'

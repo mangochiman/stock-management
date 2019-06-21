@@ -5,25 +5,25 @@
     <div class="row">
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="<%= @total_products * 365%>" data-displayPrevious="true" value="<%= @total_ever_un_paid_debt %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input onclick="showDebtorsList()" class="knob" data-width="200" data-min="0" data-max="<%= @total_products * 365 %>" data-displayPrevious="true" value="<%= @total_ever_un_paid_debt %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">Debtors</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="<%= @total_products * 365%>" data-displayPrevious="true" value="<%= @damages_ever %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input onclick="showDamagesList()" class="knob" data-width="200" data-min="0" data-max="<%= @total_products * 365 %>" data-displayPrevious="true" value="<%= @damages_ever %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">Damages</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="<%= @total_products * 365 %>" data-displayPrevious="true" value="<%= @complementary_ever %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input onclick="showComplementaryList()" class="knob" data-width="200" data-min="0" data-max="<%= @total_products * 365 %>" data-displayPrevious="true" value="<%= @complementary_ever %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">Complementary</h3>
         </div>
       </div>
       <div class="col-md-3 col-sm-6">
         <div class="knob-container">
-          <input class="knob" data-width="200" data-min="0" data-max="20" data-displayPrevious="true" value="<%= @user_accounts %>" data-fgColor="#92A3C2" data-readOnly=true;/>
+          <input onclick="showUsersList()" class="knob" data-width="200" data-min="0" data-max="20" data-displayPrevious="true" value="<%= @user_accounts %>" data-fgColor="#92A3C2" data-readOnly=true;/>
           <h3 class="text-muted text-center">User accounts</h3>
         </div>
       </div>
@@ -118,4 +118,21 @@
 
         $('#container').highcharts(json);
     });
+
+    function showDebtorsList() {
+        window.location = "/debtors"
+    }
+
+    function showDamagesList() {
+        window.location = "/damaged_stock"
+    }
+
+    function showComplementaryList() {
+        window.location = "/complementary_stock"
+    }
+
+    function showUsersList() {
+        window.location = "/view_users"
+    }
+
 </script>

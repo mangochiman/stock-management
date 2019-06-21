@@ -363,6 +363,16 @@ class HomeController < ApplicationController
     @stock_cards = []
   end
 
+  def damaged_stock
+    @page_header = "Damaged stock"
+    @stock_items = StockItem.where(["damaged_stock IS NOT NULL"])
+  end
+
+  def complementary_stock
+    @page_header = "Complementary stock"
+    @stock_items = StockItem.where(["complementary_stock IS NOT NULL"])
+  end
+
   def update_stock
     stock_date = params[:stock_date]
 

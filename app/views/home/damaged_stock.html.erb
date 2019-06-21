@@ -1,0 +1,40 @@
+<table class="table">
+  <thead>
+  <tr>
+    <th>#</th>
+    <th>Product Name</th>
+    <th>Product category</th>
+    <th>Date</th>
+    <th>Damaged quantity</th>
+    <th>Product price</th>
+    <th>Total amount</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% count = 0 %>
+  <% total_damages_ever = 0 %>
+  <% @stock_items.each do |stock_item| %>
+    <tr>
+      <%
+        count = count + 1
+        stock_date = stock_item.stock.stock_time.to_date
+        damaged_stock = stock_item.damaged_stock
+        product_price = stock_item.product.price(stock_date)
+        total_damages = damaged_stock.to_f * product_price.to_f
+        total_damages_ever += total_damages
+      %>
+      <td><%= count %></td>
+      <td><%= stock_item.product.name %></td>
+      <td><%= stock_item.product.category_name %></td>
+      <td><%= stock_date.strftime("%d/%b/%Y") %></td>
+      <td><%= damaged_stock %></td>
+      <td><%= number_to_currency(product_price, :unit => "MWK ") %></td>
+      <td><%= number_to_currency(total_damages, :unit => "MWK ") %></td>
+    </tr>
+  <% end %>
+  <tr>
+    <th colspan="6">Total Damages</th>
+    <th><%= number_to_currency(total_damages_ever, :unit => "MWK ") %></th>
+  </tr>
+  </tbody>
+</table>
