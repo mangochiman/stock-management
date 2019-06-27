@@ -492,7 +492,7 @@
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Amount added</strong></label>
             <div class="col-lg-7">
-              <input type="text" name="stock[quantity]" class="form-control" placeholder="Quantity" id="stockQuantity" required/>
+              <input type="text" autocomplete="off" name="stock[quantity]" class="form-control" placeholder="Quantity" id="stockQuantity" required/>
             </div>
           </div>
           <input type="hidden" name="stock[product_id]" id="product_id"/>
@@ -534,7 +534,7 @@
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Closing amount</strong></label>
             <div class="col-lg-7">
-              <input type="text" name="stock[closing_amount]" class="form-control" placeholder="Quantity" id="closingAmount" required/>
+              <input type="text" autocomplete="off" name="stock[closing_amount]" class="form-control" placeholder="Quantity" id="closingAmount" required/>
             </div>
           </div>
         </form>
@@ -567,7 +567,7 @@
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Damaged amount</strong></label>
             <div class="col-lg-7">
-              <input type="text" name="stock[damaged_amount]" class="form-control" placeholder="Quantity" id="damagedAmount" required/>
+              <input type="text" autocomplete="off" name="stock[damaged_amount]" class="form-control" placeholder="Quantity" id="damagedAmount" required/>
             </div>
           </div>
         </form>
@@ -601,7 +601,7 @@
           <div class="form-group">
             <label class="control-label col-lg-5" for="quantity"><strong>Complementary amount</strong></label>
             <div class="col-lg-7">
-              <input type="text" name="stock[complementary_amount]" class="form-control" placeholder="Quantity" id="complementaryAmount" required/>
+              <input type="text" autocomplete="off" name="stock[complementary_amount]" class="form-control" placeholder="Quantity" id="complementaryAmount" required/>
             </div>
           </div>
         </form>
@@ -771,6 +771,28 @@
       <div class="modal-body">
         <p style="text-align: center;">Closing stock + Damages + Complementary is exceeding current stock. Edit the
           input and try again</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="unknownErrorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Error</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center; color: red;">There was an error while processing your request. Please try
+          again</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
@@ -1302,6 +1324,8 @@
         });
     }
 
+    var formIsValid = false;
+
     function authenticate() {
         var username = document.getElementById("username").value;
         var password = document.getElementById("password").value;
@@ -1311,6 +1335,7 @@
             url: "/authenticate",
             data: "username=" + username + "&password=" + password,
             beforeSend: function () {
+                formIsValid = false;
                 jQuery("#wrong").hide();
                 jQuery("#serverErrorsAuthenticate").hide();
                 jQuery("#authenticateButton").attr("disabled", true);
@@ -1321,9 +1346,9 @@
                 jQuery("#authenticateButton").html("Authenticate");
                 jQuery("#serverErrorsAuthenticate").show();
                 jQuery("#serverErrorsAuthenticate").html("There was a server error. Please try again");
-                console.log(thrownError)
             },
             success: function (result) {
+                formIsValid = true;
                 if (result) {
                     user = result;
                     createFormElements();
@@ -1430,6 +1455,9 @@
             data: "product_id=" + selectedProductID + "&stock_date=" + stock_date + "&quantity=" + addedStockQuantity,
             beforeSend: function () {
                 //jQuery("#incomingStocks").show();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                jQuery('#unknownErrorModal').modal({backdrop: 'static', keyboard: false});
             },
             success: function (result) {
                 var current_stock = result["current_stock"];
@@ -1711,6 +1739,9 @@
                 beforeSend: function () {
                     //jQuery("#incomingStocks").show();
                 },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    jQuery('#unknownErrorModal').modal({backdrop: 'static', keyboard: false});
+                },
                 success: function (result) {
                     var current_price = result["current_price"];
                     var current_stock = result["current_stock"];
@@ -1972,6 +2003,19 @@
         });
 
     };
+
+
+    $(window).on('beforeunload', function () {
+            if (Object.keys(closedProducts).length > 0) {
+                if (!formIsValid) {
+                    jQuery("#authenticateButton").removeAttr("disabled");
+                    jQuery("#authenticateButton").html("Authenticate");
+                    return "You have unsaved data. This data might be lost and you have to redo";
+                }
+            }
+        }
+    )
+
 </script>
 
 <style type="text/css">
