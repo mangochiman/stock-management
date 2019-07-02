@@ -280,7 +280,7 @@ class Product < ActiveRecord::Base
     stock_items.each do |stock_item|
       stock_id = stock_item.stock_id
       product = Product.find(stock_item.product_id)
-      current_price = product.price
+      current_price = product.price(date)
       current_stock = product.current_stock(date, stock_id).to_i
       damaged_stock = product.damaged_stock(stock_id).to_i
       complementary_stock = product.complementary_stock(stock_id).to_i
