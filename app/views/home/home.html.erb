@@ -35,10 +35,62 @@
   <div class="col-md-12">
     <div class="panel panel-default">
       <div class="panel-heading no-collapse">Total sales this month</div>
+      <br/>
+      <form action="#" role="form" class="form-horizontal" onsubmit="return false">
+        <div class="form-group">
+          <label class="control-label col-lg-2">Select Month and Year</label>
+          <div class="col-lg-2">
+            <select id="month" name="month" class="form-control" tabindex="8" required>
+              <option value="">Select Month</option>
+              <% @month_names.each do |month_name| %>
+                <option><%= month_name %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="col-lg-2">
+            <select id="year" name="year" class="form-control" tabindex="8" required>
+              <option value="">Select Year</option>
+              <% @years.each do |year| %>
+                <option><%= year %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <div class="col-lg-2">
+            <button id="previousSale" class="btn btn-primary" type="submit" onclick="showMonthlySales();">Show
+              sales
+            </button>
+          </div>
+        </div>
+      </form>
+
       <div id="container"></div>
     </div>
   </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="unknownErrorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Error</h4>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center; color: red;">There was an error while processing your request. Please try
+          again</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 
 <style type="text/css">
@@ -118,6 +170,99 @@
 
         $('#container').highcharts(json);
     });
+
+    function showMonthlySales() {
+        var month = document.getElementById("month").value;
+        var year = document.getElementById("year").value;
+
+        if (month.length == 0 || year.length == 0) {
+            return
+        }
+        var date = month + "-" + year;
+        jQuery.ajax({
+            type: "GET",
+            url: "/get_monthly_sales",
+            data: "date=" + date,
+            beforeSend: function () {
+                jQuery('#container').html("<span style='text-align: center; font-weight: bold;'>Please wait..</span>");
+                jQuery("#previousSale").attr("disabled", true);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                jQuery('#container').html("<span style='text-align: center; font-weight: bold;'>Error!!..</span>");
+                jQuery('#unknownErrorModal').modal({backdrop: 'static', keyboard: false});
+            },
+            success: function (result) {
+                var series_data = [];
+                var days = result["xaxis"];
+                var sales = result["total_sales"];
+                var this_month = result["this_month"];
+                for (var i = 0; i <= days.length - 1; i++) {
+                    series_data.push([new Date(days[i]).getTime(), sales[i]])
+                }
+
+                var title = {
+                    text: 'Total sales of ' + this_month
+                };
+                var subtitle = {
+                    text: ''
+                };
+                var xAxis = {
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%d',
+                        year: '%b'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
+                };
+                var yAxis = {
+                    title: {
+                        text: 'Total sales (MWK)'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                };
+                var tooltip = {
+                    valueSuffix: ' MWK'
+                };
+                var legend = {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                };
+                var series = [{
+                    showInLegend: false,
+                    name: 'Sales',
+                    data: series_data
+                }
+                ];
+
+                var credits = {
+                    enabled: false
+                };
+
+                var json = {};
+                json.title = title;
+                json.subtitle = subtitle;
+                json.xAxis = xAxis;
+                json.yAxis = yAxis;
+                json.tooltip = tooltip;
+                json.legend = legend;
+                json.series = series;
+                json.credits = credits;
+
+                $('#container').highcharts(json);
+
+                jQuery("#previousSale").removeAttr("disabled");
+            }
+
+        });
+    }
 
     function showDebtorsList() {
         window.location = "/debtors"

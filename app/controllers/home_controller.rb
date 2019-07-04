@@ -34,13 +34,36 @@ class HomeController < ApplicationController
       stock_stats_by_date = Product.stock_stats_by_date(date)
       @total_sales << stock_stats_by_date["total_sales"]
     end
-
+    @month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    max_year = Date.today.year
+    min_year = Stock.order("DATE(stock_time) ASC").first.stock_time.year rescue max_year
+    @years = (min_year..max_year).to_a
     #start_year_date = Date.today.beginning_of_year
     #end_year_date = Date.today.end_of_year
     @running_out_of_stock = Product.running_out_of_stock
     @products_not_in_stock = Product.products_not_in_stock
     @products_with_enough_stock = Product.products_with_enough_stock
+  end
 
+  def get_monthly_sales
+    passed_date = params[:date].to_date
+    start_month_date = passed_date.beginning_of_month
+    end_month_date = passed_date.end_of_month
+    this_month = passed_date.strftime("%b").to_s + " " + passed_date.year.to_s
+    xaxis = []
+
+    (start_month_date..end_month_date).to_a.each do |date|
+      xaxis << date.strftime("%Y-%m-%d")
+    end
+
+    total_sales = []
+    (start_month_date..end_month_date).to_a.each do |date|
+      stock_stats_by_date = Product.stock_stats_by_date(date)
+      total_sales << stock_stats_by_date["total_sales"]
+    end
+
+    data = {:total_sales => total_sales, :xaxis => xaxis, :this_month => this_month}
+    render json: data.to_json
   end
 
   def products_running_out_of_stock

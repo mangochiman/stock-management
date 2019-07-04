@@ -35,7 +35,7 @@ Rails.application.routes.draw do
   get '/products_not_in_stock' => 'home#products_not_in_stock'
   get '/products_with_enough_stock' => 'home#products_with_enough_stock'
   get '/debtors' => 'home#debtors'
-
+  get '/get_monthly_sales' => 'home#get_monthly_sales'
 
 
   get '/set_prices' => 'home#set_prices'
