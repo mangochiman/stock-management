@@ -1059,8 +1059,10 @@
                 for (var i = 0; i <= productAdditions.length - 1; i++) {
                     var productionAdditionID = productAdditions[i]["product_addition_id"];
                     var trID = 'product-addition-' + productionAdditionID;
+                    var created_time = moment(productAdditions[i]["created_at"]).format("HH:mm");
+
                     table += "<tr id='" + trID + "'>";
-                    table += "<td>" + productAdditions[i]["date_added"] + "</td>";
+                    table += "<td>" + productAdditions[i]["date_added"] + " @ <i style='font-weight: bold;'>" + created_time +  "</i></td>";
                     table += "<td>" + productAdditions[i]["added_stock"] + "</td>";
                     table += "<td style='text-align: center;'><a href='#' onclick='showDeleteProductAdditionPopup(" + productionAdditionID + ")' role='button'><i class='fa fa-trash-o'></i></a></td>";
                     table += "</tr>";
