@@ -1,29 +1,54 @@
+<!-- Modal -->
+<div class="modal fade" id="debtPaymentPeriodModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Debt payment period in days</h4>
+      </div>
+      <div class="modal-body">
+        <form action="#" role="form" class="form-horizontal" id="debtPaymentPeriodForm">
+          <div id="daysError" class="alert-error text-center" style="color: red; font-weight: bold;"></div>
+          <div class="form-group">
+            <label class="control-label col-lg-5" for="username"><strong>Debt payment period in days</strong></label>
+            <div class="col-lg-7">
+              <input type="text" name="days" class="form-control" placeholder="Days" id="days" required/>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="debtPaymentPeriodButton" onclick="updateDebtPaymentPeriodInDays();" type="button" class="btn btn-primary">Update</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <div class="container">
-
   <div class="row">
-
     <div class="col-md-3">
       <ul class="nav nav-pills nav-stacked admin-menu">
-        <li class="active"><a href="" data-target-id="profile"> Debts should be paid within</a></li>
+        <li class="active"><a href="" data-target-id="profile">Recommended debt payment period</a></li>
         </li>
       </ul>
     </div>
 
-    <div class="col-md-9  admin-content" id="profile">
+    <div class="col-md-7  admin-content" id="profile">
       <div class="panel panel-info" style="margin: 1em;">
         <div class="panel-heading">
           <h3 class="panel-title">Debts should be paid within</h3>
         </div>
         <div class="panel-body">
           <span class="text-danger h3 center-block">10 days</span>
-          <br />
-          <button class="btn btn-primary">Update</button>
+          <br/>
+          <button onclick="showDebtPaymentPeriodPopup();" class="btn btn-primary">Update</button>
         </div>
       </div>
-
     </div>
-
-
   </div>
 </div>
 
@@ -42,5 +67,51 @@
             var target = $(this).attr('data-target-id');
             $('#' + target).show();
         });
+
+        $('#debtPaymentPeriodForm').on('keyup keypress', function (e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                jQuery('#debtPaymentPeriodButton').click();
+                return false;
+            }
+        });
     });
+
+    function showDebtPaymentPeriodPopup() {
+        jQuery('#debtPaymentPeriodModal').modal({backdrop: 'static', keyboard: false});
+        jQuery('#debtPaymentPeriodModal').on('shown.bs.modal', function () {
+            jQuery('#days').focus();
+        });
+    }
+
+    function updateDebtPaymentPeriodInDays() {
+        var days = document.getElementById("days").value.trim();
+        if (days.length == 0) {
+            jQuery("#daysError").html("Please input a number");
+            return false
+        }
+
+        if (!isNumeric(days)) {
+            jQuery("#daysError").html("Please input a valid number");
+            return false
+        }
+
+        if (parseInt(days) <= 0) {
+            jQuery("#daysError").html("Invalid input. Minimum is 1");
+            return false
+        }
+
+        if (!isPositiveInteger(days)) {
+            jQuery("#daysError").html("The number is not a positive integer");
+            return false
+        }
+    }
+
+    function isPositiveInteger(s) {
+        return /^\+?[1-9][\d]*$/.test(s);
+    }
+
+    function isNumeric(num) {
+        return !isNaN(num)
+    }
 </script>
