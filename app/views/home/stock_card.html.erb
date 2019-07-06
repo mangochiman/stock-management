@@ -358,6 +358,13 @@
             </div>
 
             <div class="form-group">
+              <label class="control-label col-lg-2" for="phone_number">Phone number </label>
+              <div class="col-lg-5">
+                <input type="text" name="debtor[phone_number]" class="form-control" placeholder="Phone number" id="phoneNumber" required/>
+              </div>
+            </div>
+
+            <div class="form-group">
               <label class="control-label col-lg-2" for="description">Description </label>
               <div class="col-lg-5">
                 <textarea rows="3" class="form-control" id="description"></textarea>
@@ -380,6 +387,7 @@
           <tr>
             <th>Name</th>
             <th>Amount owed</th>
+            <th>Phone #</th>
             <th>Amount paid</th>
             <th>Balance due</th>
             <th>&nbsp;</th>
@@ -390,6 +398,7 @@
             <tr id="tr_<%= debtor.debtor_id %>">
               <td><%= debtor.name %></td>
               <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
+              <td><%= debtor.phone_number %></td>
               <td><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></td>
               <td><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></td>
               <td>
@@ -1783,9 +1792,10 @@
     function createDebtor() {
         var name = document.getElementById("debtorName").value;
         var amount = document.getElementById("debtorAmount").value;
+        var phoneNumber = document.getElementById("phoneNumber").value;
         var description = document.getElementById("description").value;
 
-        if (name.length == 0 || amount.length == 0) {
+        if (name.length == 0 || amount.length == 0 || phoneNumber.length == 0) {
             $('#debtorSubmit').click();
             return
         }
@@ -1794,7 +1804,7 @@
         jQuery.ajax({
             type: "POST",
             url: "/create_debtors",
-            data: "name=" + name + "&date=" + stock_date + "&amount=" + amount + "&description=" + description,
+            data: "name=" + name + "&date=" + stock_date + "&amount=" + amount + "&phone_number=" + phoneNumber + "&description=" + description,
             beforeSend: function () {
                 //jQuery("#incomingStocks").show();
             },
@@ -1802,6 +1812,7 @@
 
                 jQuery("#debtorName").val("");
                 jQuery("#debtorAmount").val("");
+                jQuery("#phoneNumber").val("");
                 jQuery("#description").val("");
                 if (result["status"] == "success") {
                     var data = JSON.parse(result["data"]);
@@ -1809,10 +1820,12 @@
                     var amount_owed = formatMoney(data["amount_owed"]);
                     var amount_paid = formatMoney(data["amount_paid"]);
                     var balance_due = formatMoney(data["balance_due"]);
+                    var phone_number = data["phone_number"];
 
                     var html = "<tr id='tr_" + debtor_id + "'>";
                     html += "<td>" + data["name"] + "</td>";
                     html += "<td> MWK " + amount_owed + "</td>";
+                    html += "<td>" + phone_number + "</td>";
                     html += "<td> MWK " + amount_paid + "</td>";
                     html += "<td> MWK " + balance_due + "</td>";
                     html += '<td><a href="#" onclick="showvoidDebtorConfirm(' + debtor_id + ')" role="button" data-toggle="modal"><i class="fa fa-trash-o"></i></a></td>';

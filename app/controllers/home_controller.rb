@@ -599,6 +599,7 @@ class HomeController < ApplicationController
     debtor = Debtor.new
     debtor.name = params[:name]
     debtor.amount_owed = params[:amount]
+    debtor.phone_number = params[:phone_number]
     debtor.description = params[:description]
     debtor.date = params[:date]
 

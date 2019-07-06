@@ -3,6 +3,7 @@
   <tr>
     <th>Name</th>
     <th>Amount owed</th>
+    <th>Phone #</th>
     <th>Date</th>
     <th>Amount paid</th>
     <th>Balance due</th>
@@ -16,6 +17,7 @@
     <tr id="tr_<%= debtor.debtor_id %>">
       <td><%= debtor.name %></td>
       <td><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
+      <td><%= debtor.phone_number %></td>
       <td><%= debtor.date.to_date.strftime("%d/%b/%Y") rescue debtor.date %></td>
       <td>
         <a onclick="showPreviousPayments('<%= debtor.debtor_id %>')" href="#" id="previousPayment-<%= debtor.debtor_id %>"><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></a>
