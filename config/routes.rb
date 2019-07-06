@@ -36,7 +36,7 @@ Rails.application.routes.draw do
   get '/products_with_enough_stock' => 'home#products_with_enough_stock'
   get '/debtors' => 'home#debtors'
   get '/get_monthly_sales' => 'home#get_monthly_sales'
-
+  get '/settings' => 'home#settings'
 
   get '/set_prices' => 'home#set_prices'
   post '/set_prices' => 'home#set_prices'
@@ -132,7 +132,7 @@ Rails.application.routes.draw do
 
   get '404', to: 'errors#page_not_found'
   get '422', to: 'errors#server_error'
-  get '500', to:  'errors#server_error'
+  get '500', to: 'errors#server_error'
 
   get '/logout' => 'users#logout'
   # Example of named route that can be invoked with purchase_url(id: product.id)

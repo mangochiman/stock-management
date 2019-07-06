@@ -86,6 +86,10 @@ class HomeController < ApplicationController
     @debtors = Debtor.unpaid_debts_records
   end
 
+  def settings
+    @page_header = "Settings"
+  end
+
   def new_stock
     @page_header = "New stock"
     @products = Product.order("product_id DESC")
