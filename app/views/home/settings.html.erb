@@ -122,7 +122,6 @@
                 jQuery("#debtPaymentPeriodButton").html("Please wait..")
             },
             success: function (result) {
-                console.log(result);
                 jQuery("#debtPaymentPeriodButton").removeAttr("disabled");
                 jQuery("#debtPaymentPeriodButton").html("Update");
                 jQuery('#debtPaymentPeriodModal').modal("hide");
