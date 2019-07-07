@@ -52,4 +52,14 @@ class NotificationMailer < ApplicationMailer
     )
   end
 
+  def overdue_debtors(date, email, name)
+    @name = name
+    @date = date
+    @debtors = Debtor.overdue_debtors(date)
+    mail(
+        to: email,
+        subject: "Overdue DEBTORS"
+    )
+  end
+
 end
