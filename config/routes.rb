@@ -36,7 +36,8 @@ Rails.application.routes.draw do
   get '/products_with_enough_stock' => 'home#products_with_enough_stock'
   get '/debtors' => 'home#debtors'
   get '/get_monthly_sales' => 'home#get_monthly_sales'
-  get '/settings' => 'home#settings'
+  get '/settings' => 'home#settings' #update_settings
+  post '/update_settings' => 'home#update_settings'
 
   get '/set_prices' => 'home#set_prices'
   post '/set_prices' => 'home#set_prices'

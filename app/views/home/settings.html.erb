@@ -43,7 +43,13 @@
           <h3 class="panel-title">Debts should be paid within</h3>
         </div>
         <div class="panel-body">
-          <span class="text-danger h3 center-block">10 days</span>
+          <span class="text-danger h3 center-block">
+            <% unless @debt_payment_period.blank? %>
+              <span id="debtPeriod"><%= @debt_payment_period %> days</span>
+            <% else %>
+              <span id="debtPeriod">NOT SET</span>
+            <% end %>
+          </span>
           <br/>
           <button onclick="showDebtPaymentPeriodPopup();" class="btn btn-primary">Update</button>
         </div>
@@ -81,6 +87,7 @@
         jQuery('#debtPaymentPeriodModal').modal({backdrop: 'static', keyboard: false});
         jQuery('#debtPaymentPeriodModal').on('shown.bs.modal', function () {
             jQuery('#days').focus();
+            jQuery('#days').val("");
         });
     }
 
@@ -105,6 +112,25 @@
             jQuery("#daysError").html("The number is not a positive integer");
             return false
         }
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/update_settings",
+            data: "property=debt.payment.period&value=" + days,
+            beforeSend: function () {
+                jQuery("#debtPaymentPeriodButton").attr("disabled", true);
+                jQuery("#debtPaymentPeriodButton").html("Please wait..")
+            },
+            success: function (result) {
+                console.log(result);
+                jQuery("#debtPaymentPeriodButton").removeAttr("disabled");
+                jQuery("#debtPaymentPeriodButton").html("Update");
+                jQuery('#debtPaymentPeriodModal').modal("hide");
+                jQuery("#debtPeriod").html(days + " days");
+                //jQuery("#productDetailsShotsClose").html(html);
+            }
+
+        });
     }
 
     function isPositiveInteger(s) {

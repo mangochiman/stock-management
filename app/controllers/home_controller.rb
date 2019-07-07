@@ -88,6 +88,19 @@ class HomeController < ApplicationController
 
   def settings
     @page_header = "Settings"
+    @debt_payment_period = Setting.find_by_property("debt.payment.period").value rescue nil
+  end
+
+  def update_settings
+    setting = Setting.find_by_property(params[:property])
+    if setting.blank?
+      setting = Setting.new
+      setting.property = params[:property]
+    end
+    setting.value = params[:value]
+    setting.save
+
+    render json: setting.to_json
   end
 
   def new_stock
