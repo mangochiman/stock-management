@@ -110,5 +110,21 @@ class Debtor < ActiveRecord::Base
     return debts
   end
 
+  def self.overdue_debtors(today = Date.today)
+    today = today.to_date
+    debt_payment_period = Setting.find_by_property("debt.payment.period").value.to_i rescue nil
+    return [] if debt_payment_period.blank?
+    unpaid_debtors = self.unpaid_debts_records
+    overdue_debtors_list = []
+    unpaid_debtors.each do |debtor|
+      debt_date = debtor.date.to_date
+      days_gone = (today - debt_date).to_i
+      if days_gone > debt_payment_period
+        overdue_debtors_list << debtor
+      end
+    end
+
+    return overdue_debtors_list
+  end
 
 end
