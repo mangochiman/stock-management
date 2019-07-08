@@ -47,19 +47,30 @@
             <tr>
               <td style="padding:10px;font-size:14px; width:100%;">
                 <p>Hi <%= @name %>,</p>
-                <p><br/> Please refer below for overdue debtors</p>
-                <p>
-                  Name:
-                  <span style="font-weight: bold; float: right;">Amount</span>
-                </p>
-                <% @debtors.each do |debtor| %>
-                  <p>
-                    <%= debtor.name.titleize %>:
-                    <span style="position: static; left: 100px;"><%= debtor.date.strftime("%d-%b-%Y") %></span>
-                    <span style="font-weight: bold; float: right;"><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></span>
-                  </p>
-                <% end %>
-                <br />
+                <p><br/> Please refer below for overdue debtors. You are being asked to make a follow up and resolve them.</p>
+                <table style="width: 100%;">
+                  <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Amount owed</th>
+                    <th>Amount paid</th>
+                    <th>Balance</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <% @debtors.each do |debtor| %>
+                    <tr>
+                      <td><%= debtor.name.titleize %></td>
+                      <td style="text-align: center;"><%= debtor.date.strftime("%d-%b-%Y") %></td>
+                      <td style="text-align: right;"><%= number_to_currency(debtor.amount_owed, :unit => "MWK ") %></td>
+                      <td style="text-align: right;"><%= number_to_currency(debtor.amount_paid, :unit => "MWK ") %></td>
+                      <td style="text-align: right;"><%= number_to_currency(debtor.balance_due, :unit => "MWK ") %></td>
+                    </tr>
+                  <% end %>
+                  </tbody>
+                </table>
+                <br/>
                 <p>Thank you</p>
                 <br>
               </td>
