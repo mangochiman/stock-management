@@ -136,6 +136,16 @@ Rails.application.routes.draw do
   get '500', to: 'errors#server_error'
 
   get '/logout' => 'users#logout'
+
+  ###API
+  get '/api/v1/debtors' => 'api#render_debtors'
+  get '/api/v1/damages' => 'api#render_damages'
+  get '/api/v1/complementary' => 'api#render_complementary'
+  get '/api/v1/user_accounts' => 'api#render_user_accounts'
+  get '/api/v1/products_running_out_of_stock' => 'api#render_products_running_out_of_stock'
+  get '/api/v1/products_out_of_stock' => 'api#render_products_out_of_stock'
+  #
+
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 
