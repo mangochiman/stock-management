@@ -2,13 +2,23 @@ class ApiController < ApplicationController
 
   def render_debtors
     debtors = Debtor.unpaid_debts_records
-    render json: debtors.to_json
+    data = []
+    debtors.each do |debtor|
+      data << {
+          name: debtor.name,
+          amount_owed: debtor.amount_owed,
+          phone_number: debtor.phone_number.to_s,
+          amount_paid: debtor.amount_paid,
+          date: debtor.date,
+          balance_due: debtor.balance_due
+      }
+    end
+    render json: data.to_json
   end
 
   def render_damages
     stock_items = StockItem.where(["damaged_stock IS NOT NULL"])
-    count = 1
-    data = {}
+    data = []
 
     stock_items.each do |stock_item|
       stock_date = stock_item.stock.stock_time.to_date
@@ -18,7 +28,7 @@ class ApiController < ApplicationController
       product_name = stock_item.product.name
       product_category = stock_item.product.category_name
 
-      data[count] = {
+      data << {
           product_name: product_name,
           product_category: product_category,
           stock_date: stock_date,
@@ -26,7 +36,7 @@ class ApiController < ApplicationController
           product_price: product_price,
           damaged_value: total_damages
       }
-      count = count + 1
+
     end
 
     render json: data.to_json
@@ -34,8 +44,7 @@ class ApiController < ApplicationController
 
   def render_complementary
     stock_items = StockItem.where(["complementary_stock IS NOT NULL"])
-    count = 1
-    data = {}
+    data = []
 
     stock_items.each do |stock_item|
       stock_date = stock_item.stock.stock_time.to_date
@@ -45,7 +54,7 @@ class ApiController < ApplicationController
       product_name = stock_item.product.name
       product_category = stock_item.product.category_name
 
-      data[count] = {
+      data << {
           product_name: product_name,
           product_category: product_category,
           stock_date: stock_date,
@@ -53,7 +62,7 @@ class ApiController < ApplicationController
           product_price: product_price,
           complementary_value: total_complementary
       }
-      count = count + 1
+
     end
 
     render json: data.to_json
@@ -61,11 +70,10 @@ class ApiController < ApplicationController
 
   def render_user_accounts
     users = User.all
-    data = {}
-    count = 1
+    data = []
 
     users.each do |user|
-      data[count] = {
+      data << {
           username: user.username,
           first_name: user.first_name,
           last_name: user.last_name,
@@ -73,7 +81,7 @@ class ApiController < ApplicationController
           phone_number: user.phone_number,
           role: user.role
       }
-      count = count + 1
+
     end
 
     render json: data.to_json
@@ -81,17 +89,14 @@ class ApiController < ApplicationController
 
   def render_products_running_out_of_stock
     products = Product.running_out_of_stock
-    data = {}
-    count = 1
-
+    data = []
     products.each do |product|
-      data[count] = {
+      data << {
           product_name: product.name,
           product_category: product.category_name,
           minimum_required: product.minimum_required,
           current_stock: product.current_stock
       }
-      count = count + 1
     end
 
     render json: data.to_json
@@ -99,17 +104,14 @@ class ApiController < ApplicationController
 
   def render_products_out_of_stock
     products = Product.products_not_in_stock
-    data = {}
-    count = 1
-
+    data = []
     products.each do |product|
-      data[count] = {
+      data << {
           product_name: product.name,
           product_category: product.category_name,
           minimum_required: product.minimum_required,
           current_stock: product.current_stock
       }
-      count = count + 1
     end
 
     render json: data.to_json
