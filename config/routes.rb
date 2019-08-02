@@ -144,6 +144,14 @@ Rails.application.routes.draw do
   get '/api/v1/user_accounts' => 'api#render_user_accounts'
   get '/api/v1/products_running_out_of_stock' => 'api#render_products_running_out_of_stock'
   get '/api/v1/products_out_of_stock' => 'api#render_products_out_of_stock'
+  get '/api/v1/products_prices' => 'api#render_products_prices'
+  get '/api/v1/price_history' => 'api#render_price_history'
+  get '/api/v1/products' => 'api#render_products'
+  get '/api/v1/search_debtors' => 'api#search_debtors'
+  get '/api/v1/overdue_debtors' => 'api#overdue_debtors'
+  get '/api/v1/search_overdue_debtors' => 'api#search_overdue_debtors'
+  get '/api/v1/debtor_payments' => 'api#render_debtor_payments'
+  get '/api/v1/search_debtor_payments' => 'api#search_debtor_payments'
   #
 
   # Example of named route that can be invoked with purchase_url(id: product.id)

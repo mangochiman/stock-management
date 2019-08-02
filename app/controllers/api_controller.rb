@@ -189,4 +189,74 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def overdue_debtors
+    debtors = Debtor.overdue_debtors
+    data = []
+    debtors.each do |debtor|
+      data << {
+          name: debtor.name,
+          amount_owed: debtor.amount_owed,
+          phone_number: debtor.phone_number.to_s,
+          amount_paid: debtor.amount_paid,
+          date: debtor.date,
+          days_gone: (Date.today - debtor.date.to_date).to_i,
+          balance_due: debtor.balance_due
+      }
+    end
+    render json: data.to_json
+  end
+
+  def search_overdue_debtors
+    debtors = Debtor.overdue_debtors
+    data = []
+    debtors.each do |debtor|
+      if debtor.name.match(/#{params[:name]}/i)
+        data << {
+            name: debtor.name,
+            amount_owed: debtor.amount_owed,
+            phone_number: debtor.phone_number.to_s,
+            amount_paid: debtor.amount_paid,
+            date: debtor.date,
+            days_gone: (Date.today - debtor.date.to_date).to_i,
+            balance_due: debtor.balance_due
+        }
+      end
+    end
+    render json: data.to_json
+  end
+
+  def render_debtor_payments
+    debtor_payments = DebtorPayment.order("debtor_payment_id DESC")
+    data = []
+    helper = ActionController::Base.helpers
+    debtor_payments.each do |debtor_payment|
+      data << {
+          debtor: debtor_payment.debtor.name,
+          amount_paid: helper.number_to_currency(debtor_payment.amount_paid, :unit => "MWK "),
+          amount_owed: helper.number_to_currency(debtor_payment.debtor.amount_owed, :unit => "MWK "),
+          date_paid: (debtor_payment.date_paid.strftime("%d-%b-%Y") rescue debtor_payment.date_paid),
+          date_owed: (debtor_payment.debtor.date.strftime("%d-%b-%Y") rescue debtor_payment.debtor.date),
+      }
+    end
+    render json: data.to_json
+  end
+
+  def search_debtor_payments
+    debtor_payments = DebtorPayment.order("debtor_payment_id DESC")
+    data = []
+    helper = ActionController::Base.helpers
+    debtor_payments.each do |debtor_payment|
+      if debtor_payment.debtor.name.match(/#{params[:name]}/i)
+        data << {
+            debtor: debtor_payment.debtor.name,
+            amount_paid: helper.number_to_currency(debtor_payment.amount_paid, :unit => "MWK "),
+            amount_owed: helper.number_to_currency(debtor_payment.debtor.amount_owed, :unit => "MWK "),
+            date_paid: (debtor_payment.date_paid.strftime("%d-%b-%Y") rescue debtor_payment.date_paid),
+            date_owed: (debtor_payment.debtor.date.strftime("%d-%b-%Y") rescue debtor_payment.debtor.date),
+        }
+      end
+    end
+    render json: data.to_json
+  end
+
 end
