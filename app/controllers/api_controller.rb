@@ -153,7 +153,7 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
-  def render_productss
+  def render_products
     products = Product.order("name ASC")
     data = []
     products.each do |product|
@@ -168,6 +168,24 @@ class ApiController < ApplicationController
       }
     end
 
+    render json: data.to_json
+  end
+
+  def search_debtors
+    debtors = Debtor.unpaid_debts_records
+    data = []
+    debtors.each do |debtor|
+      if debtor.name.match(/#{params[:name]}/i)
+        data << {
+            name: debtor.name,
+            amount_owed: debtor.amount_owed,
+            phone_number: debtor.phone_number.to_s,
+            amount_paid: debtor.amount_paid,
+            date: debtor.date,
+            balance_due: debtor.balance_due
+        }
+      end
+    end
     render json: data.to_json
   end
 
