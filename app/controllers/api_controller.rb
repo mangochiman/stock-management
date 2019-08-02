@@ -117,4 +117,58 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def render_products_prices
+    products = Product.order("name ASC")
+    data = []
+    products.each do |product|
+      data << {
+          product_id: product.product_id,
+          product_price: product.price,
+          product_name: product.name,
+          product_category: product.category_name
+      }
+    end
+
+    render json: data.to_json
+  end
+
+  def render_price_history
+    product = Product.find(params[:product_id])
+    price_histories = product.price_histories.order("price_history_id DESC")
+    data = []
+    helper = ActionController::Base.helpers
+    price_histories.each do |price_history|
+      price = helper.number_to_currency(price_history.price, :unit => "MWK ")
+      start_date = price_history.start_date.to_date.strftime("%d-%b-%Y") rescue price_history.start_date
+      end_date = price_history.end_date.to_date.strftime("%d-%b-%Y") rescue price_history.end_date.to_s
+      created_at = price_history.created_at.to_date.strftime("%d-%b-%Y") rescue price_history.created_at
+      data << {
+          price: price,
+          start_date: start_date,
+          end_date: end_date,
+          created_at: created_at
+      }
+    end
+
+    render json: data.to_json
+  end
+
+  def render_productss
+    products = Product.order("name ASC")
+    data = []
+    products.each do |product|
+      data << {
+          product_id: product.product_id,
+          product_price: product.price,
+          product_name: product.name,
+          product_category: product.category_name,
+          minimum_required: product.minimum_required,
+          starting_stock: product.starting_inventory,
+          current_stock: product.current_stock
+      }
+    end
+
+    render json: data.to_json
+  end
+
 end
