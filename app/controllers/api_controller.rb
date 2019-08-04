@@ -259,4 +259,77 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def create_product
+    product = Product.new
+    product.name = params[:name]
+    product.label = params[:label]
+    product.part_number = params[:part_number]
+    product.starting_inventory = params[:starting_inventory]
+    product.minimum_required = params[:minimum_required]
+
+    category_id = Category.find_by_name(params[:category]).category_id rescue Category.first.category_id
+    if product.save
+      product_category = ProductCategory.new
+      product_category.category_id = category_id
+      product_category.product_id = product.product_id
+      product_category.save
+      data = {
+          product_id: product.product_id.to_s,
+          name: product.name,
+          label: product.label,
+          part_number: product.part_number,
+          starting_inventory: product.starting_inventory.to_s,
+          minimum_required: product.minimum_required.to_s
+      }
+      render json: data.to_json and return
+    else
+      data = {}
+      errors = product.errors.full_messages
+      data["errors"] = errors
+      render json: data.to_json and return
+    end
+
+  end
+
+  def create_product_prices
+    product = Product.find(params[:product_id])
+    data = {}
+    price_history = PriceHistory.new
+    price_history.product_id = product.product_id
+    price_history.price = params[:price]
+    price_history.start_date = params[:start_date]
+    product_price_histories = product.price_histories.order("DATE(start_date) DESC")
+    start_date_collides = false
+    new_start_date = params[:product][:start_date].to_date
+    product_price_histories.each do |old_price_history|
+      start_date = old_price_history.start_date.to_date
+      end_date = old_price_history.end_date.to_date rescue start_date
+      if end_date >= new_start_date
+        start_date_collides = true
+        break
+      end
+    end
+
+    if start_date_collides
+      errors = ["The new start date is colliding with previous dates of another price of the same product"]
+      data["errors"] = errors
+      render json: data.to_json and return
+    end
+
+    PriceHistory.set_price_end_dates(params[:product_id], (params[:product][:start_date].to_date - 1.day))
+    if price_history.save
+      data = {
+          product_id: product.product_id,
+          price: price,
+          start_date: start_date
+      }
+      render json: data.to_json and return
+    else
+      errors = price_history.errors.full_messages
+      data["errors"] = errors
+      render json: data.to_json and return
+    end
+
+  end
+
 end
