@@ -351,4 +351,22 @@ class ApiController < ApplicationController
     render json: data.to_json and return
   end
 
+  def render_debt_payment_period
+    debt_payment_period = Setting.find_by_property("debt.payment.period").value rescue ""
+    data = {days: debt_payment_period}
+    render json: data.to_json and return
+  end
+
+  def update_settings
+    setting = Setting.find_by_property(params[:property])
+    if setting.blank?
+      setting = Setting.new
+      setting.property = params[:property]
+    end
+    setting.value = params[:value].to_i
+    setting.save
+
+    render json: setting.to_json
+  end
+
 end
