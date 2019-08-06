@@ -154,6 +154,7 @@ Rails.application.routes.draw do
   get '/api/v1/search_debtor_payments' => 'api#search_debtor_payments'
   post '/api/v1/create_product' => 'api#create_product'
   post '/api/v1/create_product_prices' => 'api#create_product_prices'
+  get '/api/v1/reports' => 'api#reports'
   #
 
   # Example of named route that can be invoked with purchase_url(id: product.id)

@@ -300,7 +300,7 @@ class ApiController < ApplicationController
     price_history.start_date = params[:start_date]
     product_price_histories = product.price_histories.order("DATE(start_date) DESC")
     start_date_collides = false
-    new_start_date = params[:product][:start_date].to_date
+    new_start_date = params[:start_date].to_date
     product_price_histories.each do |old_price_history|
       start_date = old_price_history.start_date.to_date
       end_date = old_price_history.end_date.to_date rescue start_date
@@ -316,12 +316,12 @@ class ApiController < ApplicationController
       render json: data.to_json and return
     end
 
-    PriceHistory.set_price_end_dates(params[:product_id], (params[:product][:start_date].to_date - 1.day))
+    PriceHistory.set_price_end_dates(params[:product_id], (params[:start_date].to_date - 1.day))
     if price_history.save
       data = {
           product_id: product.product_id,
-          price: price,
-          start_date: start_date
+          price: price_history.price.to_s,
+          start_date: price_history.start_date
       }
       render json: data.to_json and return
     else
@@ -330,6 +330,25 @@ class ApiController < ApplicationController
       render json: data.to_json and return
     end
 
+  end
+
+  def reports
+    date = params[:date].to_date
+    helper = ActionController::Base.helpers
+    stock_stats_by_date = Product.stock_stats_by_date(date)
+    total_debts = Debtor.total_debts_by_date(date)
+    stock_id = Stock.where(["DATE(stock_time) = ?", date]).order("stock_id DESC").first.stock_id rescue nil
+    cash_collected = Stock.find(stock_id).amount_collected.to_f rescue "0"
+
+    data = {}
+    data["complementary_total"] = helper.number_to_currency(stock_stats_by_date["complementary_total"], :unit => "MWK ")
+    data["damages_total"] = helper.number_to_currency(stock_stats_by_date["damages_total"], :unit => "MWK ")
+    data["total_sales"] = helper.number_to_currency(stock_stats_by_date["total_sales"], :unit => "MWK ")
+    data["debtors"] = helper.number_to_currency(total_debts, :unit => "MWK ")
+    data["expected_cash"] = helper.number_to_currency((stock_stats_by_date["total_sales"] - total_debts), :unit => "MWK ")
+    data["collected_cash"] = helper.number_to_currency(cash_collected, :unit => "MWK ")
+    data["shortages"] = helper.number_to_currency((stock_stats_by_date["total_sales"] - total_debts) - cash_collected.to_i, :unit => "MWK ")
+    render json: data.to_json and return
   end
 
 end
