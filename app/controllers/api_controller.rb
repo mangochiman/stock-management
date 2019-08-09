@@ -171,6 +171,39 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def render_standard_products_data
+    date = params[:date].to_date
+    standard_products = Product.standard_items.order("name ASC")
+    helper = ActionController::Base.helpers
+    data = []
+    stock_id = Stock.where(["DATE(stock_time) = ?", date.to_date]).order("stock_id DESC").first.stock_id rescue nil
+    standard_products.each do |product|
+      current_stock = product.current_stock(date)
+      added_stock = product.added_stock_by_date(date)
+      closing_stock = product.closed_stock_by_date(date)
+      opening_stock =  product.opening_stock_by_date(date)
+      price = product.price(date)
+      damaged_stock = product.damaged_stock(stock_id)
+      complementary_stock = product.complementary_stock(stock_id)
+
+      data << {
+          product_id: product.product_id,
+          product_name: product.name,
+          opening: opening_stock.to_s,
+          add: added_stock.to_s,
+          product_price: helper.number_to_currency(price, :unit => "MWK "),
+          closing_stock: closing_stock.to_s,
+          damaged_stock: damaged_stock.to_s,
+          complementary_stock: complementary_stock.to_s,
+          difference: ((current_stock.to_i + added_stock.to_i) - closing_stock.to_i).to_s,
+          current_stock: current_stock.to_s
+      }
+
+    end
+
+    render json: data.to_json
+  end
+
   def search_debtors
     debtors = Debtor.unpaid_debts_records
     data = []
