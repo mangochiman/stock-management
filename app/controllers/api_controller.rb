@@ -418,11 +418,12 @@ class ApiController < ApplicationController
           product_id: product_addition.product_id.to_s,
           added_stock: added_stock.to_s,
           date_added: product_addition.date_added.to_s,
-          current_stock: current_stock
+          current_stock: current_stock.to_s
       }
 
       render json: data.to_json and return
     else
+      data = {}
       errors = product_addition.errors.full_messages
       data["errors"] = errors
       render json: data.to_json and return
