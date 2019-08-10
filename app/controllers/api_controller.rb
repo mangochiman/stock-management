@@ -402,4 +402,32 @@ class ApiController < ApplicationController
     render json: setting.to_json
   end
 
+  def add_stock
+    date = params[:stock_date].to_date
+    product_addition = ProductAddition.new
+    product_addition.added_stock = params[:quantity]
+    product_addition.product_id = params[:product_id]
+    product_addition.date_added = date
+    product = Product.find(params[:product_id])
+
+    if product_addition.save
+      current_stock = product.current_stock(date)
+      added_stock = product.added_stock_by_date(date)
+
+      data = {
+          product_id: product_addition.product_id.to_s,
+          added_stock: added_stock.to_s,
+          date_added: product_addition.date_added.to_s,
+          current_stock: current_stock
+      }
+
+      render json: data.to_json and return
+    else
+      errors = product_addition.errors.full_messages
+      data["errors"] = errors
+      render json: data.to_json and return
+    end
+
+  end
+
 end
