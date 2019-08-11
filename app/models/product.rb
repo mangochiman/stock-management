@@ -178,6 +178,12 @@ class Product < ActiveRecord::Base
     return sum
   end
 
+  def product_closed?(date)
+    stock_item_by_date = StockItem.joins(:stock).where(["product_id =? AND closing_stock is NOT NULL
+     AND DATE(stock_time) = ? ", self.product_id, date.to_date]).order("stocks.stock_id DESC").first
+    return stock_item_by_date
+  end
+
   def closed_stock_by_date(date, stock_id = nil)
     closing_value_by_date = StockItem.joins(:stock).where(["product_id =? AND closing_stock is NOT NULL AND DATE(stock_time) = ? ",
                                                            self.product_id, date.to_date]).order("stocks.stock_id DESC").first

@@ -181,10 +181,18 @@ class ApiController < ApplicationController
       current_stock = product.current_stock(date)
       added_stock = product.added_stock_by_date(date)
       closing_stock = product.closed_stock_by_date(date)
-      opening_stock =  product.opening_stock_by_date(date)
+      opening_stock = product.opening_stock_by_date(date)
       price = product.price(date)
       damaged_stock = product.damaged_stock(stock_id)
       complementary_stock = product.complementary_stock(stock_id)
+      difference = ""
+      total_sales = ""
+
+      unless product.product_closed?(date).blank?
+        difference = ((current_stock.to_i + added_stock.to_i) - closing_stock.to_i)
+        total_sales = price.to_f * (difference - damaged_stock.to_i - complementary_stock.to_i)
+        total_sales = helper.number_to_currency(total_sales, :unit => "MWK ")
+      end
 
       data << {
           product_id: product.product_id,
@@ -192,10 +200,12 @@ class ApiController < ApplicationController
           opening: opening_stock.to_s,
           add: added_stock.to_s,
           product_price: helper.number_to_currency(price, :unit => "MWK "),
+          price: price,
           closing_stock: closing_stock.to_s,
           damaged_stock: damaged_stock.to_s,
           complementary_stock: complementary_stock.to_s,
-          difference: ((current_stock.to_i + added_stock.to_i) - closing_stock.to_i).to_s,
+          difference: difference.to_s,
+          total_sales: total_sales,
           current_stock: current_stock.to_s
       }
 
