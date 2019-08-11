@@ -33,4 +33,8 @@ class Stock < ActiveRecord::Base
     return total_complementary_stock
   end
 
+  def self.stock_card(date)
+    stock_card = Stock.where(["DATE(stock_time) = ? ", date.to_date]).first
+    return stock_card
+  end
 end

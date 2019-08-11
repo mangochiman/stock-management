@@ -177,6 +177,10 @@ class ApiController < ApplicationController
     helper = ActionController::Base.helpers
     data = []
     stock_id = Stock.where(["DATE(stock_time) = ?", date.to_date]).order("stock_id DESC").first.stock_id rescue nil
+    stock_card_available = true
+    stock_card = Stock.stock_card(date)
+    stock_card_available = false if stock_card.blank?
+
     standard_products.each do |product|
       current_stock = product.current_stock(date)
       added_stock = product.added_stock_by_date(date)
@@ -206,7 +210,8 @@ class ApiController < ApplicationController
           complementary_stock: complementary_stock.to_s,
           difference: difference.to_s,
           total_sales: total_sales,
-          current_stock: current_stock.to_s
+          current_stock: current_stock.to_s,
+          stock_card_available: stock_card_available
       }
 
     end
