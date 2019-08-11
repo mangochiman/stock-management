@@ -204,7 +204,7 @@ class ApiController < ApplicationController
           opening: opening_stock.to_s,
           add: added_stock.to_s,
           product_price: helper.number_to_currency(price, :unit => "MWK "),
-          price: price,
+          price: price.to_s,
           closing_stock: closing_stock.to_s,
           damaged_stock: damaged_stock.to_s,
           complementary_stock: complementary_stock.to_s,
