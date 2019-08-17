@@ -158,7 +158,10 @@ Rails.application.routes.draw do
   get '/api/v1/debt_payment_period' => 'api#render_debt_payment_period'
   post '/api/v1/update_settings' => 'api#update_settings'
   get '/api/v1/standard_products_data' => 'api#render_standard_products_data'
+  get '/api/v1/non_standard_products_data' => 'api#render_non_standard_products_data'
   post '/api/v1/add_stock' => 'api#add_stock'
+  get '/api/v1/debtors_on_date' => 'api#render_debtors_on_date'
+  post '/api/v1/create_debtors' => 'api#create_debtors'
   #
 
   # Example of named route that can be invoked with purchase_url(id: product.id)

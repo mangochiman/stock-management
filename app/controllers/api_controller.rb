@@ -219,6 +219,53 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def render_non_standard_products_data
+    date = params[:date].to_date
+    non_standard_products = Product.non_standard_items.order("name ASC")
+    helper = ActionController::Base.helpers
+    data = []
+    stock_id = Stock.where(["DATE(stock_time) = ?", date.to_date]).order("stock_id DESC").first.stock_id rescue nil
+    stock_card_available = true
+    stock_card = Stock.stock_card(date)
+    stock_card_available = false if stock_card.blank?
+
+    non_standard_products.each do |product|
+      current_stock = product.current_stock(date)
+      added_stock = product.added_stock_by_date(date)
+      closing_stock = product.closed_stock_by_date(date)
+      opening_stock = product.opening_stock_by_date(date)
+      price = product.price(date)
+      damaged_stock = product.damaged_stock(stock_id)
+      complementary_stock = product.complementary_stock(stock_id)
+      shots_sold = product.shots_sold?(stock_id)
+      total_sales = ""
+
+      unless product.product_closed?(date).blank?
+        total_sales = price * shots_sold.to_i
+        total_sales = helper.number_to_currency(total_sales, :unit => "MWK ")
+      end
+
+      data << {
+          product_id: product.product_id,
+          product_name: product.name,
+          opening: opening_stock.to_s,
+          add: added_stock.to_s,
+          product_price: helper.number_to_currency(price, :unit => "MWK "),
+          price: price.to_s,
+          closing_stock: closing_stock.to_s,
+          damaged_stock: damaged_stock.to_s,
+          complementary_stock: complementary_stock.to_s,
+          shots_sold: shots_sold,
+          total_sales: total_sales,
+          current_stock: current_stock.to_s,
+          stock_card_available: stock_card_available
+      }
+
+    end
+
+    render json: data.to_json
+  end
+
   def search_debtors
     debtors = Debtor.unpaid_debts_records
     data = []
@@ -444,6 +491,48 @@ class ApiController < ApplicationController
       render json: data.to_json and return
     end
 
+  end
+
+  def render_debtors_on_date
+    date = params[:stock_date].to_date
+    debtors = Debtor.where(["DATE(date) =?", date])
+    data = []
+    debtors.each do |debtor|
+      data << {
+          name: debtor.name,
+          amount_owed: debtor.amount_owed.to_s,
+          phone_number: debtor.phone_number.to_s,
+          amount_paid: debtor.amount_paid.to_s,
+          date: debtor.date.to_s,
+          balance_due: debtor.balance_due.to_s
+      }
+    end
+    render json: data.to_json
+  end
+
+
+  def create_debtors
+    debtor = Debtor.new
+    debtor.name = params[:name]
+    debtor.amount_owed = params[:amount]
+    debtor.phone_number = params[:phone_number]
+    debtor.description = params[:description]
+    debtor.date = params[:date]
+
+    if debtor.save
+      data = {
+          name: debtor.name.to_s,
+          amount_owed: debtor.amount_owed.to_s,
+          phone_number: debtor.phone_number.to_s,
+          description: debtor.description.to_s,
+          date: debtor.date
+      }
+      render json: data.to_json
+    else
+      errors = debtor.errors.full_messages
+      data["errors"] = errors
+      render json: data.to_json and return
+    end
   end
 
 end
