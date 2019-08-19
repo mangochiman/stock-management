@@ -201,6 +201,7 @@ class ApiController < ApplicationController
       data << {
           product_id: product.product_id,
           product_name: product.name,
+          product_type: product.category_name,
           opening: opening_stock.to_s,
           add: added_stock.to_s,
           product_price: helper.number_to_currency(price, :unit => "MWK "),
@@ -248,6 +249,7 @@ class ApiController < ApplicationController
       data << {
           product_id: product.product_id,
           product_name: product.name,
+          product_type: product.category_name,
           opening: opening_stock.to_s,
           add: added_stock.to_s,
           product_price: helper.number_to_currency(price, :unit => "MWK "),
