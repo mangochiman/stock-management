@@ -537,4 +537,11 @@ class ApiController < ApplicationController
     end
   end
 
+  def render_products_total
+    total = Product.count
+    data = {}
+    data["count"] = total
+    render json: data.to_json and return
+  end
+
 end
