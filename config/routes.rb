@@ -162,6 +162,9 @@ Rails.application.routes.draw do
   post '/api/v1/add_stock' => 'api#add_stock'
   get '/api/v1/debtors_on_date' => 'api#render_debtors_on_date'
   post '/api/v1/create_debtors' => 'api#create_debtors'
+  get '/api/v1/products_count' => 'api#render_products_total'
+  post '/api/v1/authenticate' => 'api#authenticate'
+  post '/api/v1/create_stock' => 'api#create_stock'
   #
 
   # Example of named route that can be invoked with purchase_url(id: product.id)

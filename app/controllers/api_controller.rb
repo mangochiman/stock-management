@@ -544,4 +544,78 @@ class ApiController < ApplicationController
     render json: data.to_json and return
   end
 
+  def authenticate
+    logged_in_user = User.authenticate(params[:username], params[:password])
+    data = {}
+    if logged_in_user
+      data["status"] = "success"
+    else
+      data["status"] = "error"
+    end
+    render json: data.to_json and return
+  end
+
+  def create_stock
+    stock_data = params[:api]
+    settings = YAML.load_file(Rails.root.to_s + "/config/settings.yml")["settings"]
+    recipients = settings["recipients"].split(", ")
+    stock_date = stock_data[:stock_date]
+    stock = Stock.new
+    stock.user_id = stock_data[:user_id]
+    stock.stock_time = stock_date
+    stock.amount_collected = stock_data[:actual_cash]
+
+    data = {}
+    if stock.save
+      stock_data["stock_details"].each do |product_id, values|
+        closing_amount = values["stock"]
+        closing_shots = ""
+        damaged_stock = values["damage"]
+        complementary_stock = values["complementary"]
+
+        product = Product.find(product_id)
+        opening_stock_by_date = product.opening_stock_by_date(stock_date)
+        added_stock_by_date = product.added_stock_by_date(stock_date)
+        stock_item = StockItem.new
+
+        if product.category_name.match(/NON/i)
+          closing_shots = closing_amount
+          closing_amount = (opening_stock_by_date + added_stock_by_date) - closing_amount.to_i - damaged_stock.to_i - complementary_stock.to_i
+        end
+
+        stock_item.stock_id = stock.stock_id
+        stock_item.product_id = product_id
+        stock_item.opening_stock = opening_stock_by_date
+        stock_item.shots_sold = closing_shots
+        stock_item.damaged_stock = damaged_stock
+        stock_item.complementary_stock = complementary_stock
+        stock_item.closing_stock = closing_amount
+        stock_item.save
+      end
+
+      products_running_out_of_stock = Product.running_out_of_stock
+      products_not_in_stock = Product.products_not_in_stock
+      debtors = Debtor.where(["DATE(date) = ?", stock_date.to_date])
+      overdue_debtors = Debtor.overdue_debtors(stock_date)
+
+      recipients.each do |recipient|
+        recipient_split = recipient.split(":")
+        name = recipient_split[0]
+        email = recipient_split[1]
+
+        NotificationMailer.sales_summary(stock_date, email, name).deliver_later
+        NotificationMailer.products_running_low(email, name).deliver_later unless products_running_out_of_stock.blank?
+        NotificationMailer.products_out_of_stock(email, name).deliver_later unless products_not_in_stock.blank?
+        NotificationMailer.debtors(stock_date, email, name).deliver_later unless debtors.blank?
+        NotificationMailer.overdue_debtors(stock_date, email, name).deliver_later unless overdue_debtors.blank?
+      end
+
+      data["status"] = "success"
+    else
+      #errors = stock.errors.full_messages
+      data["status"] = "error"
+    end
+    render json: data.to_json and return
+  end
+
 end
