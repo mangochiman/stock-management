@@ -549,8 +549,18 @@ class ApiController < ApplicationController
     data = {}
     if logged_in_user
       data["status"] = "success"
+      data["user"] = {
+          'user_id' => logged_in_user.user_id,
+          'username' => logged_in_user.username,
+          'first_name' => logged_in_user.first_name,
+          'last_name' => logged_in_user.last_name,
+          'phone_number' => logged_in_user.phone_number,
+          'email' => logged_in_user.email,
+          'token' => ''
+      }
     else
       data["status"] = "error"
+      data["user"] = {}
     end
     render json: data.to_json and return
   end
@@ -614,6 +624,7 @@ class ApiController < ApplicationController
     else
       #errors = stock.errors.full_messages
       data["status"] = "error"
+      raise stock.errors.full_messages.inspect
     end
     render json: data.to_json and return
   end
