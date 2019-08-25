@@ -182,10 +182,10 @@ class ApiController < ApplicationController
     stock_card_available = false if stock_card.blank?
 
     standard_products.each do |product|
-      current_stock = product.current_stock(date)
+      current_stock = product.current_stock(date, stock_id)
       added_stock = product.added_stock_by_date(date)
-      closing_stock = product.closed_stock_by_date(date)
-      opening_stock = product.opening_stock_by_date(date)
+      closing_stock = product.closed_stock_by_date(date, stock_id)
+      opening_stock = product.opening_stock_by_date(date, stock_id)
       price = product.price(date)
       damaged_stock = product.damaged_stock(stock_id)
       complementary_stock = product.complementary_stock(stock_id)
@@ -231,10 +231,10 @@ class ApiController < ApplicationController
     stock_card_available = false if stock_card.blank?
 
     non_standard_products.each do |product|
-      current_stock = product.current_stock(date)
+      current_stock = product.current_stock(date, stock_id)
       added_stock = product.added_stock_by_date(date)
-      closing_stock = product.closed_stock_by_date(date)
-      opening_stock = product.opening_stock_by_date(date)
+      closing_stock = product.closed_stock_by_date(date, stock_id)
+      opening_stock = product.opening_stock_by_date(date, stock_id)
       price = product.price(date)
       damaged_stock = product.damaged_stock(stock_id)
       complementary_stock = product.complementary_stock(stock_id)
