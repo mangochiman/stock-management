@@ -37,4 +37,32 @@ class Stock < ActiveRecord::Base
     stock_card = Stock.where(["DATE(stock_time) = ? ", date.to_date]).first
     return stock_card
   end
+
+  def self.remove_stock_card(date)
+    date = date.to_date
+    stock = Stock.where(["DATE(stock_time) = ?", date]).order("stock_id DESC").first
+    debtors = Debtor.where(["DATE(date) =?", date])
+    product_additions = ProductAddition.where(["DATE(date_added) =?", date])
+
+    unless stock.blank?
+      ActiveRecord::Base.transaction do
+        stock.stock_items.each do |stock_item|
+          stock_item.delete
+        end
+
+        debtors.each do |debtor|
+          debtor.delete
+        end
+
+        product_additions.each do |product_addition|
+          product_addition.delete
+        end
+
+        stock.delete
+      end
+    end
+
+    return true
+  end
+
 end
