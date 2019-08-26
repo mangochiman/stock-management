@@ -629,4 +629,20 @@ class ApiController < ApplicationController
     render json: data.to_json and return
   end
 
+  def reset_password
+    data = {}
+    user = User.find_by_email(params[:email])
+
+    if user.blank?
+      data["status"] = "error"
+      data["errors"] = "User does not exist"
+      render json: data.to_json and return
+    end
+
+    new_password = user.reset_password
+    NotificationMailer.reset_password(user, new_password).deliver_later
+    data["status"] = "success"
+    render json: data.to_json
+  end
+
 end

@@ -165,6 +165,7 @@ Rails.application.routes.draw do
   get '/api/v1/products_count' => 'api#render_products_total'
   post '/api/v1/authenticate' => 'api#authenticate'
   post '/api/v1/create_stock' => 'api#create_stock'
+  post '/api/v1/reset_password' => 'api#reset_password'
   #
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
