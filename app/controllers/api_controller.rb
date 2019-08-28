@@ -645,4 +645,40 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def new_user
+    salt = User.random_string(10)
+    user = User.new
+    user.first_name = params[:first_name]
+    user.last_name = params[:last_name]
+    user.email = params[:email]
+    user.phone_number = params[:phone_number]
+    user.password = User.encrypt(params[:password], salt)
+    user.salt = salt
+    user.username = params[:username]
+
+    if user.save
+      user_role = UserRole.new
+      user_role.user_id = user.user_id
+      user_role.role = params[:role]
+      user_role.save
+
+      data = {
+          first_name: user.first_name.to_s,
+          last_name: user.last_name.to_s,
+          email: user.email.to_s,
+          phone_number: user.phone_number.to_s,
+          username: user.username
+      }
+      render json: data.to_json and return
+
+    else
+      errors = user.errors.full_messages
+      data = {}
+      data["errors"] = errors
+      render json: data.to_json and return
+    end
+
+
+  end
+
 end
