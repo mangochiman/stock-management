@@ -686,6 +686,7 @@ class ApiController < ApplicationController
     helper = ActionController::Base.helpers
     debtor_payments.each do |debtor_payment|
       data << {
+          debtor_payment_id: debtor_payment.debtor_payment_id,
           debtor: debtor_payment.debtor.name,
           balance_due: helper.number_to_currency(debtor_payment.debtor.balance_due, :unit => "MWK "),
           amount_paid: helper.number_to_currency(debtor_payment.amount_paid, :unit => "MWK "),
