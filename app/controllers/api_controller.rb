@@ -677,8 +677,24 @@ class ApiController < ApplicationController
       data["errors"] = errors
       render json: data.to_json and return
     end
+  end
 
-
+  def render_debtor_payments_on_date
+    date = params[:date].to_date
+    debtor_payments = DebtorPayment.where(["DATE(date_paid) =?", date])
+    data = []
+    helper = ActionController::Base.helpers
+    debtor_payments.each do |debtor_payment|
+      data << {
+          debtor: debtor_payment.debtor.name,
+          balance_due: helper.number_to_currency(debtor_payment.debtor.balance_due, :unit => "MWK "),
+          amount_paid: helper.number_to_currency(debtor_payment.amount_paid, :unit => "MWK "),
+          amount_owed: helper.number_to_currency(debtor_payment.debtor.amount_owed, :unit => "MWK "),
+          date_paid: (debtor_payment.date_paid.strftime("%d-%b-%Y") rescue debtor_payment.date_paid),
+          date_owed: (debtor_payment.debtor.date.strftime("%d-%b-%Y") rescue debtor_payment.debtor.date),
+      }
+    end
+    render json: data.to_json
   end
 
 end
