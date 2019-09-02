@@ -698,4 +698,25 @@ class ApiController < ApplicationController
     render json: data.to_json
   end
 
+  def get_monthly_sales
+    passed_date = params[:date].to_date
+    start_month_date = passed_date.beginning_of_month
+    end_month_date = passed_date.end_of_month
+    this_month = passed_date.strftime("%b").to_s + " " + passed_date.year.to_s
+    xaxis = []
+
+    (start_month_date..end_month_date).to_a.each do |date|
+      xaxis << date.strftime("%Y-%m-%d")
+    end
+
+    total_sales = []
+    (start_month_date..end_month_date).to_a.each do |date|
+      stock_stats_by_date = Product.stock_stats_by_date(date)
+      total_sales << stock_stats_by_date["total_sales"]
+    end
+
+    data = {:total_sales => total_sales, :xaxis => xaxis, :this_month => this_month}
+    render json: data.to_json
+  end
+
 end
