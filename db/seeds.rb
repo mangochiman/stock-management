@@ -45,7 +45,7 @@ load_defaults
 def add_user
   salt = User.random_string(10)
   user = User.new
-  user.first_name = "John"
+  user.first_name = "Unedit"
   user.last_name = "Banda"
   user.email = "j@gmail.com"
   user.phone_number = "01000000"
@@ -59,4 +59,4 @@ def add_user
   user_role.role = "Admin"
   user_role.save
 end
-load_defaults
+add_user
