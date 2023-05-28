@@ -35,7 +35,7 @@ class ReportsController < ApplicationController
 
     file_name = "product_#{product_id}"
     t1 = Thread.new {
-      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+      Kernel.system "xvfb-run wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
                         request.env["HTTP_HOST"] + "\"/incoming_stock_report_printable?product_id=#{product_id}&start_date=#{start_date}&end_date=#{end_date}" + "\" /tmp/#{file_name}" + ".pdf \n"
     }
     t1.join
@@ -170,7 +170,7 @@ class ReportsController < ApplicationController
 
     file_name = "sales_report"
     t1 = Thread.new {
-      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+      Kernel.system "xvfb-run wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
                         request.env["HTTP_HOST"] + "\"/sales_report_printable?product_id=#{product_id}&date=#{date}" + "\" /tmp/#{file_name}" + ".pdf \n"
     }
     t1.join
@@ -192,7 +192,7 @@ class ReportsController < ApplicationController
   def print_products_with_enough_stock_report_printable
     file_name = "product_all"
     t1 = Thread.new {
-      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+      Kernel.system "xvfb-run wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
                         request.env["HTTP_HOST"] + "\"/products_with_enough_stock_report_printable" + "\" /tmp/#{file_name}" + ".pdf \n"
     }
     t1.join
@@ -228,7 +228,7 @@ class ReportsController < ApplicationController
 
     file_name = "product_outgoing_stock_#{product_id}"
     t1 = Thread.new {
-      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+      Kernel.system "xvfb-run wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
                         request.env["HTTP_HOST"] + "\"/outgoing_stock_report_printable?product_id=#{product_id}&start_date=#{start_date}&end_date=#{end_date}" + "\" /tmp/#{file_name}" + ".pdf \n"
     }
     t1.join
@@ -250,7 +250,7 @@ class ReportsController < ApplicationController
   def print_products_not_in_stock_report_printable
     file_name = "products_not_in_stock_all"
     t1 = Thread.new {
-      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+      Kernel.system "xvfb-run wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
                         request.env["HTTP_HOST"] + "\"/products_not_in_stock_report_printable" + "\" /tmp/#{file_name}" + ".pdf \n"
     }
     t1.join
@@ -272,7 +272,7 @@ class ReportsController < ApplicationController
   def print_products_running_out_of_stock_report_printable
     file_name = "products_running_of_stock_all"
     t1 = Thread.new {
-      Kernel.system "wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
+      Kernel.system "xvfb-run wkhtmltopdf --margin-top 0 --margin-bottom 0 -s A4 http://" +
                         request.env["HTTP_HOST"] + "\"/products_running_out_of_stock_report_printable" + "\" /tmp/#{file_name}" + ".pdf \n"
     }
     t1.join
